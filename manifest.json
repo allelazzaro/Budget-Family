@@ -9,12 +9,12 @@
     {
       "src": "icon-192x192.png",
       "sizes": "192x192",
-      "type": "C:\Users\LazzariniA\OneDrive - PROGEO SOC COOPERATIVA AGRICOLA\Desktop\budget-app"
+      "type": "image/png"
     },
     {
       "src": "icon-512x512.png",
       "sizes": "512x512",
-      "type": "C:\Users\LazzariniA\OneDrive - PROGEO SOC COOPERATIVA AGRICOLA\Desktop\budget-app"
+      "type": "image/png"
     }
   ]
 }
