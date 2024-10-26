@@ -1,0 +1,150 @@
+/* Resetta i margini e padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Calibri', sans-serif;
+    background: linear-gradient(135deg, #e3f2fd, #90caf9);
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2em;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 1.5em;
+    color: #2980b9;
+    margin-bottom: 10px;
+}
+
+/* Sezioni Entrate e Uscite */
+section#entrate, section#uscite {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 0.85em;
+    color: #2980b9;
+    margin-bottom: 5px;
+    display: block;
+}
+
+input, select {
+    width: 100%;  /* Larghezza completa su mobile */
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 0.9em;
+}
+
+button {
+    background-color: #2980b9;
+    color: white;
+    padding: 10px 15px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;  /* Larghezza completa su mobile */
+}
+
+button:hover {
+    background-color: #3498db;
+}
+
+/* Tabella transazioni */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 0.8em;
+    border: 1px solid #ddd;
+}
+
+/* Scroll orizzontale per la tabella su schermi piccoli */
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+thead {
+    background-color: #2980b9;
+    color: white;
+}
+
+thead th {
+    padding: 6px;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+}
+
+tbody td {
+    padding: 4px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tfoot td {
+    font-weight: bold;
+    padding: 6px;
+    background-color: #ecf0f1;
+    text-align: right;
+    border-top: 2px solid #ddd;
+}
+
+td, th {
+    border-right: 1px solid #ddd;
+}
+
+td:last-child, th:last-child {
+    border-right: none;
+}
+
+/* Responsive Design per dispositivi mobili */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.5em;
+    }
+    h2 {
+        font-size: 1.2em;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    input, select, button {
+        width: 100%;
+        font-size: 1em;
+    }
+
+    table, thead, tbody, th, td, tr {
+        font-size: 0.8em;
+    }
+}
