@@ -6,25 +6,6 @@
     <title>Gestione Budget Familiare</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
-<!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-    <script>
-      // Configurazione Firebase
-      const firebaseConfig = {
-        apiKey: "AIzaSyChK3rrqQ8hYygNLaahaxgtx8W1oUpxBP0",
-        authDomain: "budget-a41a6.firebaseapp.com",
-        databaseURL: "https://budget-a41a6-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "budget-a41a6",
-        storageBucket: "budget-a41a6.appspot.com",
-        messagingSenderId: "1044297998779",
-        appId: "1:1044297998779:web:3848d0c0c2b9840b66249e"
-      };
-
-      // Inizializza Firebase
-      const app = firebase.initializeApp(firebaseConfig);
-      const database = firebase.database();
-    </script>
 </head>
 <body>
     <div class="container">
@@ -170,6 +151,26 @@
             <div id="riepilogoAlessioUscite">Uscite Alessio: €0</div>
             <div id="riepilogoAlessioSaldo">Saldo Alessio: €0</div>
         </section>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyChK3rrqQ8hYygNLaahaxgtx8W1oUpxBP0",
+    authDomain: "budget-a41a6.firebaseapp.com",
+    databaseURL: "https://budget-a41a6-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "budget-a41a6",
+    storageBucket: "budget-a41a6.appspot.com",
+    messagingSenderId: "1044297998779",
+    appId: "1:1044297998779:web:3848d0c0c2b9840b66249e"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
 
         <script src="script.js"></script>
     </div>
