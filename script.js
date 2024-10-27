@@ -1,5 +1,6 @@
 let transazioni = [];
 
+
 // Funzione per ottenere la data corrente in formato 'YYYY-MM-DD'
 function getDataCorrente() {
     const oggi = new Date();
@@ -218,4 +219,56 @@ function caricaDati() {
 window.onload = function() {
     caricaDati();
     impostaDataCorrente();
+// Riferimento alla posizione nel database
+const transazioniRef = firebase.database().ref('transazioni');
+
+// Aggiunge una transazione al database Firebase
+function aggiungiTransazione(persona, tipo, categoria, descrizione, importo, data) {
+  const transazione = {
+    persona,
+    tipo,
+    categoria,
+    descrizione,
+    importo: parseFloat(importo),
+    data,
+    timestamp: firebase.database.ServerValue.TIMESTAMP
+  };
+  transazioniRef.push(transazione);
+}
+
+// Ascolta i cambiamenti nel database e aggiorna la lista delle transazioni
+transazioniRef.on('value', (snapshot) => {
+  const transazioni = snapshot.val();
+  const listaTransazioni = [];
+  for (const id in transazioni) {
+    listaTransazioni.push({ id, ...transazioni[id] });
+  }
+  aggiornaListaTransazioni(listaTransazioni);
+});
+
+function aggiornaListaTransazioni(transazioni) {
+  document.getElementById('listaTransazioni').innerHTML = '';
+  transazioni.forEach((transazione) => {
+    const nuovaRiga = `
+      <tr>
+        <td>${transazione.persona}</td>
+        <td>${transazione.tipo}</td>
+        <td>${transazione.categoria}</td>
+        <td>${transazione.descrizione}</td>
+        <td>${transazione.data}</td>
+        <td>€${transazione.importo.toFixed(2)}</td>
+      </tr>
+    `;
+    document.getElementById('listaTransazioni').insertAdjacentHTML('beforeend', nuovaRiga);
+  });
+}
+// Cancellare una transazione
+function cancellaTransazione(id) {
+  transazioniRef.child(id).remove();
+}
+
+// Modificare una transazione
+function modificaTransazione(id, nuoviDati) {
+  transazioniRef.child(id).update(nuoviDati);
+}
 };
