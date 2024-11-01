@@ -321,3 +321,13 @@ window.onload = function () {
         document.getElementById('loginContainer').style.display = 'block'; // Mostra il loginContainer se il nome non è memorizzato
     }
 }
+// Chiama impostaDataCorrente al caricamento della pagina per impostare le date di default
+window.onload = function () {
+    impostaDataCorrente();
+    const nomeUtente = localStorage.getItem('nomeUtente');
+    if (nomeUtente) {
+        aggiornaNomeUtente(nomeUtente);
+    } else {
+        document.getElementById('loginContainer').style.display = 'block';
+    }
+}
