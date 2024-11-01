@@ -1,5 +1,23 @@
-let transazioni = [];
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
+// Configurazione Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyChK3rrqQ8hYygNLaahaxgtx8W1oUpxBP0",
+    authDomain: "budget-a41a6.firebaseapp.com",
+    databaseURL: "https://budget-a41a6-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "budget-a41a6",
+    storageBucket: "budget-a41a6.appspot.com",
+    messagingSenderId: "1044297998779",
+    appId: "1:1044297998779:web:3848d0c0c2b9840b66249e"
+};
+
+// Inizializza Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const transazioniRef = ref(db, 'transazioni'); // Riferimento alla collezione delle transazioni
+
+let transazioni = [];
 
 // Funzione per ottenere la data corrente in formato 'YYYY-MM-DD'
 function getDataCorrente() {
@@ -10,74 +28,65 @@ function getDataCorrente() {
     return `${anno}-${mese}-${giorno}`;
 }
 
-// Imposta la data corrente come valore predefinito per i campi di data e filtro mese
+// Imposta la data corrente nei campi della data e nel filtro mese
 function impostaDataCorrente() {
     const dataCorrente = getDataCorrente();
     document.getElementById('dataEntrata').value = dataCorrente;
     document.getElementById('dataUscita').value = dataCorrente;
-    
-    const meseCorrente = dataCorrente.slice(0, 7); // formato YYYY-MM
-    document.getElementById('meseFiltro').value = meseCorrente;
-    filtraPerMese(); // Applica il filtro per il mese corrente al caricamento
+    document.getElementById('meseFiltro').value = dataCorrente.slice(0, 7); // formato 'YYYY-MM'
 }
 
-// Funzione per formattare la data in 'DD-MM-YYYY'
-function formattaDataVisualizzazione(data) {
-    const [anno, mese, giorno] = data.split('-');
-    return `${giorno}-${mese}-${anno}`;
-}
-
-// Aggiunge una transazione
-function aggiungiTransazione(persona, tipo, categoria, descrizione, importo, data) {
-    const mese = data.slice(0, 7); // Estrarre mese in formato 'YYYY-MM'
-    const dataFormattata = formattaDataVisualizzazione(data);
-    
-    transazioni.push({
-        mese: mese,
-        persona: persona,
-        tipo: tipo,
-        categoria: categoria,
-        descrizione: descrizione,
-        importo: parseFloat(importo),  // Assicurarsi che l'importo sia numerico
-        data: dataFormattata
-    });
-
-    const meseFiltro = document.getElementById('meseFiltro').value;
-    aggiornaListaTransazioni(meseFiltro);  // Aggiorna la lista con il filtro del mese selezionato
+// Ascolta i cambiamenti nel database e aggiorna le transazioni in tempo reale
+onValue(transazioniRef, (snapshot) => {
+    transazioni = snapshot.val() ? Object.entries(snapshot.val()) : [];
+    aggiornaListaTransazioni(document.getElementById('meseFiltro').value);
     aggiornaRiepiloghi();
-    salvaTransazioni();
+    aggiornaRiepilogoMensile();
+});
+
+// Funzione per aggiungere una transazione
+function aggiungiTransazione(persona, tipo, categoria, descrizione, importo, data) {
+    const nuovaTransazione = {
+        persona,
+        tipo,
+        categoria: categoria || '',
+        descrizione: descrizione || '',
+        importo: parseFloat(importo),
+        data
+    };
+
+    const nuovaTransazioneRef = push(transazioniRef);
+    set(nuovaTransazioneRef, nuovaTransazione).catch((error) => {
+        console.error("Errore nel salvataggio della transazione:", error);
+    });
 }
 
-// Funzione per aggiungere un'entrata
-function aggiungiEntrata() {
-    const persona = document.getElementById("personaEntrata").value;
-    const tipo = document.getElementById("tipoEntrata").value;
-    const importo = parseFloat(document.getElementById("importoEntrata").value) || 0;
-    const data = document.getElementById("dataEntrata").value;
+// Funzione per aggiornare la lista delle transazioni con filtro mese
+function aggiornaListaTransazioni(meseFiltro = null) {
+    const listaTransazioniElement = document.getElementById('listaTransazioni');
+    listaTransazioniElement.innerHTML = ''; // Svuota la lista attuale
 
-    if (importo > 0) {
-        aggiungiTransazione(persona, 'Entrata', tipo, '', importo, data);
-        document.getElementById("importoEntrata").value = '';
-    } else {
-        alert("Inserisci un importo valido per l'entrata.");
-    }
-}
-
-// Funzione per aggiungere un'uscita
-function aggiungiUscita() {
-    const persona = document.getElementById("personaUscita").value;
-    const categoria = document.getElementById("categoriaUscita").value;
-    const descrizione = document.getElementById("descrizioneUscita").value;
-    const importo = parseFloat(document.getElementById("importoUscita").value) || 0;
-    const data = document.getElementById("dataUscita").value;
-
-    if (importo > 0) {
-        aggiungiTransazione(persona, 'Uscita', categoria, descrizione, importo, data);
-        document.getElementById("descrizioneUscita").value = '';
-        document.getElementById("importoUscita").value = '';
-    } else {
-        alert("Inserisci un importo valido per l'uscita.");
-    }
+    transazioni.forEach(([id, transazione]) => {
+        const transazioneMese = transazione.data.slice(0, 7);
+        if (!meseFiltro || transazioneMese === meseFiltro) {
+            const nuovaRiga = `
+                <tr>
+                    <td>${transazioneMese}</td>
+                    <td>${transazione.persona}</td>
+                    <td>${transazione.tipo}</td>
+                    <td>${transazione.categoria || ''}</td>
+                    <td>${transazione.descrizione || ''}</td>
+                    <td>${transazione.data}</td>
+                    <td>€${parseFloat(transazione.importo).toFixed(2)}</td>
+                    <td>
+                        <button onclick="modificaTransazione('${id}')">Modifica</button>
+                        <button onclick="cancellaTransazione('${id}')">Cancella</button>
+                    </td>
+                </tr>
+            `;
+            listaTransazioniElement.insertAdjacentHTML('beforeend', nuovaRiga);
+        }
+    });
 }
 
 // Funzione per aggiornare i riepiloghi totali e per persona
@@ -90,7 +99,7 @@ function aggiornaRiepiloghi() {
     let totaleAlessioEntrate = 0;
     let totaleAlessioUscite = 0;
 
-    transazioni.forEach(transazione => {
+    transazioni.forEach(([id, transazione]) => {
         if (transazione.tipo === 'Entrata') {
             totaleEntrate += transazione.importo;
             if (transazione.persona === 'Giulia') totaleGiuliaEntrate += transazione.importo;
@@ -117,8 +126,6 @@ function aggiornaRiepiloghi() {
     document.getElementById('riepilogoAlessioEntrate').innerText = `Entrate Alessio: €${totaleAlessioEntrate.toFixed(2)}`;
     document.getElementById('riepilogoAlessioUscite').innerText = `Uscite Alessio: €${totaleAlessioUscite.toFixed(2)}`;
     document.getElementById('riepilogoAlessioSaldo').innerText = `Saldo Alessio: €${saldoAlessio.toFixed(2)}`;
-
-    aggiornaRiepilogoMensile(); // Aggiorna anche il riepilogo mensile
 }
 
 // Riepilogo mensile per il mese selezionato
@@ -127,148 +134,78 @@ function aggiornaRiepilogoMensile() {
     let totaleEntrateMese = 0;
     let totaleUsciteMese = 0;
 
-    transazioni.forEach(transazione => {
-        if (transazione.mese === meseSelezionato) {
-            if (transazione.tipo === 'Entrata') {
-                totaleEntrateMese += transazione.importo;
-            } else if (transazione.tipo === 'Uscita') {
-                totaleUsciteMese += transazione.importo;
-            }
+    transazioni.forEach(([id, transazione]) => {
+        if (transazione.data.slice(0, 7) === meseSelezionato) {
+            if (transazione.tipo === 'Entrata') totaleEntrateMese += transazione.importo;
+            else if (transazione.tipo === 'Uscita') totaleUsciteMese += transazione.importo;
         }
     });
 
     const saldoMese = totaleEntrateMese - totaleUsciteMese;
-    const riepilogoHtml = `
+    document.getElementById('riepilogoMese').innerHTML = `
         <div>Entrate: €${totaleEntrateMese.toFixed(2)}</div>
         <div>Uscite: €${totaleUsciteMese.toFixed(2)}</div>
         <div>Saldo: €${saldoMese.toFixed(2)}</div>
     `;
-
-    document.getElementById('riepilogoMese').innerHTML = riepilogoHtml;
 }
 
-// Filtra le transazioni per il mese selezionato e aggiorna la lista
-function filtraPerMese() {
+// Filtra le transazioni per il mese selezionato
+window.filtraPerMese = function () {
     const meseSelezionato = document.getElementById('meseFiltro').value;
     aggiornaListaTransazioni(meseSelezionato);
-    aggiornaRiepilogoMensile(); // Mostra solo il riepilogo del mese selezionato
-}
+    aggiornaRiepilogoMensile();
+};
 
-// Funzione per aggiornare la lista delle transazioni con filtro mese
-function aggiornaListaTransazioni(meseFiltro = null) {
-    document.getElementById('listaTransazioni').innerHTML = '';
-    transazioni.forEach((transazione, index) => {
-        if (!meseFiltro || transazione.mese === meseFiltro) {
-            const nuovaRiga = `
-                <tr>
-                    <td>${transazione.mese}</td>
-                    <td>${transazione.persona}</td>
-                    <td>${transazione.tipo}</td>
-                    <td>${transazione.categoria}</td>
-                    <td>${transazione.descrizione}</td>
-                    <td>${transazione.data}</td>
-                    <td>€${transazione.importo.toFixed(2)}</td>
-                    <td>
-                        <button onclick="modificaTransazione(${index})">Modifica</button>
-                        <button onclick="cancellaTransazione(${index})">Cancella</button>
-                    </td>
-                </tr>
-            `;
-            document.getElementById('listaTransazioni').insertAdjacentHTML('beforeend', nuovaRiga);
-        }
-    });
-}
+// Funzioni per aggiungere entrate e uscite
+window.aggiungiEntrata = function () {
+    const persona = document.getElementById("personaEntrata").value;
+    const tipo = document.getElementById("tipoEntrata").value;
+    const importo = document.getElementById("importoEntrata").value;
+    const data = document.getElementById("dataEntrata").value;
 
-// Funzione per modificare una transazione
-function modificaTransazione(index) {
-    const nuovoImporto = prompt("Inserisci il nuovo importo:", transazioni[index].importo);
-    if (nuovoImporto !== null && !isNaN(nuovoImporto) && nuovoImporto > 0) {
-        transazioni[index].importo = parseFloat(nuovoImporto);
-        const meseFiltro = document.getElementById('meseFiltro').value;
-        aggiornaListaTransazioni(meseFiltro);
-        aggiornaRiepiloghi();
-        salvaTransazioni();
+    if (importo && !isNaN(importo)) {
+        aggiungiTransazione(persona, 'Entrata', tipo, '', importo, data);
+        document.getElementById("importoEntrata").value = '';
+    } else {
+        alert("Inserisci un importo valido per l'entrata.");
     }
-}
+};
+
+window.aggiungiUscita = function () {
+    const persona = document.getElementById("personaUscita").value;
+    const categoria = document.getElementById("categoriaUscita").value;
+    const descrizione = document.getElementById("descrizioneUscita").value;
+    const importo = document.getElementById("importoUscita").value;
+    const data = document.getElementById("dataUscita").value;
+
+    if (importo && !isNaN(importo)) {
+        aggiungiTransazione(persona, 'Uscita', categoria, descrizione, importo, data);
+        document.getElementById("descrizioneUscita").value = '';
+        document.getElementById("importoUscita").value = '';
+    } else {
+        alert("Inserisci un importo valido per l'uscita.");
+    }
+};
 
 // Funzione per cancellare una transazione
-function cancellaTransazione(index) {
-    transazioni.splice(index, 1); // Rimuove la transazione dall'array
-    const meseFiltro = document.getElementById('meseFiltro').value;
-    aggiornaListaTransazioni(meseFiltro);
-    aggiornaRiepiloghi();
-    salvaTransazioni();
-}
+window.cancellaTransazione = function (id) {
+    remove(ref(db, `transazioni/${id}`)).catch((error) => {
+        console.error("Errore nella cancellazione della transazione:", error);
+    });
+};
 
-// Salva le transazioni nel LocalStorage
-function salvaTransazioni() {
-    localStorage.setItem('transazioni', JSON.stringify(transazioni));
-}
-
-// Carica le transazioni dal LocalStorage
-function caricaDati() {
-    const transazioniSalvate = localStorage.getItem('transazioni');
-    if (transazioniSalvate) {
-        transazioni = JSON.parse(transazioniSalvate);
-        aggiornaListaTransazioni(document.getElementById('meseFiltro').value);
-        aggiornaRiepiloghi();
+// Funzione per modificare una transazione
+window.modificaTransazione = function (id) {
+    const nuovoImporto = prompt("Inserisci il nuovo importo:");
+    if (nuovoImporto !== null && !isNaN(nuovoImporto) && nuovoImporto > 0) {
+        const transazioneRef = ref(db, `transazioni/${id}`);
+        update(transazioneRef, { importo: parseFloat(nuovoImporto) }).catch((error) => {
+            console.error("Errore nella modifica della transazione:", error);
+        });
     }
-}
+};
 
 // Inizializza la data corrente e aggiorna i riepiloghi al caricamento della pagina
-window.onload = function() {
-    caricaDati();
+window.onload = function () {
     impostaDataCorrente();
-// Riferimento alla posizione nel database
-const transazioniRef = firebase.database().ref('transazioni');
-
-// Aggiunge una transazione al database Firebase
-function aggiungiTransazione(persona, tipo, categoria, descrizione, importo, data) {
-  const transazione = {
-    persona,
-    tipo,
-    categoria,
-    descrizione,
-    importo: parseFloat(importo),
-    data,
-    timestamp: firebase.database.ServerValue.TIMESTAMP
-  };
-  transazioniRef.push(transazione);
-}
-
-// Ascolta i cambiamenti nel database e aggiorna la lista delle transazioni
-transazioniRef.on('value', (snapshot) => {
-  const transazioni = snapshot.val();
-  const listaTransazioni = [];
-  for (const id in transazioni) {
-    listaTransazioni.push({ id, ...transazioni[id] });
-  }
-  aggiornaListaTransazioni(listaTransazioni);
-});
-
-function aggiornaListaTransazioni(transazioni) {
-  document.getElementById('listaTransazioni').innerHTML = '';
-  transazioni.forEach((transazione) => {
-    const nuovaRiga = `
-      <tr>
-        <td>${transazione.persona}</td>
-        <td>${transazione.tipo}</td>
-        <td>${transazione.categoria}</td>
-        <td>${transazione.descrizione}</td>
-        <td>${transazione.data}</td>
-        <td>€${transazione.importo.toFixed(2)}</td>
-      </tr>
-    `;
-    document.getElementById('listaTransazioni').insertAdjacentHTML('beforeend', nuovaRiga);
-  });
-}
-// Cancellare una transazione
-function cancellaTransazione(id) {
-  transazioniRef.child(id).remove();
-}
-
-// Modificare una transazione
-function modificaTransazione(id, nuoviDati) {
-  transazioniRef.child(id).update(nuoviDati);
-}
 };
