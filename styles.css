@@ -156,3 +156,8 @@ td:last-child, th:last-child {
     height: auto;
 }
 
+.btn-azione {
+    padding: 2px 5px; /* Riduci il padding per rendere i pulsanti più piccoli */
+    font-size: 0.8em; /* Riduci la dimensione del testo */
+    margin: 2px; /* Aggiungi un piccolo margine per separare i pulsanti */
+}
