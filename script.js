@@ -286,6 +286,7 @@ function aggiornaGraficoSpesePerCategoria() {
             }
         });
     }
+
 }
 window.salvaNomeUtente = function () {
     const nomeUtente = document.getElementById('userName').value;
@@ -295,3 +296,28 @@ window.salvaNomeUtente = function () {
     document.getElementById('loginContainer').style.display = 'none'; // Nasconde il contenitore di login
 }
 
+// Funzione per salvare il nome utente in localStorage
+function salvaNomeUtente() {
+    const nomeUtente = document.getElementById('userName').value;
+    if (nomeUtente) {
+        localStorage.setItem('nomeUtente', nomeUtente);
+        aggiornaNomeUtente(nomeUtente);
+    }
+}
+
+// Funzione per aggiornare i campi persona con il nome utente e nascondere il loginContainer
+function aggiornaNomeUtente(nomeUtente) {
+    document.getElementById('personaEntrata').value = nomeUtente;
+    document.getElementById('personaUscita').value = nomeUtente;
+    document.getElementById('loginContainer').style.display = 'none';
+}
+
+// Recupera il nome utente da localStorage all'avvio della pagina
+window.onload = function () {
+    const nomeUtente = localStorage.getItem('nomeUtente');
+    if (nomeUtente) {
+        aggiornaNomeUtente(nomeUtente);
+    } else {
+        document.getElementById('loginContainer').style.display = 'block'; // Mostra il loginContainer se il nome non è memorizzato
+    }
+}
