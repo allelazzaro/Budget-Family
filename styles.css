@@ -148,3 +148,11 @@ td:last-child, th:last-child {
         font-size: 0.8em;
     }
 }
+
+#graficoTortaSpese {
+    max-width: 300px;
+    max-height: 300px;
+    width: 100%;
+    height: auto;
+}
+
