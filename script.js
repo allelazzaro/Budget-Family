@@ -71,13 +71,12 @@ function aggiornaListaTransazioni(meseFiltro = null) {
         if (!meseFiltro || transazioneMese === meseFiltro) {
             const nuovaRiga = `
                 <tr>
-                    <td>${transazioneMese}</td>
                     <td>${transazione.persona}</td>
                     <td>${transazione.tipo}</td>
                     <td>${transazione.categoria || ''}</td>
                     <td>${transazione.descrizione || ''}</td>
                     <td>${transazione.data}</td>
-                    <td>€${parseFloat(transazione.importo).toFixed(2)}</td>
+                    <td>€${parseFloat(transazione.importo).toFixed()}</td>
                     <td>
                         <button onclick="modificaTransazione('${id}')">Modifica</button>
                         <button onclick="cancellaTransazione('${id}')">Cancella</button>
