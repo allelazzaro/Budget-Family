@@ -287,3 +287,21 @@ function aggiornaGraficoSpesePerCategoria() {
         });
     }
 }
+function salvaNomeUtente() {
+    const nomeUtente = document.getElementById('userName').value;
+    localStorage.setItem('nomeUtente', nomeUtente);
+    document.getElementById('personaEntrata').value = nomeUtente;
+    document.getElementById('personaUscita').value = nomeUtente;
+    document.getElementById('loginContainer').style.display = 'none'; // Nasconde il contenitore di login
+}
+window.onload = function () {
+    const nomeUtente = localStorage.getItem('nomeUtente');
+    if (nomeUtente) {
+        document.getElementById('personaEntrata').value = nomeUtente;
+        document.getElementById('personaUscita').value = nomeUtente;
+        document.getElementById('loginContainer').style.display = 'none';
+    } else {
+        document.getElementById('loginContainer').style.display = 'block';
+    }
+}
+
