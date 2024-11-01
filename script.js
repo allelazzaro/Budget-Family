@@ -86,9 +86,9 @@ function aggiornaListaTransazioni(meseFiltro = null) {
                     <td>${dataFormattata}</td>
                     <td>€${parseFloat(transazione.importo).toFixed()}</td>
                     <td>
-                        <button onclick="modificaTransazione('${id}')">Modifica</button>
-                        <button onclick="cancellaTransazione('${id}')">Cancella</button>
-                    </td>
+                        <button class="btn-azione" onclick="modificaTransazione('${id}')">Modifica</button>
+                        <button class="btn-azione" onclick="cancellaTransazione('${id}')">Cancella</button>
+        </td>
                 </tr>
             `;
             listaTransazioniElement.insertAdjacentHTML('beforeend', nuovaRiga);
@@ -193,6 +193,7 @@ window.aggiungiUscita = function () {
         alert("Inserisci un importo valido per l'uscita.");
     }
 };
+
 
 // Funzione per cancellare una transazione
 window.cancellaTransazione = function (id) {
