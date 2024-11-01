@@ -61,6 +61,12 @@ function aggiungiTransazione(persona, tipo, categoria, descrizione, importo, dat
     });
 }
 
+// Funzione per formattare la data in formato DD/MM/YYYY
+function formattaData(data) {
+    const [anno, mese, giorno] = data.split("-");
+    return `${giorno}/${mese}`;
+}
+
 // Funzione per aggiornare la lista delle transazioni con filtro mese
 function aggiornaListaTransazioni(meseFiltro = null) {
     const listaTransazioniElement = document.getElementById('listaTransazioni');
@@ -69,13 +75,14 @@ function aggiornaListaTransazioni(meseFiltro = null) {
     transazioni.forEach(([id, transazione]) => {
         const transazioneMese = transazione.data.slice(0, 7);
         if (!meseFiltro || transazioneMese === meseFiltro) {
-            const nuovaRiga = `
+            const dataFormattata = formattaData(transazione.data);
+	    const nuovaRiga = `
                 <tr>
                     <td>${transazione.persona}</td>
                     <td>${transazione.tipo}</td>
                     <td>${transazione.categoria || ''}</td>
                     <td>${transazione.descrizione || ''}</td>
-                    <td>${transazione.data}</td>
+                    <td>${dataFormattata}</td>
                     <td>€${parseFloat(transazione.importo).toFixed()}</td>
                     <td>
                         <button onclick="modificaTransazione('${id}')">Modifica</button>
