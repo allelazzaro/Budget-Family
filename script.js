@@ -96,8 +96,11 @@ function aggiornaListaTransazioni(meseFiltro = null) {
     });
 }
 
-// Funzione per aggiornare i riepiloghi totali e per persona
+// Funzione per aggiornare i riepiloghi totali e per persona filtrati per anno
 function aggiornaRiepiloghi() {
+    const meseFiltro = document.getElementById('meseFiltro').value;
+    const annoSelezionato = meseFiltro ? meseFiltro.slice(0, 4) : new Date().getFullYear().toString();
+
     let totaleEntrate = 0;
     let totaleUscite = 0;
 
@@ -107,14 +110,19 @@ function aggiornaRiepiloghi() {
     let totaleAlessioUscite = 0;
 
     transazioni.forEach(([id, transazione]) => {
-        if (transazione.tipo === 'Entrata') {
-            totaleEntrate += transazione.importo;
-            if (transazione.persona === 'Giulia') totaleGiuliaEntrate += transazione.importo;
-            else if (transazione.persona === 'Alessio') totaleAlessioEntrate += transazione.importo;
-        } else if (transazione.tipo === 'Uscita') {
-            totaleUscite += transazione.importo;
-            if (transazione.persona === 'Giulia') totaleGiuliaUscite += transazione.importo;
-            else if (transazione.persona === 'Alessio') totaleAlessioUscite += transazione.importo;
+        const annoTransazione = transazione.data.slice(0, 4);
+        
+        // Filtra solo le transazioni dell'anno selezionato
+        if (annoTransazione === annoSelezionato) {
+            if (transazione.tipo === 'Entrata') {
+                totaleEntrate += transazione.importo;
+                if (transazione.persona === 'Giulia') totaleGiuliaEntrate += transazione.importo;
+                else if (transazione.persona === 'Alessio') totaleAlessioEntrate += transazione.importo;
+            } else if (transazione.tipo === 'Uscita') {
+                totaleUscite += transazione.importo;
+                if (transazione.persona === 'Giulia') totaleGiuliaUscite += transazione.importo;
+                else if (transazione.persona === 'Alessio') totaleAlessioUscite += transazione.importo;
+            }
         }
     });
 
@@ -122,17 +130,17 @@ function aggiornaRiepiloghi() {
     const saldoGiulia = totaleGiuliaEntrate - totaleGiuliaUscite;
     const saldoAlessio = totaleAlessioEntrate - totaleAlessioUscite;
 
-    document.getElementById('riepilogoEntrate').innerText = `Totale Entrate: €${totaleEntrate.toFixed(2)}`;
-    document.getElementById('riepilogoUscite').innerText = `Totale Uscite: €${totaleUscite.toFixed(2)}`;
-    document.getElementById('riepilogoSaldo').innerText = `Saldo Totale: €${saldoTotale.toFixed(2)}`;
+    document.getElementById('riepilogoEntrate').innerText = `Totale Entrate: €${totaleEntrate.toFixed()}`;
+    document.getElementById('riepilogoUscite').innerText = `Totale Uscite: €${totaleUscite.toFixed()}`;
+    document.getElementById('riepilogoSaldo').innerText = `Saldo Totale: €${saldoTotale.toFixed()}`;
 
-    document.getElementById('riepilogoGiuliaEntrate').innerText = `Entrate Giulia: €${totaleGiuliaEntrate.toFixed(2)}`;
-    document.getElementById('riepilogoGiuliaUscite').innerText = `Uscite Giulia: €${totaleGiuliaUscite.toFixed(2)}`;
-    document.getElementById('riepilogoGiuliaSaldo').innerText = `Saldo Giulia: €${saldoGiulia.toFixed(2)}`;
+    document.getElementById('riepilogoGiuliaEntrate').innerText = `Entrate Giulia: €${totaleGiuliaEntrate.toFixed()}`;
+    document.getElementById('riepilogoGiuliaUscite').innerText = `Uscite Giulia: €${totaleGiuliaUscite.toFixed()}`;
+    document.getElementById('riepilogoGiuliaSaldo').innerText = `Saldo Giulia: €${saldoGiulia.toFixed()}`;
 
-    document.getElementById('riepilogoAlessioEntrate').innerText = `Entrate Alessio: €${totaleAlessioEntrate.toFixed(2)}`;
-    document.getElementById('riepilogoAlessioUscite').innerText = `Uscite Alessio: €${totaleAlessioUscite.toFixed(2)}`;
-    document.getElementById('riepilogoAlessioSaldo').innerText = `Saldo Alessio: €${saldoAlessio.toFixed(2)}`;
+    document.getElementById('riepilogoAlessioEntrate').innerText = `Entrate Alessio: €${totaleAlessioEntrate.toFixed(0)}`;
+    document.getElementById('riepilogoAlessioUscite').innerText = `Uscite Alessio: €${totaleAlessioUscite.toFixed(0)}`;
+    document.getElementById('riepilogoAlessioSaldo').innerText = `Saldo Alessio: €${saldoAlessio.toFixed(0)}`;
 }
 
 // Riepilogo mensile per il mese selezionato
@@ -150,9 +158,9 @@ function aggiornaRiepilogoMensile() {
 
     const saldoMese = totaleEntrateMese - totaleUsciteMese;
     document.getElementById('riepilogoMese').innerHTML = `
-        <div>Entrate: €${totaleEntrateMese.toFixed(2)}</div>
-        <div>Uscite: €${totaleUsciteMese.toFixed(2)}</div>
-        <div>Saldo: €${saldoMese.toFixed(2)}</div>
+        <div>Entrate: €${totaleEntrateMese.toFixed()}</div>
+        <div>Uscite: €${totaleUsciteMese.toFixed()}</div>
+        <div>Saldo: €${saldoMese.toFixed()}</div>
     `;
 }
 
@@ -161,6 +169,7 @@ window.filtraPerMese = function () {
     const meseSelezionato = document.getElementById('meseFiltro').value;
     aggiornaListaTransazioni(meseSelezionato);
     aggiornaRiepilogoMensile();
+    aggiornaRiepiloghi(); // Aggiorna il riepilogo dettagliato per l'anno selezionato
 };
 
 // Funzioni per aggiungere entrate e uscite
