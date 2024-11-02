@@ -274,3 +274,38 @@ tfoot td {
     font-weight: bold;
     color: #2980b9;
 }
+.dashboard-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.dashboard-item {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.dashboard-item h3 {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    color: #3498db;
+}
+
+.progress-bar {
+    background-color: #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 20px;
+    margin-top: 10px;
+}
+
+.progress {
+    height: 100%;
+    width: 0;
+    background-color: #2ecc71;
+    transition: width 0.5s;
+}
