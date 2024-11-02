@@ -61,6 +61,20 @@ function aggiungiTransazione(persona, tipo, categoria, descrizione, importo, dat
         console.error("Errore nel salvataggio della transazione:", error);
     });
 }
+function aggiornaRiepilogoCategoria() {
+    const categoriaSelezionata = document.getElementById('selezionaCategoria').value;
+    let totaleCategoria = 0;
+
+    transazioni.forEach(([id, transazione]) => {
+        if (categoriaSelezionata === "" || transazione.categoria === categoriaSelezionata) {
+            console.log(`Transazione inclusa - ID: ${id}, Importo: ${transazione.importo}, Categoria: ${transazione.categoria}`);
+            totaleCategoria += parseFloat(transazione.importo) || 0;
+        }
+    });
+
+    document.getElementById('riepilogoCategoriaTotale').innerText = `Totale: €${totaleCategoria.toFixed(2)}`;
+}
+
 
 // Funzione per formattare la data in formato DD/MM/YYYY
 function formattaData(data) {
@@ -172,6 +186,7 @@ window.filtraPerMese = function () {
     aggiornaRiepilogoMensile();
     aggiornaRiepiloghi(); // Aggiorna il riepilogo dettagliato per l'anno selezionato
     aggiornaGraficoSpesePerCategoria(); // Aggiorna il grafico per l'anno selezionato
+    aggiornaRiepilogoCategoria(); // Aggiorna il riepilogo per categoria
 };
 
 // Funzioni per aggiungere entrate e uscite
@@ -309,6 +324,26 @@ window.salvaNomeUtente = function () {
     document.getElementById('personaEntrata').value = nomeUtente;
     document.getElementById('personaUscita').value = nomeUtente;
     document.getElementById('loginContainer').style.display = 'none'; // Nasconde il contenitore di login
+}
+window.aggiornaRiepilogoCategoria = function () {
+    const categoriaSelezionata = document.getElementById('selezionaCategoria').value;
+    const meseFiltro = document.getElementById('meseFiltro').value;
+    const annoSelezionato = meseFiltro ? meseFiltro.slice(0, 4) : new Date().getFullYear().toString();
+    let totaleCategoria = 0;
+
+    transazioni.forEach(([id, transazione]) => {
+        const annoTransazione = transazione.data.slice(0, 4);
+
+        // Filtra solo le transazioni dell'anno selezionato e della categoria scelta
+        if (annoTransazione === annoSelezionato && (categoriaSelezionata === "" || transazione.categoria === categoriaSelezionata)) {
+            const importo = parseFloat(transazione.importo);
+            if (!isNaN(importo)) {
+                totaleCategoria += importo;
+            }
+        }
+    });
+
+    document.getElementById('riepilogoCategoriaTotale').innerText = `Totale: €${totaleCategoria.toFixed(2)}`;
 }
 
 // Funzione per salvare il nome utente in localStorage

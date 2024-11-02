@@ -144,6 +144,42 @@
             <div id="riepilogoUscite">Totale Uscite: €0</div>
             <div id="riepilogoSaldo">Saldo Totale: €0</div>
         </section>
+<section id="filtroCategoriaTotale">
+    <h2>Riepilogo Totale per Categoria</h2>
+    <label for="selezionaCategoria">Seleziona Categoria:</label>
+    <select id="selezionaCategoria" onchange="aggiornaRiepilogoCategoria()">
+        <option value="">Tutte le Categorie</option>
+        <option value="CONDOMINIO">CONDOMINIO</option>
+        <option value="ALIMENTARI">ALIMENTARI</option>
+        <option value="COSE DI CASA">COSE DI CASA</option>
+        <option value="ANIMALI">ANIMALI</option>
+  <option value="LUCE">LUCE</option>
+                    <option value="INTERNET + CELLULARE">INTERNET + CELLULARE</option>
+                    <option value="VARIE">VARIE</option>
+                    <option value="SPORT">SPORT</option>
+                    <option value="CULTURA">CULTURA</option>
+                    <option value="SALUTE">SALUTE</option>
+                    <option value="BELLEZZA">BELLEZZA</option>
+                    <option value="ABBIGLIAMENTO">ABBIGLIAMENTO</option>
+                    <option value="RATA AUTO">RATA AUTO</option>
+                    <option value="CONSUMI">CONSUMI</option>
+                    <option value="MANUTENZIONE">MANUTENZIONE</option>
+                    <option value="AUTOSTRADA/PARCHEGGI/MULTE">AUTOSTRADA/PARCHEGGI/MULTE</option>
+                    <option value="ASSICURAZIONE">ASSICURAZIONE</option>
+                    <option value="BOLLI TAGLIANDI">BOLLI TAGLIANDI</option>
+                    <option value="COLAZIONI">COLAZIONI</option>
+                    <option value="PRANZI">PRANZI</option>
+                    <option value="MERENDE">MERENDE</option>
+                    <option value="APE DOPO CENA">APE DOPO CENA</option>
+                    <option value="CENE INSIEME">CENE INSIEME</option>
+                    <option value="SERATE CON AMICI">SERATE CON AMICI</option>
+                    <option value="VACANZE">VACANZE</option>
+                    <option value="REGALI">REGALI</option>
+        <!-- Aggiungi altre categorie qui -->
+    </select>
+    <div id="riepilogoCategoriaTotale">Totale: €0</div>
+</section>
+
 
         <!-- Riepilogo per persona -->
         <section id="riepiloghiPersone">
