@@ -170,6 +170,7 @@ window.filtraPerMese = function () {
     aggiornaListaTransazioni(meseSelezionato);
     aggiornaRiepilogoMensile();
     aggiornaRiepiloghi(); // Aggiorna il riepilogo dettagliato per l'anno selezionato
+    aggiornaGraficoSpesePerCategoria(); // Aggiorna il grafico per l'anno selezionato
 };
 
 // Funzioni per aggiungere entrate e uscite
@@ -230,10 +231,16 @@ window.onload = function () {
 let graficoTorta; // Variabile globale per il grafico a torta
 
 function aggiornaGraficoSpesePerCategoria() {
-    // Raggruppa le spese per categoria
+    const meseFiltro = document.getElementById('meseFiltro').value;
+    const annoSelezionato = meseFiltro ? meseFiltro.slice(0, 4) : new Date().getFullYear().toString();
+
+    // Raggruppa le spese per categoria, filtrando per l'anno selezionato
     const spesePerCategoria = {};
     transazioni.forEach(([id, transazione]) => {
-        if (transazione.tipo === 'Uscita') {
+        const annoTransazione = transazione.data.slice(0, 4);
+        
+        // Filtra solo le transazioni dell'anno selezionato
+        if (transazione.tipo === 'Uscita' && annoTransazione === annoSelezionato) {
             if (spesePerCategoria[transazione.categoria]) {
                 spesePerCategoria[transazione.categoria] += transazione.importo;
             } else {
@@ -246,56 +253,54 @@ function aggiornaGraficoSpesePerCategoria() {
     const categorie = Object.keys(spesePerCategoria);
     const importi = Object.values(spesePerCategoria);
 
-    // Crea il grafico a torta o aggiorna quello esistente
-    const ctx = document.getElementById('graficoTortaSpese').getContext('2d');
+    // Distruggi il grafico precedente, se esiste
     if (graficoTorta) {
-        graficoTorta.data.labels = categorie;
-        graficoTorta.data.datasets[0].data = importi;
-        graficoTorta.update();
-    } else {
-        graficoTorta = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: categorie,
-                datasets: [{
-                    label: 'Spese per Categoria',
-                    data: importi,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)',
-                        'rgba(199, 199, 199, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)',
-                        'rgba(199, 199, 199, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Distribuzione Spese per Categoria'
-                    }
-                }
-            }
-        });
+        graficoTorta.destroy();
     }
 
+    // Crea un nuovo grafico a torta con i dati aggiornati
+    const ctx = document.getElementById('graficoTortaSpese').getContext('2d');
+    graficoTorta = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: categorie,
+            datasets: [{
+                label: 'Spese per Categoria',
+                data: importi,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(199, 199, 199, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(199, 199, 199, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: `Distribuzione Spese per Categoria (${annoSelezionato})`
+                }
+            }
+        }
+    });
 }
 window.salvaNomeUtente = function () {
     const nomeUtente = document.getElementById('userName').value;
