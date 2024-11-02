@@ -77,18 +77,20 @@ function aggiornaListaTransazioni(meseFiltro = null) {
         const transazioneMese = transazione.data.slice(0, 7);
         if (!meseFiltro || transazioneMese === meseFiltro) {
             const dataFormattata = formattaData(transazione.data);
-	    const nuovaRiga = `
+            const classeTransazione = transazione.tipo === 'Uscita' ? 'uscita' : 'entrata';
+            
+            const nuovaRiga = `
                 <tr>
                     <td>${transazione.persona}</td>
                     <td>${transazione.tipo}</td>
                     <td>${transazione.categoria || ''}</td>
                     <td>${transazione.descrizione || ''}</td>
                     <td>${dataFormattata}</td>
-                    <td>€${parseFloat(transazione.importo).toFixed()}</td>
+                    <td class="${classeTransazione}">€${parseFloat(transazione.importo).toFixed()}</td>
                     <td>
                         <button class="btn-azione" onclick="modificaTransazione('${id}')">Modifica</button>
                         <button class="btn-azione" onclick="cancellaTransazione('${id}')">Cancella</button>
-        </td>
+                    </td>
                 </tr>
             `;
             listaTransazioniElement.insertAdjacentHTML('beforeend', nuovaRiga);
@@ -345,3 +347,4 @@ window.onload = function () {
         document.getElementById('loginContainer').style.display = 'block';
     }
 }
+

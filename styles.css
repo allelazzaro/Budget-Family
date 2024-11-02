@@ -1,4 +1,4 @@
-/* Resetta i margini e padding */
+/* Reset margini e padding */
 * {
     margin: 0;
     padding: 0;
@@ -6,99 +6,181 @@
 }
 
 body {
-    font-family: 'Calibri', sans-serif;
-    body {
-    background: linear-gradient(135deg, #e8f1f8, #dfe6e9);
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #eef2f3, #8e9eab);
     color: #333;
-    margin: 0;
     padding: 20px;
 }
 
+/* Contenitore principale */
 .container {
     max-width: 900px;
-    margin: 20px auto;
+    margin: 0 auto;
     padding: 20px;
-    background: linear-gradient(135deg, #ffffff, #f0f4f8); /* Sfondo sfumato */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    transition: box-shadow 0.3s;
+    background-color: #fff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.container:hover {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
+/* Titoli */
 h1 {
     text-align: center;
-    font-size: 2.2em;
+    font-size: 2em;
     color: #2c3e50;
-    border-bottom: 2px solid #2980b9;
-    padding-bottom: 10px;
     margin-bottom: 20px;
 }
 
 h2 {
-    font-size: 1.8em;
-    color: #2980b9;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
+    font-size: 1.5em;
+    color: #3498db;
     margin-bottom: 15px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
 }
 
-/* Sezioni Entrate e Uscite */
-section#entrate, section#uscite {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+/* Sezioni Entrate, Uscite e Filtro */
+section {
+    padding: 15px;
+    background-color: #f7f9fa;
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
     margin-bottom: 20px;
 }
 
+/* Etichette */
 label {
-    font-size: 0.85em;
+    font-size: 0.9em;
     color: #2980b9;
     margin-bottom: 5px;
     display: block;
 }
 
+/* Campi di input e select */
 input, select {
-    width: 100%;  /* Larghezza completa su mobile */
-    padding: 8px;
+    width: 100%;
+    padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 0.9em;
+    font-size: 0.95em;
+    background-color: #f4f9fc;
+    color: #555;
 }
 
+/* Pulsanti */
 button {
     background-color: #2980b9;
     color: white;
-    padding: 10px 20px;
-    font-size: 1em;
+    padding: 10px 15px;
+    font-size: 0.9em;
     border: none;
-    border-radius: 25px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: background-color 0.3s, box-shadow 0.2s;
+    width: 100%;
 }
 
 button:hover {
     background-color: #3498db;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Migliora lo stile dei pulsanti di azione */
+.btn-azione {
+    padding: 5px 10px;
+    font-size: 0.85em;
+    margin: 2px;
+    border-radius: 5px;
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+.btn-azione:hover {
+    background-color: #ff5c5c;
     transform: scale(1.05);
 }
 
-button:active {
-    transform: scale(1);
-}
-
-/* Tabella transazioni */
+/* Tabella delle transazioni */
 table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     margin-bottom: 20px;
-    font-size: 0.8em;
+    font-size: 0.85em;
     border: 1px solid #ddd;
 }
 
-/* Scroll orizzontale per la tabella su schermi piccoli */
+thead th {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 2px solid #3498db; /* Linea demarcante sotto le intestazioni */
+}
+
+tbody td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd; /* Linea demarcante tra le righe */
+    border-right: 1px solid #ddd;  /* Linea demarcante tra le colonne */
+}
+
+tbody td:last-child {
+    border-right: none; /* Rimuove la linea a destra dell'ultima colonna */
+}
+
+/* Stile delle righe della tabella */
+tbody tr {
+    transition: background-color 0.3s;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f7f9fa;
+}
+
+tbody tr:hover {
+    background-color: #e1f5fe;
+}
+tfoot td {
+    font-weight: bold;
+    padding: 8px;
+    background-color: #ecf0f1;
+    text-align: right;
+    border-top: 2px solid #ddd;
+}
+/* Stile per le uscite (rosso e grassetto) */
+.uscita {
+    color: #e74c3c; /* Rosso */
+    font-weight: bold;
+}
+
+/* Stile per le entrate (verde e grassetto) */
+.entrata {
+    color: #2ecc71; /* Verde */
+    font-weight: bold;
+}
+/* Stile per le uscite (rosso chiaro e grassetto) */
+.uscita {
+    color: #e74c3c; /* Rosso */
+    font-weight: bold;
+    background-color: rgba(231, 76, 60, 0.1); /* Sfondo rosso chiaro */
+    border-radius: 5px;
+    padding: 8px;
+    transition: background-color 0.3s;
+}
+
+/* Stile per le entrate (verde chiaro e grassetto) */
+.entrata {
+    color: #2ecc71; /* Verde */
+    font-weight: bold;
+    background-color: rgba(46, 204, 113, 0.1); /* Sfondo verde chiaro */
+    border-radius: 5px;
+    padding: 8px;
+    transition: background-color 0.3s;
+}
+
+/* Contenitore tabella per overflow su mobile */
 .table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -110,38 +192,45 @@ thead {
 }
 
 thead th {
-    padding: 6px;
+    padding: 8px;
     text-align: left;
-    border-bottom: 2px solid #ddd;
 }
 
 tbody td {
-    padding: 4px;
+    padding: 10px;
     text-align: center;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #e9ecef;
 }
 
 tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: #f8f9fa;
 }
 
 tfoot td {
     font-weight: bold;
-    padding: 6px;
+    padding: 8px;
     background-color: #ecf0f1;
     text-align: right;
     border-top: 2px solid #ddd;
 }
 
-td, th {
-    border-right: 1px solid #ddd;
+/* Riquadri riepilogo */
+#riepilogoPerMese, #riepiloghi, #riepiloghiPersone {
+    padding: 15px;
+    background-color: #e1f5fe;
+    border: 1px solid #b3e5fc;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
-td:last-child, th:last-child {
-    border-right: none;
+/* Stile del grafico */
+#graficoTortaSpese {
+    max-width: 400px;
+    max-height: 400px;
+    margin: 0 auto;
 }
 
-/* Responsive Design per dispositivi mobili */
+/* Design responsive */
 @media (max-width: 600px) {
     h1 {
         font-size: 1.5em;
@@ -162,14 +251,13 @@ td:last-child, th:last-child {
     table, thead, tbody, th, td, tr {
         font-size: 0.8em;
     }
+
+    #graficoTortaSpese {
+        max-width: 300px;
+        max-height: 300px;
+    }
 }
 
-#graficoTortaSpese {
-    max-width: 300px;
-    max-height: 300px;
-    width: 100%;
-    height: auto;
-}
 
 .btn-azione {
     padding: 4px 1px; /* Riduci il padding per rendere i pulsanti più piccoli */
