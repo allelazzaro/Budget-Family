@@ -82,7 +82,6 @@ function aggiornaListaTransazioni(meseFiltro = null) {
             const nuovaRiga = `
                 <tr>
                     <td>${transazione.persona}</td>
-                    <td>${transazione.tipo}</td>
                     <td>${transazione.categoria || ''}</td>
                     <td>${transazione.descrizione || ''}</td>
                     <td>${dataFormattata}</td>
