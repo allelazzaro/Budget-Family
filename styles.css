@@ -7,7 +7,8 @@
 
 body {
     font-family: 'Calibri', sans-serif;
-    background: linear-gradient(135deg, #e3f2fd, #90caf9);
+    body {
+    background: linear-gradient(135deg, #e8f1f8, #dfe6e9);
     color: #333;
     margin: 0;
     padding: 20px;
@@ -15,24 +16,33 @@ body {
 
 .container {
     max-width: 900px;
-    margin: 0 auto;
+    margin: 20px auto;
     padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    background: linear-gradient(135deg, #ffffff, #f0f4f8); /* Sfondo sfumato */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    transition: box-shadow 0.3s;
+}
+
+.container:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 h1 {
     text-align: center;
-    font-size: 2em;
+    font-size: 2.2em;
     color: #2c3e50;
+    border-bottom: 2px solid #2980b9;
+    padding-bottom: 10px;
     margin-bottom: 20px;
 }
 
 h2 {
-    font-size: 1.5em;
+    font-size: 1.8em;
     color: #2980b9;
-    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
 }
 
 /* Sezioni Entrate e Uscite */
@@ -62,16 +72,21 @@ input, select {
 button {
     background-color: #2980b9;
     color: white;
-    padding: 10px 15px;
+    padding: 10px 20px;
     font-size: 1em;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     cursor: pointer;
-    width: 100%;  /* Larghezza completa su mobile */
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 button:hover {
     background-color: #3498db;
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(1);
 }
 
 /* Tabella transazioni */
@@ -157,7 +172,17 @@ td:last-child, th:last-child {
 }
 
 .btn-azione {
-    padding: 2px 5px; /* Riduci il padding per rendere i pulsanti più piccoli */
+    padding: 4px 1px; /* Riduci il padding per rendere i pulsanti più piccoli */
     font-size: 0.8em; /* Riduci la dimensione del testo */
-    margin: 2px; /* Aggiungi un piccolo margine per separare i pulsanti */
+    margin: 1px; /* Aggiungi un piccolo margine per separare i pulsanti */
+}
+
+#riepiloghi div, #riepiloghiPersone div, #riepilogoPerMese div {
+    background-color: #f1f8fe;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+    color: #2980b9;
 }
