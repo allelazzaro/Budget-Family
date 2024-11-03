@@ -19,6 +19,17 @@ const transazioniRef = ref(db, 'transazioni'); // Riferimento alla collezione de
 
 let transazioni = [];
 
+// Funzione per salvare il filtro mese selezionato nel localStorage
+function salvaFiltroMese() {
+    const meseFiltro = document.getElementById('meseFiltro').value;
+    localStorage.setItem('meseFiltro', meseFiltro);
+    filtraPerMese(); // aggiorna i dati della pagina principale in base al mese
+}
+
+// Associa la funzione al cambio del filtro mese
+document.getElementById('meseFiltro').addEventListener('change', salvaFiltroMese);
+
+
 // Funzione per ottenere la data corrente in formato 'YYYY-MM-DD'
 function getDataCorrente() {
     const oggi = new Date();
@@ -60,19 +71,6 @@ function aggiungiTransazione(persona, tipo, categoria, descrizione, importo, dat
     set(nuovaTransazioneRef, nuovaTransazione).catch((error) => {
         console.error("Errore nel salvataggio della transazione:", error);
     });
-}
-function aggiornaRiepilogoCategoria() {
-    const categoriaSelezionata = document.getElementById('selezionaCategoria').value;
-    let totaleCategoria = 0;
-
-    transazioni.forEach(([id, transazione]) => {
-        if (categoriaSelezionata === "" || transazione.categoria === categoriaSelezionata) {
-            console.log(`Transazione inclusa - ID: ${id}, Importo: ${transazione.importo}, Categoria: ${transazione.categoria}`);
-            totaleCategoria += parseFloat(transazione.importo) || 0;
-        }
-    });
-
-    document.getElementById('riepilogoCategoriaTotale').innerText = `Totale: €${totaleCategoria.toFixed(2)}`;
 }
 
 
@@ -186,7 +184,7 @@ window.filtraPerMese = function () {
     aggiornaRiepilogoMensile();
     aggiornaRiepiloghi(); // Aggiorna il riepilogo dettagliato per l'anno selezionato
     aggiornaGraficoSpesePerCategoria(); // Aggiorna il grafico per l'anno selezionato
-    aggiornaRiepilogoCategoria(); // Aggiorna il riepilogo per categoria
+    
 };
 
 // Funzioni per aggiungere entrate e uscite
@@ -199,8 +197,7 @@ window.aggiungiEntrata = function () {
     if (importo && !isNaN(importo)) {
         aggiungiTransazione(persona, 'Entrata', tipo, '', importo, data);
         document.getElementById("importoEntrata").value = '';
-        aggiornaRiepilogoCategoria(); // Aggiorna il riepilogo per categoria
-    } else {
+            } else {
         alert("Inserisci un importo valido per l'entrata.");
     }
 };
@@ -216,9 +213,7 @@ window.aggiungiUscita = function () {
         aggiungiTransazione(persona, 'Uscita', categoria, descrizione, importo, data);
         document.getElementById("descrizioneUscita").value = '';
         document.getElementById("importoUscita").value = '';
-        aggiornaRiepilogoCategoria(); // Aggiorna il riepilogo per categoria
-    } else {
-        alert("Inserisci un importo valido per l'uscita.");
+                alert("Inserisci un importo valido per l'uscita.");
     }
 };
 
@@ -237,6 +232,7 @@ window.cancellaTransazione = function (id) {
             console.error("Errore nella cancellazione della transazione:", error);
         });
 };
+
 
 // Funzione per modificare una transazione
 window.modificaTransazione = function (id) {
@@ -360,6 +356,7 @@ window.aggiornaRiepilogoCategoria = function () {
     document.getElementById('riepilogoCategoriaTotale').innerText = `Totale: €${totaleCategoria.toFixed(2)}`;
 }
 
+
 // Funzione per salvare il nome utente in localStorage
 function salvaNomeUtente() {
     const nomeUtente = document.getElementById('userName').value;
@@ -396,82 +393,3 @@ window.onload = function () {
         document.getElementById('loginContainer').style.display = 'block';
     }
 }
-function aggiornaDashboard() {
-    // Calcola saldo corrente, entrate e uscite
-    let saldoCorrente = 0;
-    let totaleEntrate = 0;
-    let totaleUscite = 0;
-    transazioni.forEach(([id, transazione]) => {
-        if (transazione.tipo === 'Entrata') {
-            totaleEntrate += transazione.importo;
-            saldoCorrente += transazione.importo;
-        } else if (transazione.tipo === 'Uscita') {
-            totaleUscite += transazione.importo;
-            saldoCorrente -= transazione.importo;
-        }
-    });
-
-    document.getElementById('saldoCorrente').innerText = `€${saldoCorrente.toFixed(2)}`;
-    document.getElementById('totaleEntrate').innerText = `€${totaleEntrate.toFixed(2)}`;
-    document.getElementById('totaleUscite').innerText = `€${totaleUscite.toFixed(2)}`;
-}
-
-function aggiornaGraficoSpeseCategoria() {
-    const spesePerCategoria = {};
-    transazioni.forEach(([id, transazione]) => {
-        if (transazione.tipo === 'Uscita') {
-            if (spesePerCategoria[transazione.categoria]) {
-                spesePerCategoria[transazione.categoria] += transazione.importo;
-            } else {
-                spesePerCategoria[transazione.categoria] = transazione.importo;
-            }
-        }
-    });
-
-    const categorie = Object.keys(spesePerCategoria);
-    const importi = Object.values(spesePerCategoria);
-
-    const ctx = document.getElementById('graficoSpeseCategoria').getContext('2d');
-    new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: categorie,
-            datasets: [{
-                data: importi,
-                backgroundColor: ['#ff6384', '#36a2eb', '#ffcd56', '#4bc0c0', '#9966ff', '#ff9f40']
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Distribuzione Spese per Categoria'
-                }
-            }
-        }
-    });
-}
-
-function aggiornaProgressoRisparmio(obiettivoRisparmio) {
-    let saldoCorrente = 0;
-    transazioni.forEach(([id, transazione]) => {
-        saldoCorrente += transazione.tipo === 'Entrata' ? transazione.importo : -transazione.importo;
-    });
-
-    const percentualeRisparmio = Math.min((saldoCorrente / obiettivoRisparmio) * 100, 100);
-    document.getElementById('percentualeRisparmio').style.width = `${percentualeRisparmio}%`;
-    document.getElementById('percentualeRisparmio').innerText = `${percentualeRisparmio.toFixed(0)}%`;
-}
-
-// Esempio di chiamate delle funzioni (da inserire nella funzione onload)
-window.onload = function () {
-    impostaDataCorrente();
-    aggiornaDashboard();
-    aggiornaGraficoSpeseCategoria();
-    aggiornaProgressoRisparmio(1000); // Esempio di obiettivo di risparmio impostato a €1000
-};
-
