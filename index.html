@@ -9,15 +9,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<div id="loginContainer">
-    <label for="userName">Inserisci il tuo nome:</label>
-    <input type="text" id="userName" placeholder="Es. Giulia o Alessio">
-    <button onclick="salvaNomeUtente()">Conferma</button>
-</div>
+    <!-- Login Container per inserire il nome dell'utente -->
+    <div id="loginContainer">
+        <label for="userName">Inserisci il tuo nome:</label>
+        <input type="text" id="userName" placeholder="Es. Giulia o Alessio">
+        <button onclick="salvaNomeUtente()" aria-label="Conferma nome utente">Conferma</button>
+    </div>
 
     <div class="container">
         <h1>Gestione Budget A&G</h1>
-
 
         <!-- Sezione Entrate -->
         <section id="entrate">
@@ -106,9 +106,8 @@
         <!-- Filtro per il mese -->
         <section id="filtroMese">
             <h2>Filtra per Mese</h2>
-            <input type="month" id="meseFiltro" onchange="filtraPerMese(); aggiornaRiepilogoCategoria();">
-        </section>
-
+            <input type="month" id="meseFiltro" onchange="filtraPerMese();"
+        
         <!-- Tabella delle transazioni -->
         <section id="riepilogoMensile">
             <h2>Transazioni</h2>
@@ -116,7 +115,7 @@
                 <table>
                     <thead>
                         <tr>
-			    <th>Persona</th>
+                            <th>Persona</th>
                             <th>Categoria</th>
                             <th>Descrizione</th>
                             <th>Data</th>
@@ -131,7 +130,6 @@
             </div>
         </section>
 
-
         <!-- Riepilogo mensile sotto la tabella delle transazioni -->
         <section id="riepilogoPerMese">
             <h2>Riepilogo Mese</h2>
@@ -145,41 +143,15 @@
             <div id="riepilogoUscite">Totale Uscite: €0</div>
             <div id="riepilogoSaldo">Saldo Totale: €0</div>
         </section>
-<section id="filtroCategoriaTotale">
-    <h2>Riepilogo Totale per Categoria</h2>
-    <label for="selezionaCategoria">Seleziona Categoria:</label>
-    <select id="selezionaCategoria" onchange="aggiornaRiepilogoCategoria()">
-        <option value="">Tutte le Categorie</option>
-        <option value="CONDOMINIO">CONDOMINIO</option>
-        <option value="ALIMENTARI">ALIMENTARI</option>
-        <option value="COSE DI CASA">COSE DI CASA</option>
-        <option value="ANIMALI">ANIMALI</option>
-  <option value="LUCE">LUCE</option>
-                    <option value="INTERNET + CELLULARE">INTERNET + CELLULARE</option>
-                    <option value="VARIE">VARIE</option>
-                    <option value="SPORT">SPORT</option>
-                    <option value="CULTURA">CULTURA</option>
-                    <option value="SALUTE">SALUTE</option>
-                    <option value="BELLEZZA">BELLEZZA</option>
-                    <option value="ABBIGLIAMENTO">ABBIGLIAMENTO</option>
-                    <option value="RATA AUTO">RATA AUTO</option>
-                    <option value="CONSUMI">CONSUMI</option>
-                    <option value="MANUTENZIONE">MANUTENZIONE</option>
-                    <option value="AUTOSTRADA/PARCHEGGI/MULTE">AUTOSTRADA/PARCHEGGI/MULTE</option>
-                    <option value="ASSICURAZIONE">ASSICURAZIONE</option>
-                    <option value="BOLLI TAGLIANDI">BOLLI TAGLIANDI</option>
-                    <option value="COLAZIONI">COLAZIONI</option>
-                    <option value="PRANZI">PRANZI</option>
-                    <option value="MERENDE">MERENDE</option>
-                    <option value="APE DOPO CENA">APE DOPO CENA</option>
-                    <option value="CENE INSIEME">CENE INSIEME</option>
-                    <option value="SERATE CON AMICI">SERATE CON AMICI</option>
-                    <option value="VACANZE">VACANZE</option>
-                    <option value="REGALI">REGALI</option>
-        <!-- Aggiungi altre categorie qui -->
-    </select>
-    <div id="riepilogoCategoriaTotale">Totale: €0</div>
-</section>
+<button onclick="apriPaginaDettaglio()">Visualizza Dettaglio Uscite per Categoria</button>
+
+<script>
+function apriPaginaDettaglio() {
+    const filtroAnno = document.getElementById('meseFiltro').value.slice(0, 4); // Ottieni solo l'anno
+    localStorage.setItem('filtroAnno', filtroAnno); // Salva l'anno in localStorage
+    window.location.href = "dettaglioUscite.html"; // Vai alla pagina del dettaglio
+}
+</script>
 
 
         <!-- Riepilogo per persona -->
@@ -195,16 +167,18 @@
             <div id="riepilogoAlessioSaldo">Saldo Alessio: €0</div>
         </section>
 
+        <!-- Sezione Grafico a Torta per Spese per Categoria -->
+        <section id="graficoSpeseCategoria">
+            <h2>Distribuzione Spese per Categoria</h2>
+            <canvas id="graficoTortaSpese"></canvas>
+        </section>
+
+        <!-- Include lo script alla fine del container -->
         <script src="script.js" type="module"></script>
     </div>
-<!-- Sezione Grafico a Torta per Spese per Categoria -->
-<section id="graficoSpeseCategoria">
-    <h2>Distribuzione Spese per Categoria</h2>
-    <canvas id="graficoTortaSpese"></canvas>
-</section>
-</body>
-<footer style="text-align: center; padding: 10px; margin-top: 20px; font-size: 0.85em; color: #666;">
 
-    Gestione Budget Familiare - Creato con ❤️ da Alessio
-</footer>
+    <footer style="text-align: center; padding: 10px; margin-top: 20px; font-size: 0.85em; color: #666;">
+        Gestione Budget Familiare - Creato con ❤️ da Alessio
+    </footer>
+</body>
 </html>
