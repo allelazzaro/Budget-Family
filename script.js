@@ -209,12 +209,18 @@ window.aggiungiUscita = function () {
     const importo = document.getElementById("importoUscita").value;
     const data = document.getElementById("dataUscita").value;
 
-    if (importo && !isNaN(importo)) {
-        aggiungiTransazione(persona, 'Uscita', categoria, descrizione, importo, data);
-        document.getElementById("descrizioneUscita").value = '';
-        document.getElementById("importoUscita").value = '';
-                alert("Inserisci un importo valido per l'uscita.");
+    // Verifica che l'importo sia un numero e maggiore di zero
+    if (!importo || isNaN(importo) || parseFloat(importo) <= 0) {
+        alert("Inserisci un importo valido per l'uscita.");
+        return; // Interrompe l'esecuzione se l'importo non è valido
     }
+
+    // Se l'importo è valido, prosegue con l'inserimento della transazione
+    aggiungiTransazione(persona, 'Uscita', categoria, descrizione, importo, data);
+
+    // Pulisce i campi del modulo
+    document.getElementById("descrizioneUscita").value = '';
+    document.getElementById("importoUscita").value = '';
 };
 
 

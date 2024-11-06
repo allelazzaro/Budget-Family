@@ -4,12 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dettaglio Uscite per Categoria</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dettaglioUscite.css">
 </head>
 <body>
-    <h1>Dettaglio Uscite per Categoria</h1>
-    <div id="riepilogoUscitePerCategoria"></div>
-    <button onclick="window.location.href='index.html'">Torna alla Pagina Principale</button>
-    <script src="dettaglioUscite.js" type="module"></script>
+    <div class="container">
+        <h1>Dettaglio Uscite per Categoria</h1>
+        <button onclick="window.location.href='index.html'" class="btn btn-primary">Torna alla Pagina Principale</button>
+        <div id="riepilogoUscitePerCategoria" class="riepilogo">
+            <!-- I dettagli delle uscite per categoria saranno mostrati qui -->
+        
+        </div>
+    </div>
+<h2>Grafico delle Uscite per Categoria</h2>
+<canvas id="graficoUsciteCategoria" width="400" height="200"></canvas>
+
+    <!-- Importa Firebase in modalità compatibile -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+
+    <!-- Script personalizzato -->
+    <script src="dettaglioUscite.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
