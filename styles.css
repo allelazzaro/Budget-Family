@@ -318,3 +318,12 @@ tfoot td {
     overflow-x: auto; /* Abilita lo scroll orizzontale */
     -webkit-overflow-scrolling: touch; /* Supporto per scorrimento fluido su iOS */
 }
+@media (max-width: 600px) {
+    table, thead, tbody, th, td, tr {
+        font-size: 0.8em; /* Riduce la dimensione del testo */
+    }
+    .btn-azione {
+        padding: 5px 8px; /* Riduce il padding dei pulsanti */
+        font-size: 0.75em; /* Riduce la dimensione del testo dei pulsanti */
+    }
+}
