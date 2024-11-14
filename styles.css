@@ -313,3 +313,8 @@ tfoot td {
 #listaTransazioniContainer {
     display: none;
 }
+/* Aggiungi scorrimento orizzontale su dispositivi piccoli */
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* per uno scorrimento più fluido su dispositivi iOS */
+}
