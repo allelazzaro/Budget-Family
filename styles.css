@@ -313,8 +313,8 @@ tfoot td {
 #listaTransazioniContainer {
     display: none;
 }
-/* Aggiungi scorrimento orizzontale su dispositivi piccoli */
+/* Rende la tabella scorrevole su dispositivi mobili */
 .table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* per uno scorrimento più fluido su dispositivi iOS */
+    overflow-x: auto; /* Abilita lo scroll orizzontale */
+    -webkit-overflow-scrolling: touch; /* Supporto per scorrimento fluido su iOS */
 }
