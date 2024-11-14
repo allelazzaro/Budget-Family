@@ -109,10 +109,11 @@
             <input type="month" id="meseFiltro" onchange="filtraPerMese();"
         
         <!-- Tabella delle transazioni -->
+<button id="toggleButton" onclick="toggleTransazioniVisibili()">Mostra Transazioni</button>
+
         <section id="riepilogoMensile">
             <h2>Transazioni</h2>
-            <div class="table-container">
-                <table>
+<div id="listaTransazioniContainer" style="display: none;">                <table>
                     <thead>
                         <tr>
                             <th>Persona</th>

@@ -309,3 +309,7 @@ tfoot td {
     background-color: #2ecc71;
     transition: width 0.5s;
 }
+/* Nascondi contenitore delle transazioni per default */
+#listaTransazioniContainer {
+    display: none;
+}

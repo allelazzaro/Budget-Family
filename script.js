@@ -399,3 +399,19 @@ window.onload = function () {
         document.getElementById('loginContainer').style.display = 'block';
     }
 }
+let transazioniVisibili = false; // Dichiara la variabile globale
+
+window.toggleTransazioniVisibili = function () {
+    transazioniVisibili = !transazioniVisibili;
+    const container = document.getElementById('listaTransazioniContainer');
+    if (container) {
+        container.style.display = transazioniVisibili ? 'block' : 'none';
+    }
+    const toggleButton = document.getElementById('toggleButton');
+    if (toggleButton) {
+        toggleButton.innerText = transazioniVisibili ? "Nascondi Transazioni" : "Mostra Transazioni";
+    }
+    if (transazioniVisibili) {
+        aggiornaListaTransazioni(document.getElementById('meseFiltro').value);
+    }
+};
