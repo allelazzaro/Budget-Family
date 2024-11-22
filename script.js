@@ -394,12 +394,22 @@ function aggiornaGraficoSpesePerCategoria() {
     });
 }
 window.salvaNomeUtente = function () {
-    const nomeUtente = document.getElementById('userName').value;
-    localStorage.setItem('nomeUtente', nomeUtente);
-    document.getElementById('personaEntrata').value = nomeUtente;
-    document.getElementById('personaUscita').value = nomeUtente;
-    document.getElementById('loginContainer').style.display = 'none'; // Nasconde il contenitore di login
-}
+    const nomeUtente = document.getElementById('userName').value.trim();
+    
+    if (nomeUtente) {
+        // Salva il nome utente nel localStorage
+        localStorage.setItem('nomeUtente', nomeUtente);
+
+        // Aggiorna i campi per le transazioni con il nome inserito
+        document.getElementById('personaEntrata').value = nomeUtente;
+        document.getElementById('personaUscita').value = nomeUtente;
+
+        // Nasconde il contenitore del login
+        document.getElementById('loginContainer').style.display = 'none';
+    } else {
+        alert("Inserisci un nome valido.");
+    }
+};
 window.aggiornaRiepilogoCategoria = function () {
     const categoriaSelezionata = document.getElementById('selezionaCategoria').value;
     const meseFiltro = document.getElementById('meseFiltro').value;
@@ -427,31 +437,40 @@ window.aggiornaRiepilogoCategoria = function () {
 
 
 // Funzione per salvare il nome utente in localStorage
-function salvaNomeUtente() {
-    const nomeUtente = document.getElementById('userName').value;
-    if (nomeUtente) {
-        localStorage.setItem('nomeUtente', nomeUtente);
-        aggiornaNomeUtente(nomeUtente);
-    }
-}
+window.salvaNomeUtente = function () {
+    const nomeUtente = document.getElementById('userName').value.trim();
 
-// Funzione per aggiornare i campi persona con il nome utente e nascondere il loginContainer
+    if (nomeUtente) {
+        // Salva il nome utente nel localStorage
+        localStorage.setItem('nomeUtente', nomeUtente);
+
+        // Mostra il messaggio di benvenuto
+        document.getElementById('welcomeMessage').innerText = `Ciao, ${nomeUtente}!`;
+
+        // Nasconde il contenitore del login e mostra l'app
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+    } else {
+        alert("Inserisci un nome valido.");
+    }
+};
+
+// Definizione della funzione aggiornaNomeUtente
 function aggiornaNomeUtente(nomeUtente) {
     document.getElementById('personaEntrata').value = nomeUtente;
     document.getElementById('personaUscita').value = nomeUtente;
     document.getElementById('loginContainer').style.display = 'none';
 }
 
-// Recupera il nome utente da localStorage all'avvio della pagina
+// Codice che usa aggiornaNomeUtente
 window.onload = function () {
     const nomeUtente = localStorage.getItem('nomeUtente');
     if (nomeUtente) {
         aggiornaNomeUtente(nomeUtente);
     } else {
-        document.getElementById('loginContainer').style.display = 'block'; // Mostra il loginContainer se il nome non è memorizzato
+        document.getElementById('loginContainer').style.display = 'block';
     }
-
-}
+};
 // Chiama impostaDataCorrente al caricamento della pagina per impostare le date di default
 window.onload = function () {
     impostaDataCorrente();
