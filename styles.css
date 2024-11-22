@@ -253,8 +253,8 @@ tfoot td {
     }
 
     #graficoTortaSpese {
-        max-width: 600px;
-       margin: 0 auto;
+        max-width: 700px;
+       margin: 70 auto;
     }
 }
 
@@ -326,4 +326,17 @@ tfoot td {
         padding: 5px 8px; /* Riduce il padding dei pulsanti */
         font-size: 0.75em; /* Riduce la dimensione del testo dei pulsanti */
     }
+}
+@media (max-width: 600px) {
+    #graficoContainer h3 {
+        font-size: 1.2em; /* Riduci la dimensione del titolo su schermi piccoli */
+        margin-bottom: 15px;
+    }
+}
+#graficoContainer h3 {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #3498db;
+    margin-bottom: 20px;
 }
