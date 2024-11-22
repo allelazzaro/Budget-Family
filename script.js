@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 // Configurazione Firebase
 const firebaseConfig = {
@@ -15,7 +16,69 @@ const firebaseConfig = {
 // Inizializza Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
 const transazioniRef = ref(db, 'transazioni'); // Riferimento alla collezione delle transazioni
+
+// Variabile per tracciare l'utente autenticato
+let utenteCorrente = null;
+
+// Gestione dello stato dell'autenticazione
+onAuthStateChanged(auth, (utente) => {
+    if (utente) {
+        utenteCorrente = utente;
+        document.getElementById('loginContainer').style.display = 'none'; // Nascondi il login
+        document.getElementById('appContainer').style.display = 'block'; // Mostra l'app
+        aggiornaListaTransazioni(document.getElementById('meseFiltro').value); // Aggiorna le transazioni
+    } else {
+        utenteCorrente = null;
+        document.getElementById('loginContainer').style.display = 'block'; // Mostra il login
+        document.getElementById('appContainer').style.display = 'none'; // Nascondi l'app
+    }
+});
+
+// Funzione per registrare un nuovo utente
+window.registrati = function () {
+    const email = document.getElementById('emailRegistrazione').value;
+    const password = document.getElementById('passwordRegistrazione').value;
+
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            alert("Registrazione completata!");
+        })
+        .catch((error) => {
+            console.error("Errore durante la registrazione:", error.message);
+            alert("Errore durante la registrazione: " + error.message);
+        });
+};
+
+// Funzione per effettuare il login
+window.accedi = function () {
+    const email = document.getElementById('emailLogin').value;
+    const password = document.getElementById('passwordLogin').value;
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            alert("Accesso effettuato con successo!");
+        })
+        .catch((error) => {
+            console.error("Errore durante l'accesso:", error.message);
+            alert("Errore durante l'accesso: " + error.message);
+        });
+};
+
+// Funzione per effettuare il logout
+window.esci = function () {
+    signOut(auth)
+        .then(() => {
+            alert("Logout effettuato con successo!");
+        })
+        .catch((error) => {
+            console.error("Errore durante il logout:", error.message);
+        });
+};
+
+// Aggiorna altre funzioni per garantire che solo l'utente autenticato possa accedere ai dati...
+
 
 let transazioni = [];
 
