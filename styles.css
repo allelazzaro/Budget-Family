@@ -223,41 +223,50 @@ tfoot td {
     margin-bottom: 20px;
 }
 
-/* Stile del grafico */
-#graficoTortaSpese {
-    max-width: 400px;
-    max-height: 400px;
+/* Contenitore del grafico */
+#graficoContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra il contenitore del grafico */
+    justify-content: center;
     margin: 0 auto;
+    padding: 10px; /* Spaziatura interna */
+    width: 100%; /* Adatta alla larghezza disponibile */
+    box-sizing: border-box;
+    max-width: 500px; /* Limita la larghezza massima su desktop */
 }
 
-/* Design responsive */
+/* Stile del grafico */
+#graficoTortaSpese {
+    width: 100%; /* Il grafico occupa tutta la larghezza del contenitore */
+    max-width: 400px; /* Limita la larghezza del grafico su desktop */
+    height: auto; /* Mantiene proporzioni corrette */
+}
+
+/* Stile del titolo */
+#graficoContainer h3 {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #3498db;
+    margin-bottom: 20px;
+}
+
+/* Adattamento su dispositivi mobili */
 @media (max-width: 600px) {
-    h1 {
-        font-size: 1.5em;
-    }
-    h2 {
-        font-size: 1.2em;
-    }
-
-    .container {
-        padding: 10px;
-    }
-
-    input, select, button {
-        width: 100%;
-        font-size: 1em;
-    }
-
-    table, thead, tbody, th, td, tr {
-        font-size: 0.8em;
+    #graficoContainer {
+        padding: 5px; /* Riduce la spaziatura su schermi piccoli */
+        max-width: 300px; /* Limita la larghezza massima */
     }
 
     #graficoTortaSpese {
-        max-width: 700px;
-       margin: 70 auto;
+        max-width: 100%; /* Adatta il grafico alla larghezza del contenitore */
+    }
+
+    #graficoContainer h3 {
+        font-size: 1.2em; /* Riduce la dimensione del titolo */
     }
 }
-
 
 .btn-azione {
     padding: 4px 1px; /* Riduci il padding per rendere i pulsanti più piccoli */
