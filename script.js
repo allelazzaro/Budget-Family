@@ -329,14 +329,9 @@ function aggiornaGraficoSpesePerCategoria() {
     const spesePerCategoria = {};
     transazioni.forEach(([id, transazione]) => {
         const annoTransazione = transazione.data.slice(0, 4);
-        
-        // Filtra solo le transazioni dell'anno selezionato
+
         if (transazione.tipo === 'Uscita' && annoTransazione === annoSelezionato) {
-            if (spesePerCategoria[transazione.categoria]) {
-                spesePerCategoria[transazione.categoria] += transazione.importo;
-            } else {
-                spesePerCategoria[transazione.categoria] = transazione.importo;
-            }
+            spesePerCategoria[transazione.categoria] = (spesePerCategoria[transazione.categoria] || 0) + transazione.importo;
         }
     });
 
@@ -359,38 +354,43 @@ function aggiornaGraficoSpesePerCategoria() {
                 label: 'Spese per Categoria',
                 data: importi,
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)',
-                    'rgba(199, 199, 199, 0.2)'
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384',
+                    '#FFB6C1', '#87CEFA', '#FFD700', '#20B2AA', '#9370DB', '#FFA07A', '#708090'
                 ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(199, 199, 199, 1)'
-                ],
-                borderWidth: 1
-            }]
+                borderColor: '#ffffff',
+                borderWidth: 2,
+            }],
         },
         options: {
             responsive: true,
             plugins: {
                 legend: {
-                    position: 'top',
+                    display: true,
+                    position: 'bottom', // Posiziona la legenda in basso
+                    labels: {
+                        boxWidth: 15,
+                        padding: 15, // Aumenta lo spazio tra le voci della legenda
+                    },
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (tooltipItem) {
+                            const valore = tooltipItem.raw;
+                            const totale = importi.reduce((a, b) => a + b, 0);
+                            const percentuale = ((valore / totale) * 100).toFixed(2);
+                            return `${tooltipItem.label}: €${valore.toFixed(2)} (${percentuale}%)`;
+                        },
+                    },
                 },
                 title: {
                     display: true,
-                    text: `Distribuzione Spese per Categoria (${annoSelezionato})`
-                }
-            }
-        }
+                    text: `Distribuzione Spese per Categoria (${annoSelezionato})`,
+                    font: {
+                        size: 18,
+                    },
+                },
+            },
+        },
     });
 }
 window.salvaNomeUtente = function () {
