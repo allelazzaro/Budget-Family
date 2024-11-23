@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 // Configurazione Firebase
 const firebaseConfig = {
@@ -26,42 +26,58 @@ let utenteCorrente = null;
 onAuthStateChanged(auth, (utente) => {
     if (utente) {
         utenteCorrente = utente;
-        document.getElementById('loginContainer').style.display = 'none'; // Nascondi il login
-        document.getElementById('appContainer').style.display = 'block'; // Mostra l'app
-        aggiornaListaTransazioni(document.getElementById('meseFiltro').value); // Aggiorna le transazioni
+        console.log("Utente autenticato:", utente);
+        // Nascondi la schermata di login e mostra l'app principale
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("appContainer").style.display = "block";
+
+        // Aggiorna i dati (esempio: transazioni) in base all'utente autenticato
+        aggiornaListaTransazioni(document.getElementById('meseFiltro').value);
     } else {
         utenteCorrente = null;
-        document.getElementById('loginContainer').style.display = 'block'; // Mostra il login
-        document.getElementById('appContainer').style.display = 'none'; // Nascondi l'app
+        console.log("Nessun utente autenticato.");
+        // Mostra il login e nascondi l'app principale
+        document.getElementById("loginContainer").style.display = "block";
+        document.getElementById("appContainer").style.display = "none";
     }
 });
 
 // Funzione per registrare un nuovo utente
 window.registrati = function () {
-    const email = document.getElementById('emailRegistrazione').value;
-    const password = document.getElementById('passwordRegistrazione').value;
+    const email = document.getElementById('emailRegistrazione').value.trim();
+    const password = document.getElementById('passwordRegistrazione').value.trim();
+
+    if (!email || !password) {
+        alert("Per favore, inserisci un'email e una password valide.");
+        return;
+    }
 
     createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             alert("Registrazione completata!");
         })
         .catch((error) => {
-            console.error("Errore durante la registrazione:", error.message);
+            console.error("Errore durante la registrazione:", error);
             alert("Errore durante la registrazione: " + error.message);
         });
 };
 
 // Funzione per effettuare il login
 window.accedi = function () {
-    const email = document.getElementById('emailLogin').value;
-    const password = document.getElementById('passwordLogin').value;
+    const email = document.getElementById('emailLogin').value.trim();
+    const password = document.getElementById('passwordLogin').value.trim();
+
+    if (!email || !password) {
+        alert("Per favore, inserisci un'email e una password valide.");
+        return;
+    }
 
     signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             alert("Accesso effettuato con successo!");
         })
         .catch((error) => {
-            console.error("Errore durante l'accesso:", error.message);
+            console.error("Errore durante l'accesso:", error);
             alert("Errore durante l'accesso: " + error.message);
         });
 };
@@ -73,25 +89,26 @@ window.esci = function () {
             alert("Logout effettuato con successo!");
         })
         .catch((error) => {
-            console.error("Errore durante il logout:", error.message);
+            console.error("Errore durante il logout:", error);
         });
 };
-
-// Aggiorna altre funzioni per garantire che solo l'utente autenticato possa accedere ai dati...
-
 
 let transazioni = [];
 
 // Funzione per salvare il filtro mese selezionato nel localStorage
 function salvaFiltroMese() {
-    const meseFiltro = document.getElementById('meseFiltro').value;
-    localStorage.setItem('meseFiltro', meseFiltro);
-    filtraPerMese(); // aggiorna i dati della pagina principale in base al mese
+    const meseFiltroElement = document.getElementById('meseFiltro');
+    if (meseFiltroElement) {
+        const meseFiltro = meseFiltroElement.value;
+        localStorage.setItem('meseFiltro', meseFiltro);
+        filtraPerMese(); // aggiorna i dati della pagina principale in base al mese
+    } else {
+        console.error("Elemento 'meseFiltro' non trovato.");
+    }
 }
 
 // Associa la funzione al cambio del filtro mese
 document.getElementById('meseFiltro').addEventListener('change', salvaFiltroMese);
-
 
 // Funzione per ottenere la data corrente in formato 'YYYY-MM-DD'
 function getDataCorrente() {
@@ -136,7 +153,6 @@ function aggiungiTransazione(persona, tipo, categoria, descrizione, importo, dat
     });
 }
 
-
 // Funzione per formattare la data in formato DD/MM/YYYY
 function formattaData(data) {
     const [anno, mese, giorno] = data.split("-");
@@ -146,6 +162,10 @@ function formattaData(data) {
 // Funzione per aggiornare la lista delle transazioni con filtro mese
 function aggiornaListaTransazioni(meseFiltro = null) {
     const listaTransazioniElement = document.getElementById('listaTransazioni');
+    if (!listaTransazioniElement) {
+        console.error("Elemento 'listaTransazioni' non trovato.");
+        return;
+    }
     listaTransazioniElement.innerHTML = ''; // Svuota la lista attuale
 
     transazioni.forEach(([id, transazione]) => {
@@ -171,7 +191,6 @@ function aggiornaListaTransazioni(meseFiltro = null) {
         }
     });
 }
-
 // Funzione per aggiornare i riepiloghi totali e per persona filtrati per anno
 function aggiornaRiepiloghi() {
     const meseFiltro = document.getElementById('meseFiltro').value;
@@ -286,13 +305,11 @@ window.aggiungiUscita = function () {
     document.getElementById("importoUscita").value = '';
 };
 
-
 // Funzione per cancellare una transazione
 window.cancellaTransazione = function (id) {
     remove(ref(db, `transazioni/${id}`))
         .then(() => {
             console.log("Transazione cancellata con successo");
-            aggiornaRiepilogoCategoria(); // Aggiorna il riepilogo per categoria
             aggiornaRiepiloghi(); // Aggiorna gli altri riepiloghi se necessario
             aggiornaRiepilogoMensile(); // Aggiorna il riepilogo mensile se necessario
             aggiornaListaTransazioni(document.getElementById('meseFiltro').value); // Aggiorna la lista delle transazioni
@@ -301,7 +318,6 @@ window.cancellaTransazione = function (id) {
             console.error("Errore nella cancellazione della transazione:", error);
         });
 };
-
 
 // Funzione per modificare una transazione
 window.modificaTransazione = function (id) {
@@ -435,7 +451,6 @@ window.aggiornaRiepilogoCategoria = function () {
     document.getElementById('riepilogoCategoriaTotale').innerText = `Totale: €${totaleCategoria.toFixed(2)}`;
 }
 
-
 // Funzione per salvare il nome utente in localStorage
 window.salvaNomeUtente = function () {
     const nomeUtente = document.getElementById('userName').value.trim();
@@ -462,25 +477,18 @@ function aggiornaNomeUtente(nomeUtente) {
     document.getElementById('loginContainer').style.display = 'none';
 }
 
-// Codice che usa aggiornaNomeUtente
 window.onload = function () {
+    impostaDataCorrente(); // Imposta la data corrente nei campi
     const nomeUtente = localStorage.getItem('nomeUtente');
     if (nomeUtente) {
         aggiornaNomeUtente(nomeUtente);
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
     } else {
         document.getElementById('loginContainer').style.display = 'block';
     }
 };
-// Chiama impostaDataCorrente al caricamento della pagina per impostare le date di default
-window.onload = function () {
-    impostaDataCorrente();
-    const nomeUtente = localStorage.getItem('nomeUtente');
-    if (nomeUtente) {
-        aggiornaNomeUtente(nomeUtente);
-    } else {
-        document.getElementById('loginContainer').style.display = 'block';
-    }
-}
+
 let transazioniVisibili = false; // Dichiara la variabile globale
 
 window.toggleTransazioniVisibili = function () {

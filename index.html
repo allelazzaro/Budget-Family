@@ -1,128 +1,128 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<div id="loginContainer">
-    <h2>Registrati</h2>
-    <input type="email" id="emailRegistrazione" placeholder="Email" />
-    <input type="password" id="passwordRegistrazione" placeholder="Password" />
-    <button onclick="registrati()">Registrati</button>
-
-    <h2>Accedi</h2>
-    <input type="email" id="emailLogin" placeholder="Email" />
-    <input type="password" id="passwordLogin" placeholder="Password" />
-    <button onclick="accedi()">Accedi</button>
-</div>
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Budget Familiare</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
 </head>
 <body>
-    
+    <!-- Container per Registrazione e Login -->
+    <div id="loginContainer">
+        <h2>Registrati</h2>
+        <input type="email" id="emailRegistrazione" placeholder="Email" />
+        <input type="password" id="passwordRegistrazione" placeholder="Password" />
+        <button onclick="registrati()">Registrati</button>
 
-    <div class="container">
-        <h1>Gestione Budget A&G</h1>
+        <h2>Accedi</h2>
+        <input type="email" id="emailLogin" placeholder="Email" />
+        <input type="password" id="passwordLogin" placeholder="Password" />
+        <button onclick="accedi()">Accedi</button>
+    </div>
 
-        <!-- Sezione Entrate -->
-        <section id="entrate">
-            <h2>Entrate</h2>
-            <div>
-                <label for="personaEntrata">Seleziona Persona:</label>
-                <select id="personaEntrata">
-                    <option value="Giulia">Giulia</option>
-                    <option value="Alessio">Alessio</option>
-                </select>
-            </div>
-            <div>
-                <label for="tipoEntrata">Tipo di Entrata:</label>
-                <select id="tipoEntrata">
-                    <option value="stipendio">Stipendio</option>
-                    <option value="extra">Extra</option>
-                </select>
-            </div>
-            <div>
-                <label for="importoEntrata">Importo:</label>
-                <input type="number" id="importoEntrata" placeholder="Inserisci l'importo">
-            </div>
-            <div>
-                <label for="dataEntrata">Data:</label>
-                <input type="date" id="dataEntrata">
-            </div>
-            <button onclick="aggiungiEntrata()">Aggiungi Entrata</button>
-        </section>
+    <!-- Container per l'app principale (nascosto inizialmente) -->
+    <div id="appContainer" style="display: none;">
+        <div class="container">
+            <h1>Gestione Budget A&G</h1>
 
-        <!-- Sezione Uscite -->
-        <section id="uscite">
-            <h2>Uscite</h2>
-            <div>
-                <label for="personaUscita">Chi ha inserito la spesa:</label>
-                <select id="personaUscita">
-                    <option value="Giulia">Giulia</option>
-                    <option value="Alessio">Alessio</option>
-                </select>
-            </div>
-            <div>
-                <label for="categoriaUscita">Seleziona Categoria:</label>
-                <select id="categoriaUscita">
-                    <option value="CONDOMINIO">CONDOMINIO</option>
-                    <option value="ALIMENTARI">ALIMENTARI</option>
-                    <option value="COSE DI CASA">COSE DI CASA</option>
-                    <option value="ANIMALI">ANIMALI</option>
-                    <option value="LUCE">LUCE</option>
-                    <option value="INTERNET + CELLULARE">INTERNET + CELLULARE</option>
-                    <option value="VARIE">VARIE</option>
-                    <option value="SPORT">SPORT</option>
-                    <option value="CULTURA">CULTURA</option>
-                    <option value="SALUTE">SALUTE</option>
-                    <option value="BELLEZZA">BELLEZZA</option>
-                    <option value="ABBIGLIAMENTO">ABBIGLIAMENTO</option>
-                    <option value="RATA AUTO">RATA AUTO</option>
-                    <option value="CONSUMI">CONSUMI</option>
-                    <option value="MANUTENZIONE">MANUTENZIONE</option>
-                    <option value="AUTOSTRADA/PARCHEGGI/MULTE">AUTOSTRADA/PARCHEGGI/MULTE</option>
-                    <option value="ASSICURAZIONE">ASSICURAZIONE</option>
-                    <option value="BOLLI TAGLIANDI">BOLLI TAGLIANDI</option>
-                    <option value="COLAZIONI">COLAZIONI</option>
-                    <option value="PRANZI">PRANZI</option>
-                    <option value="MERENDE">MERENDE</option>
-                    <option value="APE DOPO CENA">APE DOPO CENA</option>
-                    <option value="CENE INSIEME">CENE INSIEME</option>
-                    <option value="SERATE CON AMICI">SERATE CON AMICI</option>
-                    <option value="VACANZE">VACANZE</option>
-                    <option value="REGALI">REGALI</option>
-                </select>
-            </div>
-            <div>
-                <label for="descrizioneUscita">Descrizione:</label>
-                <input type="text" id="descrizioneUscita" placeholder="Descrizione della spesa">
-            </div>
-            <div>
-                <label for="importoUscita">Importo:</label>
-                <input type="number" id="importoUscita" placeholder="Inserisci importo">
-            </div>
-            <div>
-                <label for="dataUscita">Data:</label>
-                <input type="date" id="dataUscita">
-            </div>
-            <button onclick="aggiungiUscita()">Aggiungi Uscita</button>
-        </section>
+            <!-- Sezione Entrate -->
+            <section id="entrate">
+                <h2>Entrate</h2>
+                <div>
+                    <label for="personaEntrata">Seleziona Persona:</label>
+                    <select id="personaEntrata">
+                        <option value="Giulia">Giulia</option>
+                        <option value="Alessio">Alessio</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="tipoEntrata">Tipo di Entrata:</label>
+                    <select id="tipoEntrata">
+                        <option value="stipendio">Stipendio</option>
+                        <option value="extra">Extra</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="importoEntrata">Importo:</label>
+                    <input type="number" id="importoEntrata" placeholder="Inserisci l'importo">
+                </div>
+                <div>
+                    <label for="dataEntrata">Data:</label>
+                    <input type="date" id="dataEntrata">
+                </div>
+                <button onclick="aggiungiEntrata()">Aggiungi Entrata</button>
+            </section>
 
-        <!-- Filtro per il mese -->
-        <section id="filtroMese">
-            <h2>Filtra per Mese</h2>
-            <input type="month" id="meseFiltro" onchange="filtraPerMese();"
-        
-        <!-- Tabella delle transazioni -->
-<button id="toggleButton" onclick="toggleTransazioniVisibili()">Mostra Transazioni</button>
+            <!-- Sezione Uscite -->
+            <section id="uscite">
+                <h2>Uscite</h2>
+                <div>
+                    <label for="personaUscita">Chi ha inserito la spesa:</label>
+                    <select id="personaUscita">
+                        <option value="Giulia">Giulia</option>
+                        <option value="Alessio">Alessio</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="categoriaUscita">Seleziona Categoria:</label>
+                    <select id="categoriaUscita">
+                        <option value="CONDOMINIO">CONDOMINIO</option>
+                        <option value="ALIMENTARI">ALIMENTARI</option>
+                        <option value="COSE DI CASA">COSE DI CASA</option>
+                        <option value="ANIMALI">ANIMALI</option>
+                        <option value="LUCE">LUCE</option>
+                        <option value="INTERNET + CELLULARE">INTERNET + CELLULARE</option>
+                        <option value="VARIE">VARIE</option>
+                        <option value="SPORT">SPORT</option>
+                        <option value="CULTURA">CULTURA</option>
+                        <option value="SALUTE">SALUTE</option>
+                        <option value="BELLEZZA">BELLEZZA</option>
+                        <option value="ABBIGLIAMENTO">ABBIGLIAMENTO</option>
+                        <option value="RATA AUTO">RATA AUTO</option>
+                        <option value="CONSUMI">CONSUMI</option>
+                        <option value="MANUTENZIONE">MANUTENZIONE</option>
+                        <option value="AUTOSTRADA/PARCHEGGI/MULTE">AUTOSTRADA/PARCHEGGI/MULTE</option>
+                        <option value="ASSICURAZIONE">ASSICURAZIONE</option>
+                        <option value="BOLLI TAGLIANDI">BOLLI TAGLIANDI</option>
+                        <option value="COLAZIONI">COLAZIONI</option>
+                        <option value="PRANZI">PRANZI</option>
+                        <option value="MERENDE">MERENDE</option>
+                        <option value="APE DOPO CENA">APE DOPO CENA</option>
+                        <option value="CENE INSIEME">CENE INSIEME</option>
+                        <option value="SERATE CON AMICI">SERATE CON AMICI</option>
+                        <option value="VACANZE">VACANZE</option>
+                        <option value="REGALI">REGALI</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="descrizioneUscita">Descrizione:</label>
+                    <input type="text" id="descrizioneUscita" placeholder="Descrizione della spesa">
+                </div>
+                <div>
+                    <label for="importoUscita">Importo:</label>
+                    <input type="number" id="importoUscita" placeholder="Inserisci importo">
+                </div>
+                <div>
+                    <label for="dataUscita">Data:</label>
+                    <input type="date" id="dataUscita">
+                </div>
+                <button onclick="aggiungiUscita()">Aggiungi Uscita</button>
+            </section>
 
-        <section id="riepilogoMensile">
-            <h2>Transazioni</h2>
-<div class="table-container" id="listaTransazioniContainer">
+            <!-- Filtro per il mese -->
+            <section id="filtroMese">
+                <h2>Filtra per Mese</h2>
+                <input type="month" id="meseFiltro" onchange="filtraPerMese();">
+            </section>
+            
+            <!-- Bottone Mostra/Nascondi Transazioni -->
+            <button id="toggleButton" onclick="toggleTransazioniVisibili()">Mostra Transazioni</button>
+
+            <!-- Tabella delle transazioni -->
+            <div class="table-container" id="listaTransazioniContainer">
+                <h2>Transazioni</h2>
                 <table>
                     <thead>
                         <tr>
@@ -139,57 +139,57 @@
                     </tbody>
                 </table>
             </div>
-        </section>
 
-        <!-- Riepilogo mensile sotto la tabella delle transazioni -->
-        <section id="riepilogoPerMese">
-            <h2>Riepilogo Mese</h2>
-            <div id="riepilogoMese"></div>
-        </section>
+            <!-- Riepilogo mensile sotto la tabella delle transazioni -->
+            <section id="riepilogoPerMese">
+                <h2>Riepilogo Mese</h2>
+                <div id="riepilogoMese"></div>
+            </section>
 
-        <!-- Riepilogo dettagliato -->
-        <section id="riepiloghi">
-            <h2>Riepilogo Anno</h2>
-            <div id="riepilogoEntrate">Totale Entrate: €0</div>
-            <div id="riepilogoUscite">Totale Uscite: €0</div>
-            <div id="riepilogoSaldo">Saldo Totale: €0</div>
-        </section>
-<button onclick="apriPaginaDettaglio()">Visualizza Dettaglio Uscite per Categoria</button>
+            <!-- Riepilogo dettagliato -->
+            <section id="riepiloghi">
+                <h2>Riepilogo Anno</h2>
+                <div id="riepilogoEntrate">Totale Entrate: €0</div>
+                <div id="riepilogoUscite">Totale Uscite: €0</div>
+                <div id="riepilogoSaldo">Saldo Totale: €0</div>
+            </section>
+            
+            <!-- Bottone per visualizzare il dettaglio delle uscite per categoria -->
+            <button onclick="apriPaginaDettaglio()">Visualizza Dettaglio Uscite per Categoria</button>
+            <script>
+                function apriPaginaDettaglio() {
+                    const filtroAnno = document.getElementById('meseFiltro').value.slice(0, 4); // Ottieni solo l'anno
+                    localStorage.setItem('filtroAnno', filtroAnno); // Salva l'anno in localStorage
+                    window.location.href = "dettaglioUscite.html"; // Vai alla pagina del dettaglio
+                }
+            </script>
 
-<script>
-function apriPaginaDettaglio() {
-    const filtroAnno = document.getElementById('meseFiltro').value.slice(0, 4); // Ottieni solo l'anno
-    localStorage.setItem('filtroAnno', filtroAnno); // Salva l'anno in localStorage
-    window.location.href = "dettaglioUscite.html"; // Vai alla pagina del dettaglio
-}
-</script>
+            <!-- Riepilogo per persona -->
+            <section id="riepiloghiPersone">
+                <h2>Riepilogo Giulia</h2>
+                <div id="riepilogoGiuliaEntrate">Entrate Giulia: €0</div>
+                <div id="riepilogoGiuliaUscite">Uscite Giulia: €0</div>
+                <div id="riepilogoGiuliaSaldo">Saldo Giulia: €0</div>
 
+                <h2>Riepilogo Alessio</h2>
+                <div id="riepilogoAlessioEntrate">Entrate Alessio: €0</div>
+                <div id="riepilogoAlessioUscite">Uscite Alessio: €0</div>
+                <div id="riepilogoAlessioSaldo">Saldo Alessio: €0</div>
+            </section>
 
-        <!-- Riepilogo per persona -->
-        <section id="riepiloghiPersone">
-            <h2>Riepilogo Giulia</h2>
-            <div id="riepilogoGiuliaEntrate">Entrate Giulia: €0</div>
-            <div id="riepilogoGiuliaUscite">Uscite Giulia: €0</div>
-            <div id="riepilogoGiuliaSaldo">Saldo Giulia: €0</div>
+            <!-- Sezione Grafico a Torta per Spese per Categoria -->
+            <section id="graficoSpeseCategoria">
+                <h2>Distribuzione Spese per Categoria</h2>
+                <canvas id="graficoTortaSpese"></canvas>
+            </section>
 
-            <h2>Riepilogo Alessio</h2>
-            <div id="riepilogoAlessioEntrate">Entrate Alessio: €0</div>
-            <div id="riepilogoAlessioUscite">Uscite Alessio: €0</div>
-            <div id="riepilogoAlessioSaldo">Saldo Alessio: €0</div>
-        </section>
+            <!-- Include lo script alla fine del container -->
+            <script src="script.js" type="module"></script>
+        </div>
 
-        <!-- Sezione Grafico a Torta per Spese per Categoria -->
-        <section id="graficoSpeseCategoria">
-            <h2>Distribuzione Spese per Categoria</h2>
-            <canvas id="graficoTortaSpese"></canvas>
-        </section>
-
-        <!-- Include lo script alla fine del container -->
-        <script src="script.js" type="module"></script>
+        <!-- Bottone per effettuare il logout -->
+        <button onclick="esci()">Esci</button>
     </div>
-<div id="appContainer" style="display: none;">
-    <button onclick="esci()">Esci</button>
-</div>
 
     <footer style="text-align: center; padding: 10px; margin-top: 20px; font-size: 0.85em; color: #666;">
         Gestione Budget Familiare - Creato con ❤️ da Alessio
