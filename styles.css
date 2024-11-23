@@ -214,35 +214,28 @@ tfoot td {
     border-top: 2px solid #ddd;
 }
 
-/* Riquadri riepilogo */
-#riepilogoPerMese, #riepiloghi, #riepiloghiPersone {
-    padding: 15px;
-    background-color: #e1f5fe;
-    border: 1px solid #b3e5fc;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-/* Contenitore del grafico */
-#graficoContainer {
+/* Contenitore del grafico - Miglioramento */
+#graficoSpeseCategoria {
     display: flex;
     flex-direction: column;
     align-items: center; /* Centra il contenitore del grafico */
     justify-content: center;
-    margin: 0 auto;
-    padding: 10px; /* Spaziatura interna */
-    width: 100%; /* Adatta alla larghezza disponibile */
+    margin: 20px auto;
+    padding: 15px; /* Spaziatura interna */
+    width: 90%; /* Adatta alla larghezza disponibile */
     box-sizing: border-box;
-    max-width: 500px; /* Limita la larghezza massima su desktop */
+    max-width: 600px; /* Limita la larghezza massima su desktop */
+    background-color: #ffffff; /* Sfondo bianco per il grafico */
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Stile del grafico */
+/* Stile del canvas del grafico */
 #graficoTortaSpese {
-    width: 100%; /* Il grafico occupa tutta la larghezza del contenitore */
-    max-width: 400px; /* Limita la larghezza del grafico su desktop */
-    height: auto; /* Mantiene proporzioni corrette */
+    width: 100% !important; /* Il grafico occupa tutta la larghezza del contenitore */
+    max-width: 500px; /* Limita la larghezza del grafico su desktop */
+    height: auto !important; /* Mantiene proporzioni corrette */
 }
-
 /* Stile del titolo */
 #graficoContainer h3 {
     text-align: center;
@@ -349,3 +342,4 @@ tfoot td {
     color: #3498db;
     margin-bottom: 20px;
 }
+

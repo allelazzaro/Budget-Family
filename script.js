@@ -180,7 +180,7 @@ function aggiornaListaTransazioni(meseFiltro = null) {
                     <td>${transazione.categoria || ''}</td>
                     <td>${transazione.descrizione || ''}</td>
                     <td>${dataFormattata}</td>
-                    <td class="${classeTransazione}">€${parseFloat(transazione.importo).toFixed()}</td>
+                    <td class="${classeTransazione}">€${parseFloat(transazione.importo).toFixed(2)}</td>
                     <td>
                         <button class="btn-azione" onclick="modificaTransazione('${id}')">Modifica</button>
                         <button class="btn-azione" onclick="cancellaTransazione('${id}')">Cancella</button>
@@ -191,6 +191,7 @@ function aggiornaListaTransazioni(meseFiltro = null) {
         }
     });
 }
+
 // Funzione per aggiornare i riepiloghi totali e per persona filtrati per anno
 function aggiornaRiepiloghi() {
     const meseFiltro = document.getElementById('meseFiltro').value;
@@ -225,17 +226,17 @@ function aggiornaRiepiloghi() {
     const saldoGiulia = totaleGiuliaEntrate - totaleGiuliaUscite;
     const saldoAlessio = totaleAlessioEntrate - totaleAlessioUscite;
 
-    document.getElementById('riepilogoEntrate').innerText = `Totale Entrate: €${totaleEntrate.toFixed()}`;
-    document.getElementById('riepilogoUscite').innerText = `Totale Uscite: €${totaleUscite.toFixed()}`;
-    document.getElementById('riepilogoSaldo').innerText = `Saldo Totale: €${saldoTotale.toFixed()}`;
+    document.getElementById('riepilogoEntrate').innerText = `Totale Entrate: €${totaleEntrate.toFixed(2)}`;
+    document.getElementById('riepilogoUscite').innerText = `Totale Uscite: €${totaleUscite.toFixed(2)}`;
+    document.getElementById('riepilogoSaldo').innerText = `Saldo Totale: €${saldoTotale.toFixed(2)}`;
 
-    document.getElementById('riepilogoGiuliaEntrate').innerText = `Entrate Giulia: €${totaleGiuliaEntrate.toFixed()}`;
-    document.getElementById('riepilogoGiuliaUscite').innerText = `Uscite Giulia: €${totaleGiuliaUscite.toFixed()}`;
-    document.getElementById('riepilogoGiuliaSaldo').innerText = `Saldo Giulia: €${saldoGiulia.toFixed()}`;
+    document.getElementById('riepilogoGiuliaEntrate').innerText = `Entrate Giulia: €${totaleGiuliaEntrate.toFixed(2)}`;
+    document.getElementById('riepilogoGiuliaUscite').innerText = `Uscite Giulia: €${totaleGiuliaUscite.toFixed(2)}`;
+    document.getElementById('riepilogoGiuliaSaldo').innerText = `Saldo Giulia: €${saldoGiulia.toFixed(2)}`;
 
-    document.getElementById('riepilogoAlessioEntrate').innerText = `Entrate Alessio: €${totaleAlessioEntrate.toFixed(0)}`;
-    document.getElementById('riepilogoAlessioUscite').innerText = `Uscite Alessio: €${totaleAlessioUscite.toFixed(0)}`;
-    document.getElementById('riepilogoAlessioSaldo').innerText = `Saldo Alessio: €${saldoAlessio.toFixed(0)}`;
+    document.getElementById('riepilogoAlessioEntrate').innerText = `Entrate Alessio: €${totaleAlessioEntrate.toFixed(2)}`;
+    document.getElementById('riepilogoAlessioUscite').innerText = `Uscite Alessio: €${totaleAlessioUscite.toFixed(2)}`;
+    document.getElementById('riepilogoAlessioSaldo').innerText = `Saldo Alessio: €${saldoAlessio.toFixed(2)}`;
 }
 
 // Riepilogo mensile per il mese selezionato
@@ -253,9 +254,9 @@ function aggiornaRiepilogoMensile() {
 
     const saldoMese = totaleEntrateMese - totaleUsciteMese;
     document.getElementById('riepilogoMese').innerHTML = `
-        <div>Entrate: €${totaleEntrateMese.toFixed()}</div>
-        <div>Uscite: €${totaleUsciteMese.toFixed()}</div>
-        <div>Saldo: €${saldoMese.toFixed()}</div>
+        <div>Entrate: €${totaleEntrateMese.toFixed(2)}</div>
+        <div>Uscite: €${totaleUsciteMese.toFixed(2)}</div>
+        <div>Saldo: €${saldoMese.toFixed(2)}</div>
     `;
 }
 
