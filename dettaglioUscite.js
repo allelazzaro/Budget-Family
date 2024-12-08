@@ -30,6 +30,7 @@ onAuthStateChanged(auth, (utente) => {
 });
 
 // Funzione per mostrare il dettaglio delle uscite per categoria
+// Funzione per mostrare il dettaglio delle uscite per categoria
 function mostraDettaglioUscitePerCategoria() {
     const meseFiltro = localStorage.getItem('meseFiltro') || new Date().toISOString().slice(0, 7);
     const annoSelezionato = meseFiltro.slice(0, 4);
@@ -58,13 +59,16 @@ function mostraDettaglioUscitePerCategoria() {
             riepilogoDiv.innerHTML = ''; // Pulisce il contenuto precedente
 
             if (Object.keys(uscitePerCategoria).length > 0) {
-                for (let categoria in uscitePerCategoria) {
-                    const importo = uscitePerCategoria[categoria].toFixed(2);
-                    riepilogoDiv.innerHTML += `<p><strong>${categoria}:</strong> €${importo}</p>`;
-                }
+                // Converte l'oggetto in un array e ordina per importo decrescente
+                const categorieOrdinate = Object.entries(uscitePerCategoria).sort((a, b) => b[1] - a[1]);
+
+                // Mostra le categorie ordinate
+                categorieOrdinate.forEach(([categoria, importo]) => {
+                    riepilogoDiv.innerHTML += `<p><strong>${categoria}:</strong> €${importo.toFixed(2)}</p>`;
+                });
 
                 // Crea il grafico delle uscite per categoria
-                creaGraficoUscite(uscitePerCategoria);
+                creaGraficoUscite(Object.fromEntries(categorieOrdinate));
 
             } else {
                 riepilogoDiv.innerHTML = "<p>Nessuna uscita per l'anno selezionato.</p>";
