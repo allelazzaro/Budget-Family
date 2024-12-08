@@ -1,63 +1,100 @@
-body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #eef2f3, #8e9eab);
-    color: #333;
-    padding: 20px;
-}
-
+/* Stile base per il contenitore principale */
 .container {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    background-color: #f9f9f9;
     border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Stile per il titolo */
 h1 {
     text-align: center;
-    font-size: 2em;
-    color: #2c3e50;
+    font-size: 1.8em;
+    color: #333;
     margin-bottom: 20px;
 }
 
-button {
-    display: block;
-    margin: 0 auto 20px auto;
-    padding: 10px 20px;
-    font-size: 1em;
-    color: #fff;
-    background-color: #3498db;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #2980b9;
-}
-
+/* Stile per la tabella */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-th, td {
+/* Stile per le intestazioni della tabella */
+th {
+    background-color: #007BFF;
+    color: #fff;
     padding: 12px;
     text-align: left;
-    border: 1px solid #ddd;
+    font-size: 1em;
 }
 
-th {
-    background-color: #3498db;
-    color: white;
+/* Stile per le celle della tabella */
+td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.9em;
 }
 
+/* Riga pari della tabella con sfondo alternato */
 tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
-tr:hover {
-    background-color: #e1f5fe;
+/* Stile per il messaggio di errore */
+.error-message {
+    text-align: center;
+    color: red;
+    font-weight: bold;
+}
+
+/* Pulsanti */
+button {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Rendere la tabella scrollabile su dispositivi mobili */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+/* Media Query per dispositivi con larghezza massima di 600px */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.5em;
+    }
+
+    th, td {
+        padding: 8px;
+        font-size: 0.8em;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        font-size: 1em;
+    }
+
+    .container {
+        padding: 10px;
+    }
 }
