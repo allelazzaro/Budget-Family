@@ -55,19 +55,24 @@ tr:nth-child(even) {
 }
 
 /* Pulsanti */
+/* Stile per il pulsante Torna alla Home */
 button {
-    background-color: #007BFF;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    margin-top: 10px;
+    background-color: #007BFF;      /* Colore di sfondo blu */
+    color: #fff;                    /* Testo bianco */
+    padding: 12px 24px;             /* Spaziatura interna */
+    font-size: 1.2em;               /* Dimensione del testo più grande */
+    border: none;                   /* Rimuove il bordo */
+    border-radius: 8px;             /* Angoli arrotondati */
+    cursor: pointer;                /* Mostra il cursore a forma di mano */
+    margin-bottom: 20px;            /* Distanza dalla tabella */
+    display: inline-block;          /* Allineamento in linea con blocco */
+    text-align: center;             /* Allineamento del testo */
+    text-decoration: none;          /* Nessuna sottolineatura */
+    transition: background-color 0.3s ease;  /* Transizione per il cambio colore */
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #0056b3;      /* Colore più scuro al passaggio del mouse */
 }
 
 /* Rendere la tabella scrollabile su dispositivi mobili */
