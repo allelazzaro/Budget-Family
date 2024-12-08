@@ -150,7 +150,7 @@
             <section id="riepiloghi">
                 <h2>Riepilogo Anno</h2>
                 <div id="riepilogoEntrate">Totale Entrate: €0</div>
-                <div id="riepilogoUscite">Totale Uscite: €0</div>
+                <div id="riepilogoUscite">Totale Uscite: €0 color: #e74c3c;"></div>
                 <div id="riepilogoSaldo">Saldo Totale: €0</div>
             </section>
             
@@ -166,16 +166,25 @@
 
             <!-- Riepilogo per persona -->
             <section id="riepiloghiPersone">
-                <h2>Riepilogo Giulia</h2>
-                <div id="riepilogoGiuliaEntrate">Entrate Giulia: €0</div>
-                <div id="riepilogoGiuliaUscite">Uscite Giulia: €0</div>
-                <div id="riepilogoGiuliaSaldo">Saldo Giulia: €0</div>
+    <h2>Riepilogo Giulia</h2>
+    <div onclick="vaiAllaPaginaDettagli('Giulia', 'Entrate')" style="cursor: pointer; color: #2980b9;">
+        <span id="riepilogoGiuliaEntrate">0</span>
+    </div>
+    <div onclick="vaiAllaPaginaDettagli('Giulia', 'Uscite')" style="cursor: pointer; color: #e74c3c;">
+        <span id="riepilogoGiuliaUscite">0</span>
+    </div>
+    <div id="riepilogoGiuliaSaldo">Saldo Giulia: €0</div>
 
-                <h2>Riepilogo Alessio</h2>
-                <div id="riepilogoAlessioEntrate">Entrate Alessio: €0</div>
-                <div id="riepilogoAlessioUscite">Uscite Alessio: €0</div>
-                <div id="riepilogoAlessioSaldo">Saldo Alessio: €0</div>
-            </section>
+    <h2>Riepilogo Alessio</h2>
+    <div onclick="vaiAllaPaginaDettagli('Alessio', 'Entrate')" style="cursor: pointer; color: #2980b9;">
+        <span id="riepilogoAlessioEntrate">0</span>
+    </div>
+    <div onclick="vaiAllaPaginaDettagli('Alessio', 'Uscite')" style="cursor: pointer; color: #e74c3c;">
+        <span id="riepilogoAlessioUscite">0</span>
+    </div>
+    <div id="riepilogoAlessioSaldo">Saldo Alessio: €0</div>
+</section>
+
 
             <!-- Sezione Grafico a Torta per Spese per Categoria -->
             <section id="graficoSpeseCategoria">

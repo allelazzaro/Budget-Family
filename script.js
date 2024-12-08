@@ -42,6 +42,7 @@ onAuthStateChanged(auth, (utente) => {
     }
 });
 
+
 // Funzione per registrare un nuovo utente
 window.registrati = function () {
     const email = document.getElementById('emailRegistrazione').value.trim();
@@ -451,6 +452,19 @@ window.aggiornaRiepilogoCategoria = function () {
 
     document.getElementById('riepilogoCategoriaTotale').innerText = `Totale: €${totaleCategoria.toFixed(2)}`;
 }
+
+window.vaiAllaPaginaDettagli = function (persona, tipo) {
+    // Imposta i parametri nella query string
+    const url = `dettagli.html?persona=${encodeURIComponent(persona)}&tipo=${encodeURIComponent(tipo)}`;
+    // Reindirizza alla pagina con i dettagli
+    window.location.href = url;
+};
+window.vaiAllaPaginaDettagli = function (persona, tipo) {
+    const url = `dettagli.html?persona=${encodeURIComponent(persona)}&tipo=${encodeURIComponent(tipo)}`;
+    console.log("Navigazione verso:", url); // Controlla l'URL generato
+    window.location.href = url;
+};
+
 
 // Funzione per salvare il nome utente in localStorage
 window.salvaNomeUtente = function () {
