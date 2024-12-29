@@ -520,25 +520,50 @@ window.toggleTransazioniVisibili = function () {
         aggiornaListaTransazioni(document.getElementById('meseFiltro').value);
     }
 };
-// Funzione per esportare il riepilogo in Excel con colonne colorate
+// Funzione per esportare il riepilogo in Excel per l'anno selezionato
 window.esportaInExcel = async function () {
-    // Raggruppa i dati per mese, categoria e persona
+    // Ottieni l'anno selezionato dal filtro mese
+    const meseFiltro = document.getElementById('meseFiltro').value;
+    const annoSelezionato = meseFiltro ? meseFiltro.slice(0, 4) : new Date().getFullYear().toString();
+
+    // Raggruppa i dati per mese, categoria e persona, escludendo le entrate
     const datiRiepilogo = {};
-    transazioni.forEach(([id, transazione]) => {
-        const { persona, categoria, importo, data } = transazione;
-        const mese = new Date(data).toLocaleString('it-IT', { month: 'long' });
-        if (!datiRiepilogo[mese]) datiRiepilogo[mese] = {};
-        if (!datiRiepilogo[mese][categoria]) datiRiepilogo[mese][categoria] = { Alessio: 0, Giulia: 0 };
-        datiRiepilogo[mese][categoria][persona] += parseFloat(importo) || 0;
+    transazioni
+        .filter(([_, transazione]) => 
+            transazione.tipo === "Uscita" && transazione.data.slice(0, 4) === annoSelezionato // Filtra solo le uscite dell'anno selezionato
+        )
+        .forEach(([id, transazione]) => {
+            const { persona, categoria, importo, data } = transazione;
+            const mese = new Date(data).toLocaleString("it-IT", { month: "long" });
+            if (!datiRiepilogo[mese]) datiRiepilogo[mese] = {};
+            if (!datiRiepilogo[mese][categoria]) datiRiepilogo[mese][categoria] = { Alessio: 0, Giulia: 0 };
+            datiRiepilogo[mese][categoria][persona] += parseFloat(importo) || 0;
+        });
+
+    // Calcola i totali per ogni categoria
+    const categorieTotali = [];
+    Object.keys(datiRiepilogo).forEach(mese => {
+        Object.entries(datiRiepilogo[mese]).forEach(([categoria, persone]) => {
+            const totaleCategoria = Object.values(persone).reduce((sum, val) => sum + val, 0);
+            const existingCategoria = categorieTotali.find(c => c.categoria === categoria);
+            if (existingCategoria) {
+                existingCategoria.totale += totaleCategoria;
+            } else {
+                categorieTotali.push({ categoria, totale: totaleCategoria });
+            }
+        });
     });
+
+    // Ordina le categorie per somma totale decrescente
+    categorieTotali.sort((a, b) => b.totale - a.totale);
 
     // Crea un nuovo workbook con ExcelJS
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Riepilogo Spese");
+    const worksheet = workbook.addWorksheet(`Riepilogo ${annoSelezionato}`);
 
     // Aggiungi intestazioni
     const mesi = Object.keys(datiRiepilogo);
-    const headerRow = ["Categoria", ...mesi.flatMap(mese => [`${mese} Alessio`, `${mese} Giulia`])];
+    const headerRow = ["Categoria", ...mesi.flatMap(mese => [`${mese} Alessio`, `${mese} Giulia`]), "Totale Categoria"];
     worksheet.addRow(headerRow);
 
     // Applica lo stile alle intestazioni
@@ -548,15 +573,50 @@ window.esportaInExcel = async function () {
         cell.alignment = { horizontal: "center" };
     });
 
-    // Aggiungi i dati per ogni categoria
-    const categorie = Array.from(new Set(transazioni.map(([_, t]) => t.categoria)));
-    categorie.forEach(categoria => {
+    // Aggiungi i dati per ogni categoria ordinata
+    const totalColumns = new Array(mesi.length * 2).fill(0); // Array per calcolare i totali delle colonne
+    let totaleGenerale = 0;
+
+    categorieTotali.forEach(({ categoria }) => {
         const row = [categoria];
-        mesi.forEach(mese => {
-            row.push(datiRiepilogo[mese][categoria]?.Alessio || 0);
-            row.push(datiRiepilogo[mese][categoria]?.Giulia || 0);
+        let totaleRiga = 0;
+
+        mesi.forEach((mese, meseIndex) => {
+            const alessioValue = datiRiepilogo[mese][categoria]?.Alessio || 0;
+            const giuliaValue = datiRiepilogo[mese][categoria]?.Giulia || 0;
+
+            // Aggiungi i valori alla riga
+            row.push(alessioValue);
+            row.push(giuliaValue);
+
+            // Aggiungi i valori ai totali
+            totalColumns[meseIndex * 2] += alessioValue;
+            totalColumns[meseIndex * 2 + 1] += giuliaValue;
+
+            // Calcola il totale della riga
+            totaleRiga += alessioValue + giuliaValue;
         });
+
+        // Aggiungi il totale della riga
+        row.push(totaleRiga);
+        totaleGenerale += totaleRiga;
+
         worksheet.addRow(row);
+    });
+
+    // Aggiungi una riga per i totali delle colonne
+    const totaliRow = ["Totale"];
+    totalColumns.forEach(total => {
+        totaliRow.push(total);
+    });
+    totaliRow.push(totaleGenerale); // Totale generale per tutte le categorie
+    const totaleRowRef = worksheet.addRow(totaliRow);
+
+    // Stile per la riga dei totali
+    totaleRowRef.eachCell(cell => {
+        cell.font = { bold: true, color: { argb: "FFFFFF" } };
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFA500" } }; // Arancione chiaro
+        cell.alignment = { horizontal: "center" };
     });
 
     // Stile per le colonne di Alessio e Giulia
@@ -566,17 +626,24 @@ window.esportaInExcel = async function () {
 
         // Stile per le colonne di Alessio (azzurro)
         worksheet.getColumn(colAlessio).eachCell((cell, rowNumber) => {
-            if (rowNumber > 1) {
+            if (rowNumber > 1 && rowNumber !== totaleRowRef.number) {
                 cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "ADD8E6" } };
             }
         });
 
         // Stile per le colonne di Giulia (rosa)
         worksheet.getColumn(colGiulia).eachCell((cell, rowNumber) => {
-            if (rowNumber > 1) {
+            if (rowNumber > 1 && rowNumber !== totaleRowRef.number) {
                 cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFB6C1" } };
             }
         });
+    });
+
+    // Stile per la colonna dei totali di categoria
+    worksheet.getColumn(headerRow.length).eachCell((cell, rowNumber) => {
+        if (rowNumber > 1 && rowNumber !== totaleRowRef.number) {
+            cell.font = { bold: true };
+        }
     });
 
     // Adatta automaticamente le dimensioni delle colonne
@@ -598,6 +665,6 @@ window.esportaInExcel = async function () {
     const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
 
     // Salva il file Excel
-    saveAs(blob, "RiepilogoSpese.xlsx");
+    saveAs(blob, `RiepilogoSpese_${annoSelezionato}.xlsx`);
 };
 
