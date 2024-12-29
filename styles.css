@@ -226,3 +226,37 @@ tfoot td {
     display: none;
     transition: all 0.3s ease;
 }
+
+/* Contenitore responsivo per la tabella */
+.table-container {
+    overflow-x: auto; /* Abilita lo scorrimento orizzontale */
+    -webkit-overflow-scrolling: touch; /* Scorrimento fluido su dispositivi mobili */
+}
+
+/* Regole per schermi piccoli */
+@media (max-width: 600px) {
+    table, thead, tbody, th, td, tr {
+        font-size: 0.8em; /* Riduce la dimensione del testo */
+    }
+
+    table {
+        width: 100%; /* Adatta la tabella alla larghezza del contenitore */
+    }
+
+    .btn-azione {
+        padding: 5px 8px; /* Riduce il padding dei pulsanti */
+        font-size: 0.75em; /* Riduce la dimensione del testo dei pulsanti */
+    }
+}
+
+/* Stile generale della tabella */
+table {
+    width: 100%; /* Adatta la larghezza della tabella */
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 0.95em;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
