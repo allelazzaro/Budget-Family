@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <!-- Container per Registrazione e Login -->
@@ -150,7 +151,7 @@
             <section id="riepiloghi">
                 <h2>Riepilogo Anno</h2>
                 <div id="riepilogoEntrate">Totale Entrate: €0</div>
-                <div id="riepilogoUscite">Totale Uscite: €0 color: #e74c3c;"></div>
+                <div id="riepilogoUscite">Totale Uscite: €0</div>
                 <div id="riepilogoSaldo">Saldo Totale: €0</div>
             </section>
             
@@ -185,6 +186,7 @@
     <div id="riepilogoAlessioSaldo">Saldo Alessio: €0</div>
 </section>
 
+<button id="exportExcel" onclick="esportaInExcel()">Esporta Riepilogo in Excel</button>
 
             <!-- Sezione Grafico a Torta per Spese per Categoria -->
             <section id="graficoSpeseCategoria">

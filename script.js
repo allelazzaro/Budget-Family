@@ -520,3 +520,36 @@ window.toggleTransazioniVisibili = function () {
         aggiornaListaTransazioni(document.getElementById('meseFiltro').value);
     }
 };
+// Funzione per esportare i dati in un file Excel
+window.esportaInExcel = function () {
+    // Raggruppa i dati per mese, categoria e persona
+    const datiRiepilogo = {};
+    transazioni.forEach(([id, transazione]) => {
+        const { persona, categoria, importo, data } = transazione;
+        const mese = new Date(data).toLocaleString('it-IT', { month: 'long' });
+        if (!datiRiepilogo[mese]) datiRiepilogo[mese] = {};
+        if (!datiRiepilogo[mese][categoria]) datiRiepilogo[mese][categoria] = { Alessio: 0, Giulia: 0 };
+        datiRiepilogo[mese][categoria][persona] += parseFloat(importo) || 0;
+    });
+
+    // Prepara i dati per SheetJS
+    const righeExcel = [["Categoria", ...Object.keys(datiRiepilogo).flatMap(mese => [mese + " Alessio", mese + " Giulia"])]];
+    const categorie = Array.from(new Set(transazioni.map(([_, t]) => t.categoria)));
+    categorie.forEach(categoria => {
+        const riga = [categoria];
+        Object.keys(datiRiepilogo).forEach(mese => {
+            riga.push(datiRiepilogo[mese][categoria]?.Alessio || 0);
+            riga.push(datiRiepilogo[mese][categoria]?.Giulia || 0);
+        });
+        righeExcel.push(riga);
+    });
+
+    // Crea il foglio Excel
+    const worksheet = XLSX.utils.aoa_to_sheet(righeExcel);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Riepilogo Spese");
+
+    // Salva il file Excel
+    XLSX.writeFile(workbook, "RiepilogoSpese.xlsx");
+};
+
