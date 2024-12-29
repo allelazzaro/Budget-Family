@@ -520,8 +520,8 @@ window.toggleTransazioniVisibili = function () {
         aggiornaListaTransazioni(document.getElementById('meseFiltro').value);
     }
 };
-// Funzione per esportare i dati in un file Excel
-window.esportaInExcel = function () {
+// Funzione per esportare il riepilogo in Excel con colonne colorate
+window.esportaInExcel = async function () {
     // Raggruppa i dati per mese, categoria e persona
     const datiRiepilogo = {};
     transazioni.forEach(([id, transazione]) => {
@@ -532,24 +532,72 @@ window.esportaInExcel = function () {
         datiRiepilogo[mese][categoria][persona] += parseFloat(importo) || 0;
     });
 
-    // Prepara i dati per SheetJS
-    const righeExcel = [["Categoria", ...Object.keys(datiRiepilogo).flatMap(mese => [mese + " Alessio", mese + " Giulia"])]];
-    const categorie = Array.from(new Set(transazioni.map(([_, t]) => t.categoria)));
-    categorie.forEach(categoria => {
-        const riga = [categoria];
-        Object.keys(datiRiepilogo).forEach(mese => {
-            riga.push(datiRiepilogo[mese][categoria]?.Alessio || 0);
-            riga.push(datiRiepilogo[mese][categoria]?.Giulia || 0);
-        });
-        righeExcel.push(riga);
+    // Crea un nuovo workbook con ExcelJS
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Riepilogo Spese");
+
+    // Aggiungi intestazioni
+    const mesi = Object.keys(datiRiepilogo);
+    const headerRow = ["Categoria", ...mesi.flatMap(mese => [`${mese} Alessio`, `${mese} Giulia`])];
+    worksheet.addRow(headerRow);
+
+    // Applica lo stile alle intestazioni
+    worksheet.getRow(1).eachCell((cell, colNumber) => {
+        cell.font = { bold: true, color: { argb: "FFFFFF" } };
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "007BFF" } };
+        cell.alignment = { horizontal: "center" };
     });
 
-    // Crea il foglio Excel
-    const worksheet = XLSX.utils.aoa_to_sheet(righeExcel);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Riepilogo Spese");
+    // Aggiungi i dati per ogni categoria
+    const categorie = Array.from(new Set(transazioni.map(([_, t]) => t.categoria)));
+    categorie.forEach(categoria => {
+        const row = [categoria];
+        mesi.forEach(mese => {
+            row.push(datiRiepilogo[mese][categoria]?.Alessio || 0);
+            row.push(datiRiepilogo[mese][categoria]?.Giulia || 0);
+        });
+        worksheet.addRow(row);
+    });
+
+    // Stile per le colonne di Alessio e Giulia
+    mesi.forEach((mese, meseIndex) => {
+        const colAlessio = 2 + meseIndex * 2;
+        const colGiulia = colAlessio + 1;
+
+        // Stile per le colonne di Alessio (azzurro)
+        worksheet.getColumn(colAlessio).eachCell((cell, rowNumber) => {
+            if (rowNumber > 1) {
+                cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "ADD8E6" } };
+            }
+        });
+
+        // Stile per le colonne di Giulia (rosa)
+        worksheet.getColumn(colGiulia).eachCell((cell, rowNumber) => {
+            if (rowNumber > 1) {
+                cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFB6C1" } };
+            }
+        });
+    });
+
+    // Adatta automaticamente le dimensioni delle colonne
+    worksheet.columns.forEach(column => {
+        let maxLength = 0;
+        column.eachCell({ includeEmpty: true }, cell => {
+            if (cell.value) {
+                const valueLength = cell.value.toString().length;
+                if (valueLength > maxLength) {
+                    maxLength = valueLength;
+                }
+            }
+        });
+        column.width = maxLength + 2;
+    });
+
+    // Genera il file Excel
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
 
     // Salva il file Excel
-    XLSX.writeFile(workbook, "RiepilogoSpese.xlsx");
+    saveAs(blob, "RiepilogoSpese.xlsx");
 };
 
