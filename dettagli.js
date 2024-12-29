@@ -94,10 +94,11 @@ function mostraEntrate() {
 // Funzione per mostrare le uscite con espansione dei dettagli
 function mostraUscite() {
     const tabellaDettagli = document.getElementById('tabellaDettagli');
-    tabellaDettagli.innerHTML = '';
+    tabellaDettagli.innerHTML = ''; // Svuota la tabella
 
     const annoSelezionato = getAnnoSelezionato();
 
+    // Filtra le transazioni
     const usciteFiltrate = Object.entries(transazioni)
         .map(([id, transazione]) => ({ id, ...transazione }))
         .filter(transazione =>
@@ -113,54 +114,69 @@ function mostraUscite() {
 
     const categorieTotali = {};
 
+    // Raggruppa transazioni per categoria
     usciteFiltrate.forEach(transazione => {
         const categoria = transazione.categoria || 'Senza Categoria';
         if (!categorieTotali[categoria]) categorieTotali[categoria] = [];
         categorieTotali[categoria].push(transazione);
     });
 
-    let totaleUscite = 0;
+    // Calcola il totale per ogni categoria e ordina dal più grande al più piccolo
+    const categorieOrdinate = Object.entries(categorieTotali)
+        .map(([categoria, transazioni]) => {
+            const totaleCategoria = transazioni.reduce((sum, t) => sum + parseFloat(t.importo), 0);
+            return { categoria, totaleCategoria, transazioni };
+        })
+        .sort((a, b) => b.totaleCategoria - a.totaleCategoria); // Ordina dal più grande al più piccolo
 
-    Object.entries(categorieTotali).sort((a, b) => {
-        const totaleA = a[1].reduce((sum, t) => sum + parseFloat(t.importo), 0);
-        const totaleB = b[1].reduce((sum, t) => sum + parseFloat(t.importo), 0);
-        return totaleB - totaleA;
-    }).forEach(([categoria, transazioni]) => {
-        const totaleCategoria = transazioni.reduce((sum, t) => sum + parseFloat(t.importo), 0);
-        totaleUscite += totaleCategoria;
+    let totaleUscite = 0; // Totale complessivo delle transazioni
 
+    // Per ogni categoria ordinata, aggiungi una riga e i dettagli
+    categorieOrdinate.forEach(({ categoria, totaleCategoria, transazioni }) => {
+        totaleUscite += totaleCategoria; // Aggiorna il totale complessivo
+
+        // Riga categoria
         const categoriaRow = document.createElement('tr');
+        categoriaRow.classList.add('categoria-row');
         categoriaRow.innerHTML = `
-            <td colspan="2" style="font-weight: bold; background-color: #007BFF; color: white; cursor: pointer;">
-                ${categoria}: €${totaleCategoria.toFixed(2)}
-            </td>
+            <td colspan="2">${categoria}: €${totaleCategoria.toFixed(2)}</td>
         `;
-        tabellaDettagli.appendChild(categoriaRow);
 
+        // Riga dettagli nascosta
         const dettagliRow = document.createElement('tr');
+        dettagliRow.classList.add('dettagli-row');
         dettagliRow.style.display = 'none';
         dettagliRow.innerHTML = `
-            <td colspan="2" style="padding-left: 20px; background-color: #f9f9f9;">
+            <td colspan="2">
                 ${transazioni.map(t => `
-                    <div><strong>Descrizione:</strong> ${t.descrizione || 'Nessuna descrizione'}<br>
-                    <strong>Importo:</strong> €${parseFloat(t.importo).toFixed(2)}<br>
-                    <strong>Data:</strong> ${formattaData(t.data)}</div>
+                    <div>
+                        <strong>Descrizione:</strong> ${t.descrizione || 'Nessuna descrizione'}<br>
+                        <strong>Importo:</strong> €${parseFloat(t.importo).toFixed(2)}<br>
+                        <strong>Data:</strong> ${formattaData(t.data)}
+                    </div>
                 `).join('<hr>')}
             </td>
         `;
-        tabellaDettagli.appendChild(dettagliRow);
 
+        // Associa l'evento di clic
         categoriaRow.addEventListener('click', () => {
             dettagliRow.style.display = dettagliRow.style.display === 'none' ? 'table-row' : 'none';
         });
+
+        // Aggiungi le righe alla tabella
+        tabellaDettagli.appendChild(categoriaRow);
+        tabellaDettagli.appendChild(dettagliRow);
     });
 
-    tabellaDettagli.innerHTML += `
-        <tr style="font-weight: bold; background-color: #f0f0f0;">
-            <td style="text-align: right;">Totale</td>
-            <td>€${totaleUscite.toFixed(2)}</td>
-        </tr>
+    // Aggiungi riga per il totale complessivo
+    const totaleRow = document.createElement('tr');
+    totaleRow.style.fontWeight = 'bold';
+    totaleRow.style.backgroundColor = '#f0f0f0';
+    totaleRow.innerHTML = `
+        <td style="text-align: right;">Totale</td>
+        <td>€${totaleUscite.toFixed(2)}</td>
     `;
+    tabellaDettagli.appendChild(totaleRow);
 }
 
 // Recupera le transazioni dal database
