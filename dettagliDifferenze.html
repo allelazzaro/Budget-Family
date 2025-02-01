@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dettagli Differenze</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Versioni compat di Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
+  <style>
+    /* Stili per la pagina dei dettagli */
+    #dettagliContainer {
+      margin: 0 auto;
+      overflow-x: visible;
+      width: 100%;
+    }
+    #dettagliContainer table {
+      display: inline-block;
+      margin: 0 auto;
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      font-size: 0.7em;
+    }
+    #dettagliContainer th,
+    #dettagliContainer td {
+      padding: 4px;
+      border: 1px solid #ccc;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .detail-row td {
+      background-color: #f9f9f9;
+      padding: 10px;
+    }
+    /* Aggiornamento per le sub-table: righe più compatte */
+    .sub-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.2em !important;  /* Font ridotto per righe più compatte */
+      margin-bottom: 10px;
+    }
+    .sub-table th,
+    .sub-table td {
+      padding: 8px !important;      /* Padding ridotto per righe più piccole */
+      border: 1px solid #aaa;
+      text-align: center;
+      white-space: normal !important;
+    }
+    .divider-row td {
+      border: none;
+      background-color: #eee;
+      height: 10px;
+    }
+    .dettaglio-container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .dettaglio-header h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    .dettaglio-header h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+      color: #555;
+    }
+    .dettaglio-tabella {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container dettaglio-container">
+    <header class="dettaglio-header">
+      <h1>Dettaglio Differenze</h1>
+      <div id="periodoInfo"></div>
+    </header>
+    <section class="dettaglio-sommario" id="sommarioContainer">
+      <!-- (Eventuale riepilogo generale) -->
+    </section>
+    <section class="dettaglio-tabella">
+      <h2>Dettaglio per Categoria</h2>
+      <div id="dettagliContainer">
+        <!-- La tabella verrà generata qui -->
+      </div>
+    </section>
+    <footer class="dettaglio-footer">
+      <button onclick="tornaIndietro()">Torna Indietro</button>
+    </footer>
+  </div>
+  
+  <script>
+    // Configurazione Firebase (stessa di index.html)
+    const firebaseConfig = {
+      apiKey: "AIzaSyChK3rrqQ8hYygNLaahaxgtx8W1oUpxBP0",
+      authDomain: "budget-a41a6.firebaseapp.com",
+      databaseURL: "https://budget-a41a6-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "budget-a41a6",
+      storageBucket: "budget-a41a6.appspot.com",
+      messagingSenderId: "1044297998779",
+      appId: "1:1044297998779:web:3848d0c0c2b9840b66249e"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Salva i dati del database in una variabile globale per riutilizzarli nelle funzioni di espansione.
+    window.dettaglioData = {};
+
+    // Recupera il parametro "tipoDiff" da localStorage
+    const tipoDiff = localStorage.getItem('tipoDiff') || "";
+    
+    // Funzione di utilità: se il valore è 0, restituisce una stringa vuota, altrimenti formatta come valuta
+    function formatCurrency(value) {
+      return value === 0 ? "" : "€" + value.toFixed(2);
+    }
+    
+    // Funzione per formattare "YYYY-MM" in "MM/YYYY"
+    function formatMonthYear(annoMese) {
+      const parts = annoMese.split("-");
+      return parts[1] + "/" + parts[0];
+    }
+    
+    // Funzione per costruire la tabella per il dettaglio mensile
+    function costruisciTabellaMese(meseCorrente, meseConfronto, personFilter = null) {
+      document.getElementById('periodoInfo').innerHTML = `<h2>Mese: ${formatMonthYear(meseCorrente)} vs ${formatMonthYear(meseConfronto)}</h2>`;
+      return db.ref('transazioni').once('value').then(snapshot => {
+        window.dettaglioData = snapshot.val() || {};
+        const dataObj = window.dettaglioData;
+        const transazioniCorrenti = Object.values(dataObj).filter(t => t.data.startsWith(meseCorrente) && (!personFilter || t.persona === personFilter));
+        const transazioniConfronto = Object.values(dataObj).filter(t => t.data.startsWith(meseConfronto) && (!personFilter || t.persona === personFilter));
+        
+        const gruppiCurr = {};
+        transazioniCorrenti.forEach(t => {
+          const cat = t.categoria || "Sconosciuta";
+          if (!gruppiCurr[cat]) gruppiCurr[cat] = { entrate: 0, uscite: 0 };
+          if (t.tipo === 'Entrata') gruppiCurr[cat].entrate += parseFloat(t.importo);
+          else if (t.tipo === 'Uscita') gruppiCurr[cat].uscite += parseFloat(t.importo);
+        });
+        const gruppiConf = {};
+        transazioniConfronto.forEach(t => {
+          const cat = t.categoria || "Sconosciuta";
+          if (!gruppiConf[cat]) gruppiConf[cat] = { entrate: 0, uscite: 0 };
+          if (t.tipo === 'Entrata') gruppiConf[cat].entrate += parseFloat(t.importo);
+          else if (t.tipo === 'Uscita') gruppiConf[cat].uscite += parseFloat(t.importo);
+        });
+        
+        let categorieArray = Array.from(new Set([...Object.keys(gruppiCurr), ...Object.keys(gruppiConf)]));
+        categorieArray.sort((a, b) => {
+          if(a.toLowerCase() === "stipendio") return -1;
+          if(b.toLowerCase() === "stipendio") return 1;
+          if(a.toLowerCase() === "extra") return -1;
+          if(b.toLowerCase() === "extra") return 1;
+          const usciteA = gruppiCurr[a] ? gruppiCurr[a].uscite : 0;
+          const usciteB = gruppiCurr[b] ? gruppiCurr[b].uscite : 0;
+          return usciteB - usciteA;
+        });
+        
+        let html = `<table class="dettaglio-table"><thead>
+                      <tr>
+                        <th>Categoria</th>
+                        <th>Entrate (${formatMonthYear(meseCorrente)})</th>
+                        <th>Entrate (${formatMonthYear(meseConfronto)})</th>
+                        <th>Uscite (${formatMonthYear(meseCorrente)})</th>
+                        <th>Uscite (${formatMonthYear(meseConfronto)})</th>
+                        <th>Saldo (${formatMonthYear(meseCorrente)})</th>
+                        <th>Saldo (${formatMonthYear(meseConfronto)})</th>
+                        <th>Diff Saldo</th>
+                      </tr>
+                    </thead><tbody>`;
+        let dividerInserito = false;
+        categorieArray.forEach(cat => {
+          if (!dividerInserito && cat.toLowerCase() !== "stipendio" && cat.toLowerCase() !== "extra") {
+            html += `<tr class="divider-row"><td colspan="8"></td></tr>`;
+            dividerInserito = true;
+          }
+          const curr = gruppiCurr[cat] || { entrate: 0, uscite: 0 };
+          const conf = gruppiConf[cat] || { entrate: 0, uscite: 0 };
+          const saldoCurr = curr.entrate - curr.uscite;
+          const saldoConf = conf.entrate - conf.uscite;
+          const diffSaldo = saldoCurr - saldoConf;
+          html += `<tr class="category-row" data-category="${cat}" data-person="${personFilter ? personFilter : ''}" onclick="toggleDetailRow(this, 'mese', '${meseCorrente}', '${meseConfronto}')">
+                    <td>${cat}</td>
+                    <td>${formatCurrency(curr.entrate)}</td>
+                    <td>${formatCurrency(conf.entrate)}</td>
+                    <td>${formatCurrency(curr.uscite)}</td>
+                    <td>${formatCurrency(conf.uscite)}</td>
+                    <td>${saldoCurr === 0 ? "" : "€" + saldoCurr.toFixed(2)}</td>
+                    <td>${saldoConf === 0 ? "" : "€" + saldoConf.toFixed(2)}</td>
+                    <td class="${diffSaldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">${diffSaldo === 0 ? "" : "€" + diffSaldo.toFixed(2)}</td>
+                  </tr>`;
+        });
+        html += `</tbody></table>`;
+        document.getElementById('dettagliContainer').innerHTML = html;
+      });
+    }
+
+    // Funzione per costruire la tabella per il dettaglio annuale (simile)
+    function costruisciTabellaAnno(annoCorrente, annoPrecedente, personFilter = null) {
+      document.getElementById('periodoInfo').innerHTML = `<h2>Anno: ${annoCorrente} vs ${annoPrecedente}</h2>`;
+      return db.ref('transazioni').once('value').then(snapshot => {
+        window.dettaglioData = snapshot.val() || {};
+        const dataObj = window.dettaglioData;
+        const transazioniCorrenti = Object.values(dataObj).filter(t => t.data.slice(0,4) === annoCorrente && (!personFilter || t.persona === personFilter));
+        const transazioniPrecedenti = Object.values(dataObj).filter(t => t.data.slice(0,4) === annoPrecedente && (!personFilter || t.persona === personFilter));
+        
+        const gruppiCurr = {};
+        transazioniCorrenti.forEach(t => {
+          const cat = t.categoria || "Sconosciuta";
+          if (!gruppiCurr[cat]) gruppiCurr[cat] = { entrate: 0, uscite: 0 };
+          if (t.tipo === 'Entrata') gruppiCurr[cat].entrate += parseFloat(t.importo);
+          else if (t.tipo === 'Uscita') gruppiCurr[cat].uscite += parseFloat(t.importo);
+        });
+        const gruppiPrev = {};
+        transazioniPrecedenti.forEach(t => {
+          const cat = t.categoria || "Sconosciuta";
+          if (!gruppiPrev[cat]) gruppiPrev[cat] = { entrate: 0, uscite: 0 };
+          if (t.tipo === 'Entrata') gruppiPrev[cat].entrate += parseFloat(t.importo);
+          else if (t.tipo === 'Uscita') gruppiPrev[cat].uscite += parseFloat(t.importo);
+        });
+        
+        let categorieArray = Array.from(new Set([...Object.keys(gruppiCurr), ...Object.keys(gruppiPrev)]));
+        categorieArray.sort((a, b) => {
+          if(a.toLowerCase() === "stipendio") return -1;
+          if(b.toLowerCase() === "stipendio") return 1;
+          if(a.toLowerCase() === "extra") return -1;
+          if(b.toLowerCase() === "extra") return 1;
+          const usciteA = gruppiCurr[a] ? gruppiCurr[a].uscite : 0;
+          const usciteB = gruppiCurr[b] ? gruppiCurr[b].uscite : 0;
+          return usciteB - usciteA;
+        });
+        
+        let html = `<table class="dettaglio-table"><thead>
+                      <tr>
+                        <th>Categoria</th>
+                        <th>Entrate (${annoCorrente})</th>
+                        <th>Entrate (${annoPrecedente})</th>
+                        <th>Uscite (${annoCorrente})</th>
+                        <th>Uscite (${annoPrecedente})</th>
+                        <th>Saldo (${annoCorrente})</th>
+                        <th>Saldo (${annoPrecedente})</th>
+                        <th>Diff Saldo</th>
+                      </tr>
+                    </thead><tbody>`;
+        let dividerInserito = false;
+        categorieArray.forEach(cat => {
+          if (!dividerInserito && cat.toLowerCase() !== "stipendio" && cat.toLowerCase() !== "extra") {
+            html += `<tr class="divider-row"><td colspan="8"></td></tr>`;
+            dividerInserito = true;
+          }
+          const curr = gruppiCurr[cat] || { entrate: 0, uscite: 0 };
+          const prev = gruppiPrev[cat] || { entrate: 0, uscite: 0 };
+          const saldoCurr = curr.entrate - curr.uscite;
+          const saldoPrev = prev.entrate - prev.uscite;
+          const diffSaldo = saldoCurr - saldoPrev;
+          html += `<tr class="category-row" data-category="${cat}" data-person="${personFilter ? personFilter : ''}" onclick="toggleDetailRow(this, 'anno', '${annoCorrente}', '${annoPrecedente}')">
+                    <td>${cat}</td>
+                    <td>${formatCurrency(curr.entrate)}</td>
+                    <td>${formatCurrency(prev.entrate)}</td>
+                    <td>${formatCurrency(curr.uscite)}</td>
+                    <td>${formatCurrency(prev.uscite)}</td>
+                    <td>${saldoCurr === 0 ? "" : "€" + saldoCurr.toFixed(2)}</td>
+                    <td>${saldoPrev === 0 ? "" : "€" + saldoPrev.toFixed(2)}</td>
+                    <td class="${diffSaldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">${diffSaldo === 0 ? "" : "€" + diffSaldo.toFixed(2)}</td>
+                  </tr>`;
+        });
+        html += `</tbody></table>`;
+        document.getElementById('dettagliContainer').innerHTML = html;
+      });
+    }
+
+    // Funzione per espandere/contrarre la riga dei dettagli (accordion)
+    function toggleDetailRow(row, periodType, periodCurr, periodPrev) {
+      if (row.nextElementSibling && row.nextElementSibling.classList.contains('detail-row')) {
+        row.parentNode.removeChild(row.nextElementSibling);
+      } else {
+        var category = row.getAttribute('data-category');
+        var person = row.getAttribute('data-person'); // Filtro per persona (se presente)
+        var transactions = Object.values(window.dettaglioData || {});
+        var transCurr = transactions.filter(t => t.data.startsWith(periodCurr) && t.categoria === category && (!person || t.persona === person));
+        var transPrev = transactions.filter(t => t.data.startsWith(periodPrev) && t.categoria === category && (!person || t.persona === person));
+        
+        var subHtmlCurr = `<h3>Dettaglio ${periodCurr}</h3>`;
+        if (transCurr.length > 0) {
+          subHtmlCurr += `<table class="sub-table"><thead>
+            <tr>
+              <th>Data</th>
+              <th>Persona</th>
+              <th>Tipo</th>
+              <th>Importo</th>
+              <th>Descrizione</th>
+            </tr>
+          </thead><tbody>`;
+          transCurr.forEach(t => {
+            subHtmlCurr += `<tr>
+              <td>${t.data}</td>
+              <td>${t.persona}</td>
+              <td>${t.tipo}</td>
+              <td>${parseFloat(t.importo).toFixed(2) ? "€" + parseFloat(t.importo).toFixed(2) : ""}</td>
+              <td>${t.descrizione || ""}</td>
+            </tr>`;
+          });
+          subHtmlCurr += `</tbody></table>`;
+        } else {
+          subHtmlCurr += `<p>Nessun dettaglio per questo periodo.</p>`;
+        }
+        
+        var subHtmlPrev = `<h3>Dettaglio ${periodPrev}</h3>`;
+        if (transPrev.length > 0) {
+          subHtmlPrev += `<table class="sub-table"><thead>
+            <tr>
+              <th>Data</th>
+              <th>Persona</th>
+              <th>Tipo</th>
+              <th>Importo</th>
+              <th>Descrizione</th>
+            </tr>
+          </thead><tbody>`;
+          transPrev.forEach(t => {
+            subHtmlPrev += `<tr>
+              <td>${t.data}</td>
+              <td>${t.persona}</td>
+              <td>${t.tipo}</td>
+              <td>${parseFloat(t.importo).toFixed(2) ? "€" + parseFloat(t.importo).toFixed(2) : ""}</td>
+              <td>${t.descrizione || ""}</td>
+            </tr>`;
+          });
+          subHtmlPrev += `</tbody></table>`;
+        } else {
+          subHtmlPrev += `<p>Nessun dettaglio per questo periodo.</p>`;
+        }
+        
+        var detailHtml = `<div style="display:flex; flex-direction:column; gap:10px;">
+                             ${subHtmlCurr}
+                             ${subHtmlPrev}
+                          </div>`;
+        var newRow = document.createElement('tr');
+        newRow.className = 'detail-row';
+        var newCell = document.createElement('td');
+        newCell.setAttribute('colspan', row.children.length);
+        newCell.innerHTML = detailHtml;
+        newRow.appendChild(newCell);
+        row.parentNode.insertBefore(newRow, row.nextSibling);
+      }
+    }
+
+    // In base al valore di "tipoDiff", costruisco la tabella corrispondente.
+    if (tipoDiff.startsWith("mese")) {
+      const meseCorrente = localStorage.getItem('meseDiff');
+      const meseConfronto = localStorage.getItem('meseDiffPrev');
+      let personFilter = null;
+      if (tipoDiff === "meseGiulia") personFilter = "Giulia";
+      else if (tipoDiff === "meseAlessio") personFilter = "Alessio";
+      document.title = `Dettaglio Mese: ${meseCorrente} ${personFilter ? " - " + personFilter : "(Totale)"}`;
+      costruisciTabellaMese(meseCorrente, meseConfronto, personFilter);
+    } else if (tipoDiff.startsWith("anno")) {
+      const annoCorrente = localStorage.getItem('annoDiff');
+      const annoPrecedente = localStorage.getItem('annoDiffPrev');
+      let personFilter = null;
+      if (tipoDiff === "annoGiulia") personFilter = "Giulia";
+      else if (tipoDiff === "annoAlessio") personFilter = "Alessio";
+      document.title = `Dettaglio Anno: ${annoCorrente} ${personFilter ? " - " + personFilter : "(Totale)"}`;
+      costruisciTabellaAnno(annoCorrente, annoPrecedente, personFilter);
+    } else {
+      document.getElementById('dettagliContainer').innerText = "Nessun dettaglio disponibile per questo tipo.";
+    }
+    
+    function tornaIndietro() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

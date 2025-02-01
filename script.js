@@ -1,8 +1,159 @@
+// ==============================
+// FUNZIONI GLOBALI
+// ==============================
+
+// Restituisce lo stesso mese dell'anno precedente (formato "YYYY-MM")
+function getStessoMeseAnnoPrecedente(annoMese) {
+  const [year, month] = annoMese.split('-');
+  const prevYear = parseInt(year) - 1;
+  return `${prevYear}-${month}`;
+}
+
+// Calcola totali per un dato periodo (mese o anno); se "person" è specificato, filtra per quella persona.
+function calcolaTotali(period, filterType = 'month', person = null) {
+  let entrate = 0, uscite = 0;
+  transazioni.forEach(([id, t]) => {
+    if (filterType === 'month' && t.data.slice(0, 7) === period) {
+      if (person && t.persona !== person) return;
+      if (t.tipo === 'Entrata') entrate += parseFloat(t.importo);
+      else if (t.tipo === 'Uscita') uscite += parseFloat(t.importo);
+    } else if (filterType === 'year' && t.data.slice(0, 4) === period) {
+      if (person && t.persona !== person) return;
+      if (t.tipo === 'Entrata') entrate += parseFloat(t.importo);
+      else if (t.tipo === 'Uscita') uscite += parseFloat(t.importo);
+    }
+  });
+  return { entrate, uscite, saldo: entrate - uscite };
+}
+
+// Calcola e mostra le differenze nei box per il confronto mensile e annuale.
+// Ogni box è cliccabile e al click viene chiamata la funzione apriDettaglioDiff() con il parametro specifico.
+function calcolaDifferenze() {
+  const meseFiltro = document.getElementById('meseFiltro').value;
+  if (!meseFiltro) return;
+  
+  // --- Confronto Mensile ---
+  const meseConfronto = getStessoMeseAnnoPrecedente(meseFiltro);
+  const totaliMeseCorrente = calcolaTotali(meseFiltro, 'month');
+  const totaliMesePrecedente = calcolaTotali(meseConfronto, 'month');
+  const diffMeseTotale = {
+    entrate: totaliMeseCorrente.entrate - totaliMesePrecedente.entrate,
+    uscite: totaliMeseCorrente.uscite - totaliMesePrecedente.uscite,
+    saldo: totaliMeseCorrente.saldo - totaliMesePrecedente.saldo
+  };
+  
+  const totaliMeseCorrenteAlessio = calcolaTotali(meseFiltro, 'month', 'Alessio');
+  const totaliMesePrecedenteAlessio = calcolaTotali(meseConfronto, 'month', 'Alessio');
+  const diffMeseAlessio = {
+    entrate: totaliMeseCorrenteAlessio.entrate - totaliMesePrecedenteAlessio.entrate,
+    uscite: totaliMeseCorrenteAlessio.uscite - totaliMesePrecedenteAlessio.uscite,
+    saldo: totaliMeseCorrenteAlessio.saldo - totaliMesePrecedenteAlessio.saldo
+  };
+
+  const totaliMeseCorrenteGiulia = calcolaTotali(meseFiltro, 'month', 'Giulia');
+  const totaliMesePrecedenteGiulia = calcolaTotali(meseConfronto, 'month', 'Giulia');
+  const diffMeseGiulia = {
+    entrate: totaliMeseCorrenteGiulia.entrate - totaliMesePrecedenteGiulia.entrate,
+    uscite: totaliMeseCorrenteGiulia.uscite - totaliMesePrecedenteGiulia.uscite,
+    saldo: totaliMeseCorrenteGiulia.saldo - totaliMesePrecedenteGiulia.saldo
+  };
+
+  const htmlMese = `
+    <div onclick="apriDettaglioDiff('meseTotal')" style="cursor:pointer;">
+      <h3>Mese Totale: ${meseFiltro} vs ${meseConfronto}</h3>
+      <p>Entrate: €${totaliMeseCorrente.entrate.toFixed(2)} → €${totaliMesePrecedente.entrate.toFixed(2)}</p>
+      <p>Uscite: €${totaliMeseCorrente.uscite.toFixed(2)} → €${totaliMesePrecedente.uscite.toFixed(2)}</p>
+      <p>Saldo: €${totaliMeseCorrente.saldo.toFixed(2)} → €${totaliMesePrecedente.saldo.toFixed(2)}<br>
+         <span class="${diffMeseTotale.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseTotale.saldo.toFixed(2)}</span></p>
+    </div>
+    <div onclick="apriDettaglioDiff('meseAlessio')" style="cursor:pointer;">
+      <h4>Alessio (Mese)</h4>
+      <p>Entrate: €${totaliMeseCorrenteAlessio.entrate.toFixed(2)} → €${totaliMesePrecedenteAlessio.entrate.toFixed(2)}</p>
+      <p>Uscite: €${totaliMeseCorrenteAlessio.uscite.toFixed(2)} → €${totaliMesePrecedenteAlessio.uscite.toFixed(2)}</p>
+      <p>Saldo: €${totaliMeseCorrenteAlessio.saldo.toFixed(2)} → €${totaliMesePrecedenteAlessio.saldo.toFixed(2)}<br>
+         <span class="${diffMeseAlessio.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseAlessio.saldo.toFixed(2)}</span></p>
+    </div>
+    <div onclick="apriDettaglioDiff('meseGiulia')" style="cursor:pointer;">
+      <h4>Giulia (Mese)</h4>
+      <p>Entrate: €${totaliMeseCorrenteGiulia.entrate.toFixed(2)} → €${totaliMesePrecedenteGiulia.entrate.toFixed(2)}</p>
+      <p>Uscite: €${totaliMeseCorrenteGiulia.uscite.toFixed(2)} → €${totaliMesePrecedenteGiulia.uscite.toFixed(2)}</p>
+      <p>Saldo: €${totaliMeseCorrenteGiulia.saldo.toFixed(2)} → €${totaliMesePrecedenteGiulia.saldo.toFixed(2)}<br>
+         <span class="${diffMeseGiulia.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseGiulia.saldo.toFixed(2)}</span></p>
+    </div>
+  `;
+
+  // --- Confronto Annuale ---
+  const annoCorrente = meseFiltro.slice(0, 4);
+  const annoPrecedente = (parseInt(annoCorrente) - 1).toString();
+  const totaliAnnoCorrente = calcolaTotali(annoCorrente, 'year');
+  const totaliAnnoPrecedente = calcolaTotali(annoPrecedente, 'year');
+  const diffAnnoTotale = {
+    entrate: totaliAnnoCorrente.entrate - totaliAnnoPrecedente.entrate,
+    uscite: totaliAnnoCorrente.uscite - totaliAnnoPrecedente.uscite,
+    saldo: totaliAnnoCorrente.saldo - totaliAnnoPrecedente.saldo
+  };
+
+  const totaliAnnoCorrenteAlessio = calcolaTotali(annoCorrente, 'year', 'Alessio');
+  const totaliAnnoPrecedenteAlessio = calcolaTotali(annoPrecedente, 'year', 'Alessio');
+  const diffAnnoAlessio = {
+    entrate: totaliAnnoCorrenteAlessio.entrate - totaliAnnoPrecedenteAlessio.entrate,
+    uscite: totaliAnnoCorrenteAlessio.uscite - totaliAnnoPrecedenteAlessio.uscite,
+    saldo: totaliAnnoCorrenteAlessio.saldo - totaliAnnoPrecedenteAlessio.saldo
+  };
+
+  const totaliAnnoCorrenteGiulia = calcolaTotali(annoCorrente, 'year', 'Giulia');
+  const totaliAnnoPrecedenteGiulia = calcolaTotali(annoPrecedente, 'year', 'Giulia');
+  const diffAnnoGiulia = {
+    entrate: totaliAnnoCorrenteGiulia.entrate - totaliAnnoPrecedenteGiulia.entrate,
+    uscite: totaliAnnoCorrenteGiulia.uscite - totaliAnnoPrecedenteGiulia.uscite,
+    saldo: totaliAnnoCorrenteGiulia.saldo - totaliAnnoPrecedenteGiulia.saldo
+  };
+
+  const htmlAnno = `
+    <div onclick="apriDettaglioDiff('annoTotal')" style="cursor:pointer;">
+      <h3>Anno Totale: ${annoCorrente} vs ${annoPrecedente}</h3>
+      <p>Entrate: €${totaliAnnoCorrente.entrate.toFixed(2)} → €${totaliAnnoPrecedente.entrate.toFixed(2)}</p>
+      <p>Uscite: €${totaliAnnoCorrente.uscite.toFixed(2)} → €${totaliAnnoPrecedente.uscite.toFixed(2)}</p>
+      <p>Saldo: €${totaliAnnoCorrente.saldo.toFixed(2)} → €${totaliAnnoPrecedente.saldo.toFixed(2)}<br>
+         <span class="${diffAnnoTotale.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">
+           Diff: €${diffAnnoTotale.saldo.toFixed(2)}
+         </span></p>
+    </div>
+    <div onclick="apriDettaglioDiff('annoAlessio')" style="cursor:pointer;">
+      <h4>Alessio (Anno)</h4>
+      <p>Entrate: €${totaliAnnoCorrenteAlessio.entrate.toFixed(2)} → €${totaliAnnoPrecedenteAlessio.entrate.toFixed(2)}</p>
+      <p>Uscite: €${totaliAnnoCorrenteAlessio.uscite.toFixed(2)} → €${totaliAnnoPrecedenteAlessio.uscite.toFixed(2)}</p>
+      <p>Saldo: €${totaliAnnoCorrenteAlessio.saldo.toFixed(2)} → €${totaliAnnoPrecedenteAlessio.saldo.toFixed(2)}<br>
+         <span class="${diffAnnoAlessio.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">
+           Diff: €${diffAnnoAlessio.saldo.toFixed(2)}
+         </span></p>
+    </div>
+    <div onclick="apriDettaglioDiff('annoGiulia')" style="cursor:pointer;">
+      <h4>Giulia (Anno)</h4>
+      <p>Entrate: €${totaliAnnoCorrenteGiulia.entrate.toFixed(2)} → €${totaliAnnoPrecedenteGiulia.entrate.toFixed(2)}</p>
+      <p>Uscite: €${totaliAnnoCorrenteGiulia.uscite.toFixed(2)} → €${totaliAnnoPrecedenteGiulia.uscite.toFixed(2)}</p>
+      <p>Saldo: €${totaliAnnoCorrenteGiulia.saldo.toFixed(2)} → €${totaliAnnoPrecedenteGiulia.saldo.toFixed(2)}<br>
+         <span class="${diffAnnoGiulia.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">
+           Diff: €${diffAnnoGiulia.saldo.toFixed(2)}
+         </span></p>
+    </div>
+  `;
+
+  document.getElementById('differenzeMese').innerHTML = htmlMese;
+  document.getElementById('differenzeAnno').innerHTML = htmlAnno;
+}
+
+// -----------------------------
+// FINE FUNZIONI PER IL CONFRONTO DEI DATI
+// -----------------------------
+
+// -----------------------------
+// IMPORTA MODULI FIREBASE
+// -----------------------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-// Configurazione Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyChK3rrqQ8hYygNLaahaxgtx8W1oUpxBP0",
   authDomain: "budget-a41a6.firebaseapp.com",
@@ -13,7 +164,6 @@ const firebaseConfig = {
   appId: "1:1044297998779:web:3848d0c0c2b9840b66249e"
 };
 
-// Inizializza Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
@@ -39,7 +189,7 @@ onAuthStateChanged(auth, (utente) => {
   }
 });
 
-// Funzioni di autenticazione
+// FUNZIONI DI AUTENTICAZIONE
 window.registrati = function () {
   const email = document.getElementById('emailRegistrazione').value.trim();
   const password = document.getElementById('passwordRegistrazione').value.trim();
@@ -48,9 +198,7 @@ window.registrati = function () {
     return;
   }
   createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      alert("Registrazione completata!");
-    })
+    .then((userCredential) => { alert("Registrazione completata!"); })
     .catch((error) => {
       console.error("Errore durante la registrazione:", error);
       alert("Errore durante la registrazione: " + error.message);
@@ -65,9 +213,7 @@ window.accedi = function () {
     return;
   }
   signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      alert("Accesso effettuato con successo!");
-    })
+    .then((userCredential) => { alert("Accesso effettuato con successo!"); })
     .catch((error) => {
       console.error("Errore durante l'accesso:", error);
       alert("Errore durante l'accesso: " + error.message);
@@ -76,15 +222,10 @@ window.accedi = function () {
 
 window.esci = function () {
   signOut(auth)
-    .then(() => {
-      alert("Logout effettuato con successo!");
-    })
-    .catch((error) => {
-      console.error("Errore durante il logout:", error);
-    });
+    .then(() => { alert("Logout effettuato con successo!"); })
+    .catch((error) => { console.error("Errore durante il logout:", error); });
 };
 
-// Salva filtro mese e aggiorna la vista
 function salvaFiltroMese() {
   const meseFiltroElement = document.getElementById('meseFiltro');
   if (meseFiltroElement) {
@@ -97,7 +238,6 @@ function salvaFiltroMese() {
 }
 document.getElementById('meseFiltro').addEventListener('change', salvaFiltroMese);
 
-// Data corrente e impostazione
 function getDataCorrente() {
   const oggi = new Date();
   const anno = oggi.getFullYear();
@@ -112,7 +252,6 @@ function impostaDataCorrente() {
   document.getElementById('meseFiltro').value = dataCorrente.slice(0, 7);
 }
 
-// Aggiornamento in tempo reale dal database
 onValue(transazioniRef, (snapshot) => {
   transazioni = snapshot.val() ? Object.entries(snapshot.val()) : [];
   aggiornaListaTransazioni(document.getElementById('meseFiltro').value);
@@ -122,7 +261,6 @@ onValue(transazioniRef, (snapshot) => {
   calcolaDifferenze();
 });
 
-// Aggiungi transazione
 function aggiungiTransazione(persona, tipo, categoria, descrizione, importo, data) {
   const nuovaTransazione = {
     persona,
@@ -138,13 +276,11 @@ function aggiungiTransazione(persona, tipo, categoria, descrizione, importo, dat
   });
 }
 
-// Formatta data (DD/MM)
 function formattaData(data) {
   const [anno, mese, giorno] = data.split("-");
   return `${giorno}/${mese}`;
 }
 
-// Aggiorna lista transazioni
 function aggiornaListaTransazioni(meseFiltro = null) {
   const listaTransazioniElement = document.getElementById('listaTransazioni');
   if (!listaTransazioniElement) {
@@ -152,18 +288,18 @@ function aggiornaListaTransazioni(meseFiltro = null) {
     return;
   }
   listaTransazioniElement.innerHTML = '';
-  transazioni.forEach(([id, transazione]) => {
-    const transazioneMese = transazione.data.slice(0, 7);
+  transazioni.forEach(([id, t]) => {
+    const transazioneMese = t.data.slice(0, 7);
     if (!meseFiltro || transazioneMese === meseFiltro) {
-      const dataFormattata = formattaData(transazione.data);
-      const classeTransazione = transazione.tipo === 'Uscita' ? 'uscita' : 'entrata';
+      const dataFormattata = formattaData(t.data);
+      const classeTransazione = t.tipo === 'Uscita' ? 'uscita' : 'entrata';
       const nuovaRiga = `
         <tr>
-          <td>${transazione.persona}</td>
-          <td>${transazione.categoria || ''}</td>
-          <td>${transazione.descrizione || ''}</td>
+          <td>${t.persona}</td>
+          <td>${t.categoria || ''}</td>
+          <td>${t.descrizione || ''}</td>
           <td>${dataFormattata}</td>
-          <td class="${classeTransazione}">€${parseFloat(transazione.importo).toFixed(2)}</td>
+          <td class="${classeTransazione}">€${parseFloat(t.importo).toFixed(2)}</td>
           <td>
             <button class="btn-azione" onclick="modificaTransazione('${id}')">Modifica</button>
             <button class="btn-azione" onclick="cancellaTransazione('${id}')">Cancella</button>
@@ -175,24 +311,23 @@ function aggiornaListaTransazioni(meseFiltro = null) {
   });
 }
 
-// Aggiorna riepiloghi (totali e per persona)
 function aggiornaRiepiloghi() {
   const meseFiltro = document.getElementById('meseFiltro').value;
   const annoSelezionato = meseFiltro ? meseFiltro.slice(0, 4) : new Date().getFullYear().toString();
   let totaleEntrate = 0, totaleUscite = 0;
   let totaleGiuliaEntrate = 0, totaleGiuliaUscite = 0;
   let totaleAlessioEntrate = 0, totaleAlessioUscite = 0;
-  transazioni.forEach(([id, transazione]) => {
-    const annoTransazione = transazione.data.slice(0, 4);
+  transazioni.forEach(([id, t]) => {
+    const annoTransazione = t.data.slice(0, 4);
     if (annoTransazione === annoSelezionato) {
-      if (transazione.tipo === 'Entrata') {
-        totaleEntrate += transazione.importo;
-        if (transazione.persona === 'Giulia') totaleGiuliaEntrate += transazione.importo;
-        else if (transazione.persona === 'Alessio') totaleAlessioEntrate += transazione.importo;
-      } else if (transazione.tipo === 'Uscita') {
-        totaleUscite += transazione.importo;
-        if (transazione.persona === 'Giulia') totaleGiuliaUscite += transazione.importo;
-        else if (transazione.persona === 'Alessio') totaleAlessioUscite += transazione.importo;
+      if (t.tipo === 'Entrata') {
+        totaleEntrate += t.importo;
+        if (t.persona === 'Giulia') totaleGiuliaEntrate += t.importo;
+        else if (t.persona === 'Alessio') totaleAlessioEntrate += t.importo;
+      } else if (t.tipo === 'Uscita') {
+        totaleUscite += t.importo;
+        if (t.persona === 'Giulia') totaleGiuliaUscite += t.importo;
+        else if (t.persona === 'Alessio') totaleAlessioUscite += t.importo;
       }
     }
   });
@@ -210,14 +345,13 @@ function aggiornaRiepiloghi() {
   document.getElementById('riepilogoAlessioSaldo').innerText = `Saldo Alessio: €${saldoAlessio.toFixed(2)}`;
 }
 
-// Aggiorna riepilogo mensile
 function aggiornaRiepilogoMensile() {
   const meseSelezionato = document.getElementById('meseFiltro').value;
   let totaleEntrateMese = 0, totaleUsciteMese = 0;
-  transazioni.forEach(([id, transazione]) => {
-    if (transazione.data.slice(0, 7) === meseSelezionato) {
-      if (transazione.tipo === 'Entrata') totaleEntrateMese += transazione.importo;
-      else if (transazione.tipo === 'Uscita') totaleUsciteMese += transazione.importo;
+  transazioni.forEach(([id, t]) => {
+    if (t.data.slice(0, 7) === meseSelezionato) {
+      if (t.tipo === 'Entrata') totaleEntrateMese += t.importo;
+      else if (t.tipo === 'Uscita') totaleUsciteMese += t.importo;
     }
   });
   const saldoMese = totaleEntrateMese - totaleUsciteMese;
@@ -228,7 +362,6 @@ function aggiornaRiepilogoMensile() {
   `;
 }
 
-// Filtra transazioni in base al mese selezionato
 window.filtraPerMese = function () {
   const meseSelezionato = document.getElementById('meseFiltro').value;
   aggiornaListaTransazioni(meseSelezionato);
@@ -238,7 +371,6 @@ window.filtraPerMese = function () {
   calcolaDifferenze();
 };
 
-// Funzioni per aggiungere entrata e uscita
 window.aggiungiEntrata = function () {
   const persona = document.getElementById("personaEntrata").value;
   const tipo = document.getElementById("tipoEntrata").value;
@@ -267,7 +399,6 @@ window.aggiungiUscita = function () {
   document.getElementById("importoUscita").value = '';
 };
 
-// Cancella transazione
 window.cancellaTransazione = function (id) {
   remove(ref(db, `transazioni/${id}`))
     .then(() => {
@@ -281,7 +412,6 @@ window.cancellaTransazione = function (id) {
     });
 };
 
-// Modifica transazione
 window.modificaTransazione = function (id) {
   const nuovoImporto = prompt("Inserisci il nuovo importo:");
   if (nuovoImporto !== null && !isNaN(nuovoImporto) && nuovoImporto > 0) {
@@ -293,15 +423,14 @@ window.modificaTransazione = function (id) {
   }
 };
 
-// Grafico a torta per le spese per categoria
 function aggiornaGraficoSpesePerCategoria() {
   const meseFiltro = document.getElementById('meseFiltro').value;
   const annoSelezionato = meseFiltro ? meseFiltro.slice(0, 4) : new Date().getFullYear().toString();
   const spesePerCategoria = {};
-  transazioni.forEach(([id, transazione]) => {
-    const annoTransazione = transazione.data.slice(0, 4);
-    if (transazione.tipo === 'Uscita' && annoTransazione === annoSelezionato) {
-      spesePerCategoria[transazione.categoria] = (spesePerCategoria[transazione.categoria] || 0) + transazione.importo;
+  transazioni.forEach(([id, t]) => {
+    const annoTransazione = t.data.slice(0, 4);
+    if (t.tipo === 'Uscita' && annoTransazione === annoSelezionato) {
+      spesePerCategoria[t.categoria] = (spesePerCategoria[t.categoria] || 0) + t.importo;
     }
   });
   const categorie = Object.keys(spesePerCategoria);
@@ -332,10 +461,7 @@ function aggiornaGraficoSpesePerCategoria() {
         legend: {
           display: true,
           position: 'bottom',
-          labels: {
-            boxWidth: 15,
-            padding: 15,
-          },
+          labels: { boxWidth: 15, padding: 15 },
         },
         tooltip: {
           callbacks: {
@@ -357,7 +483,6 @@ function aggiornaGraficoSpesePerCategoria() {
   });
 }
 
-// Salva nome utente
 window.salvaNomeUtente = function () {
   const nomeUtente = document.getElementById('userName').value.trim();
   if (nomeUtente) {
@@ -378,169 +503,28 @@ function aggiornaNomeUtente(nomeUtente) {
   document.getElementById('loginContainer').style.display = 'none';
 }
 
-// Naviga alla pagina dei dettagli
 window.vaiAllaPaginaDettagli = function (persona, tipo) {
   const url = `dettagli.html?persona=${encodeURIComponent(persona)}&tipo=${encodeURIComponent(tipo)}`;
   console.log("Navigazione verso:", url);
   window.location.href = url;
 };
 
-// -------------------------------
-// FUNZIONI PER IL CONFRONTO DEI DATI
-// -------------------------------
-
-// Restituisce lo stesso mese dell'anno precedente (mantiene MM invariato)
-function getStessoMeseAnnoPrecedente(annoMese) {
-  const [year, month] = annoMese.split('-');
-  const prevYear = parseInt(year) - 1;
-  return `${prevYear}-${month}`;
-}
-
-// Calcola totali per un dato periodo (mese o anno) e opzionalmente per persona
-function calcolaTotali(period, filterType = 'month', person = null) {
-  let entrate = 0, uscite = 0;
-  transazioni.forEach(([id, transazione]) => {
-    if (filterType === 'month' && transazione.data.slice(0, 7) === period) {
-      if (person && transazione.persona !== person) return;
-      if (transazione.tipo === 'Entrata') entrate += parseFloat(transazione.importo);
-      else if (transazione.tipo === 'Uscita') uscite += parseFloat(transazione.importo);
-    } else if (filterType === 'year' && transazione.data.slice(0, 4) === period) {
-      if (person && transazione.persona !== person) return;
-      if (transazione.tipo === 'Entrata') entrate += parseFloat(transazione.importo);
-      else if (transazione.tipo === 'Uscita') uscite += parseFloat(transazione.importo);
-    }
-  });
-  return { entrate, uscite, saldo: entrate - uscite };
-}
-
-// Calcola e mostra le differenze sia per il mese (confronto con lo stesso mese dell'anno precedente)
-// sia per l'anno (confronto anno corrente vs anno precedente). Include differenze per il totale e per Alessio e Giulia.
-function calcolaDifferenze() {
+window.apriDettaglioDiff = function (tipoDiff) {
+  // Salva in localStorage il tipo di dettaglio (es. "meseGiulia", "annoAlessio", ecc.)
+  localStorage.setItem('tipoDiff', tipoDiff);
   const meseFiltro = document.getElementById('meseFiltro').value;
-  if (!meseFiltro) return;
-  
-  // Confronto mensile: confronta il mese corrente con lo stesso mese dell'anno precedente
-  const meseConfronto = getStessoMeseAnnoPrecedente(meseFiltro);
-  const totaliMeseCorrente = calcolaTotali(meseFiltro, 'month');
-  const totaliMesePrecedente = calcolaTotali(meseConfronto, 'month');
-  const diffMeseTotale = {
-      entrate: totaliMeseCorrente.entrate - totaliMesePrecedente.entrate,
-      uscite: totaliMeseCorrente.uscite - totaliMesePrecedente.uscite,
-      saldo: totaliMeseCorrente.saldo - totaliMesePrecedente.saldo,
-  };
-  
-  const totaliMeseCorrenteAlessio = calcolaTotali(meseFiltro, 'month', 'Alessio');
-  const totaliMesePrecedenteAlessio = calcolaTotali(meseConfronto, 'month', 'Alessio');
-  const diffMeseAlessio = {
-      entrate: totaliMeseCorrenteAlessio.entrate - totaliMesePrecedenteAlessio.entrate,
-      uscite: totaliMeseCorrenteAlessio.uscite - totaliMesePrecedenteAlessio.uscite,
-      saldo: totaliMeseCorrenteAlessio.saldo - totaliMesePrecedenteAlessio.saldo,
-  };
+  if (tipoDiff.startsWith("anno")) {
+    const annoCorrente = meseFiltro.slice(0, 4);
+    localStorage.setItem('annoDiff', annoCorrente);
+    localStorage.setItem('annoDiffPrev', (parseInt(annoCorrente) - 1).toString());
+  } else if (tipoDiff.startsWith("mese")) {
+    localStorage.setItem('meseDiff', meseFiltro);
+    localStorage.setItem('meseDiffPrev', getStessoMeseAnnoPrecedente(meseFiltro));
+  }
+  console.log("TipoDiff salvato:", tipoDiff);
+  window.location.href = "dettagliDifferenze.html";
+};
 
-  const totaliMeseCorrenteGiulia = calcolaTotali(meseFiltro, 'month', 'Giulia');
-  const totaliMesePrecedenteGiulia = calcolaTotali(meseConfronto, 'month', 'Giulia');
-  const diffMeseGiulia = {
-      entrate: totaliMeseCorrenteGiulia.entrate - totaliMesePrecedenteGiulia.entrate,
-      uscite: totaliMeseCorrenteGiulia.uscite - totaliMesePrecedenteGiulia.uscite,
-      saldo: totaliMeseCorrenteGiulia.saldo - totaliMesePrecedenteGiulia.saldo,
-  };
-
-  // Confronto annuale: confronta anno corrente vs anno precedente
-  const annoCorrente = meseFiltro.slice(0, 4);
-  const annoPrecedente = (parseInt(annoCorrente) - 1).toString();
-  const totaliAnnoCorrente = calcolaTotali(annoCorrente, 'year');
-  const totaliAnnoPrecedente = calcolaTotali(annoPrecedente, 'year');
-  const diffAnnoTotale = {
-      entrate: totaliAnnoCorrente.entrate - totaliAnnoPrecedente.entrate,
-      uscite: totaliAnnoCorrente.uscite - totaliAnnoPrecedente.uscite,
-      saldo: totaliAnnoCorrente.saldo - totaliAnnoPrecedente.saldo,
-  };
-
-  const totaliAnnoCorrenteAlessio = calcolaTotali(annoCorrente, 'year', 'Alessio');
-  const totaliAnnoPrecedenteAlessio = calcolaTotali(annoPrecedente, 'year', 'Alessio');
-  const diffAnnoAlessio = {
-      entrate: totaliAnnoCorrenteAlessio.entrate - totaliAnnoPrecedenteAlessio.entrate,
-      uscite: totaliAnnoCorrenteAlessio.uscite - totaliAnnoPrecedenteAlessio.uscite,
-      saldo: totaliAnnoCorrenteAlessio.saldo - totaliAnnoPrecedenteAlessio.saldo,
-  };
-
-  const totaliAnnoCorrenteGiulia = calcolaTotali(annoCorrente, 'year', 'Giulia');
-  const totaliAnnoPrecedenteGiulia = calcolaTotali(annoPrecedente, 'year', 'Giulia');
-  const diffAnnoGiulia = {
-      entrate: totaliAnnoCorrenteGiulia.entrate - totaliAnnoPrecedenteGiulia.entrate,
-      uscite: totaliAnnoCorrenteGiulia.uscite - totaliAnnoPrecedenteGiulia.uscite,
-      saldo: totaliAnnoCorrenteGiulia.saldo - totaliAnnoPrecedenteGiulia.saldo,
-  };
-
-  // Costruisco l'HTML per il confronto mensile (box multipli)
-  const htmlMese = `
-    <div class="differenze-box">
-      <h3>Mese: ${meseFiltro} vs ${meseConfronto}</h3>
-      <p><strong>Totale</strong></p>
-      <p>Entrate: €${totaliMeseCorrente.entrate.toFixed(2)} → €${totaliMesePrecedente.entrate.toFixed(2)}<br>
-         <span class="${diffMeseTotale.entrate >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseTotale.entrate.toFixed(2)}</span></p>
-      <p>Uscite: €${totaliMeseCorrente.uscite.toFixed(2)} → €${totaliMesePrecedente.uscite.toFixed(2)}<br>
-         <span class="${diffMeseTotale.uscite >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseTotale.uscite.toFixed(2)}</span></p>
-      <p>Saldo: €${totaliMeseCorrente.saldo.toFixed(2)} → €${totaliMesePrecedente.saldo.toFixed(2)}<br>
-         <span class="${diffMeseTotale.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseTotale.saldo.toFixed(2)}</span></p>
-    </div>
-    <div class="differenze-box">
-      <h4>Alessio (Mese)</h4>
-      <p>Entrate: €${totaliMeseCorrenteAlessio.entrate.toFixed(2)} → €${totaliMesePrecedenteAlessio.entrate.toFixed(2)}<br>
-         <span class="${diffMeseAlessio.entrate >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseAlessio.entrate.toFixed(2)}</span></p>
-      <p>Uscite: €${totaliMeseCorrenteAlessio.uscite.toFixed(2)} → €${totaliMesePrecedenteAlessio.uscite.toFixed(2)}<br>
-         <span class="${diffMeseAlessio.uscite >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseAlessio.uscite.toFixed(2)}</span></p>
-      <p>Saldo: €${totaliMeseCorrenteAlessio.saldo.toFixed(2)} → €${totaliMesePrecedenteAlessio.saldo.toFixed(2)}<br>
-         <span class="${diffMeseAlessio.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseAlessio.saldo.toFixed(2)}</span></p>
-    </div>
-    <div class="differenze-box">
-      <h4>Giulia (Mese)</h4>
-      <p>Entrate: €${totaliMeseCorrenteGiulia.entrate.toFixed(2)} → €${totaliMesePrecedenteGiulia.entrate.toFixed(2)}<br>
-         <span class="${diffMeseGiulia.entrate >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseGiulia.entrate.toFixed(2)}</span></p>
-      <p>Uscite: €${totaliMeseCorrenteGiulia.uscite.toFixed(2)} → €${totaliMesePrecedenteGiulia.uscite.toFixed(2)}<br>
-         <span class="${diffMeseGiulia.uscite >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseGiulia.uscite.toFixed(2)}</span></p>
-      <p>Saldo: €${totaliMeseCorrenteGiulia.saldo.toFixed(2)} → €${totaliMesePrecedenteGiulia.saldo.toFixed(2)}<br>
-         <span class="${diffMeseGiulia.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseGiulia.saldo.toFixed(2)}</span></p>
-    </div>
-  `;
-
-  // Costruisco l'HTML per il confronto annuale (totale e per persona)
-  const htmlAnno = `
-    <div class="differenze-box">
-      <h3>Anno: ${annoCorrente} vs ${annoPrecedente}</h3>
-      <p><strong>Totale</strong></p>
-      <p>Entrate: €${totaliAnnoCorrente.entrate.toFixed(2)} → €${totaliAnnoPrecedente.entrate.toFixed(2)}<br>
-         <span class="${diffAnnoTotale.entrate >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffAnnoTotale.entrate.toFixed(2)}</span></p>
-      <p>Uscite: €${totaliAnnoCorrente.uscite.toFixed(2)} → €${totaliAnnoPrecedente.uscite.toFixed(2)}<br>
-         <span class="${diffAnnoTotale.uscite >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffAnnoTotale.uscite.toFixed(2)}</span></p>
-      <p>Saldo: €${totaliAnnoCorrente.saldo.toFixed(2)} → €${totaliAnnoPrecedente.saldo.toFixed(2)}<br>
-         <span class="${diffAnnoTotale.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffAnnoTotale.saldo.toFixed(2)}</span></p>
-    </div>
-    <div class="differenze-box">
-      <h4>Alessio (Anno)</h4>
-      <p>Entrate: €${totaliAnnoCorrenteAlessio.entrate.toFixed(2)} → €${totaliAnnoPrecedenteAlessio.entrate.toFixed(2)}<br>
-         <span class="${diffAnnoAlessio.entrate >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffAnnoAlessio.entrate.toFixed(2)}</span></p>
-      <p>Uscite: €${totaliAnnoCorrenteAlessio.uscite.toFixed(2)} → €${totaliAnnoPrecedenteAlessio.uscite.toFixed(2)}<br>
-         <span class="${diffAnnoAlessio.uscite >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffAnnoAlessio.uscite.toFixed(2)}</span></p>
-      <p>Saldo: €${totaliAnnoCorrenteAlessio.saldo.toFixed(2)} → €${totaliAnnoPrecedenteAlessio.saldo.toFixed(2)}<br>
-         <span class="${diffAnnoAlessio.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffAnnoAlessio.saldo.toFixed(2)}</span></p>
-    </div>
-    <div class="differenze-box">
-      <h4>Giulia (Anno)</h4>
-      <p>Entrate: €${totaliAnnoCorrenteGiulia.entrate.toFixed(2)} → €${totaliAnnoPrecedenteGiulia.entrate.toFixed(2)}<br>
-         <span class="${diffAnnoGiulia.entrate >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffAnnoGiulia.entrate.toFixed(2)}</span></p>
-      <p>Uscite: €${totaliAnnoCorrenteGiulia.uscite.toFixed(2)} → €${totaliAnnoPrecedenteGiulia.uscite.toFixed(2)}<br>
-         <span class="${diffAnnoGiulia.uscite >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffAnnoGiulia.uscite.toFixed(2)}</span></p>
-      <p>Saldo: €${totaliAnnoCorrenteGiulia.saldo.toFixed(2)} → €${totaliAnnoPrecedenteGiulia.saldo.toFixed(2)}<br>
-         <span class="${diffAnnoGiulia.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffAnnoGiulia.saldo.toFixed(2)}</span></p>
-    </div>
-  `;
-
-  document.getElementById('differenzeMese').innerHTML = htmlMese;
-  document.getElementById('differenzeAnno').innerHTML = htmlAnno;
-}
-
-// Mostra/nascondi lista transazioni
 let transazioniVisibili = false;
 window.toggleTransazioniVisibili = function () {
   transazioniVisibili = !transazioniVisibili;
@@ -557,15 +541,14 @@ window.toggleTransazioniVisibili = function () {
   }
 };
 
-// Esporta il riepilogo in Excel
 window.esportaInExcel = async function () {
   const meseFiltro = document.getElementById('meseFiltro').value;
   const annoSelezionato = meseFiltro ? meseFiltro.slice(0, 4) : new Date().getFullYear().toString();
   const datiRiepilogo = {};
   transazioni
-    .filter(([_, transazione]) => transazione.tipo === "Uscita" && transazione.data.slice(0, 4) === annoSelezionato)
-    .forEach(([id, transazione]) => {
-      const { persona, categoria, importo, data } = transazione;
+    .filter(([_, t]) => t.tipo === "Uscita" && t.data.slice(0, 4) === annoSelezionato)
+    .forEach(([id, t]) => {
+      const { persona, categoria, importo, data } = t;
       const mese = new Date(data).toLocaleString("it-IT", { month: "long" });
       if (!datiRiepilogo[mese]) datiRiepilogo[mese] = {};
       if (!datiRiepilogo[mese][categoria]) datiRiepilogo[mese][categoria] = { Alessio: 0, Giulia: 0 };
@@ -575,9 +558,9 @@ window.esportaInExcel = async function () {
   Object.keys(datiRiepilogo).forEach(mese => {
     Object.entries(datiRiepilogo[mese]).forEach(([categoria, persone]) => {
       const totaleCategoria = Object.values(persone).reduce((sum, val) => sum + val, 0);
-      const existingCategoria = categorieTotali.find(c => c.categoria === categoria);
-      if (existingCategoria) {
-        existingCategoria.totale += totaleCategoria;
+      const existing = categorieTotali.find(c => c.categoria === categoria);
+      if (existing) {
+        existing.totale += totaleCategoria;
       } else {
         categorieTotali.push({ categoria, totale: totaleCategoria });
       }
@@ -599,13 +582,13 @@ window.esportaInExcel = async function () {
   categorieTotali.forEach(({ categoria }) => {
     const row = [categoria];
     let totaleRiga = 0;
-    mesi.forEach((mese, meseIndex) => {
+    mesi.forEach((mese, idx) => {
       const alessioValue = datiRiepilogo[mese][categoria]?.Alessio || 0;
       const giuliaValue = datiRiepilogo[mese][categoria]?.Giulia || 0;
       row.push(alessioValue);
       row.push(giuliaValue);
-      totalColumns[meseIndex * 2] += alessioValue;
-      totalColumns[meseIndex * 2 + 1] += giuliaValue;
+      totalColumns[idx * 2] += alessioValue;
+      totalColumns[idx * 2 + 1] += giuliaValue;
       totaleRiga += alessioValue + giuliaValue;
     });
     row.push(totaleRiga);
@@ -613,9 +596,7 @@ window.esportaInExcel = async function () {
     worksheet.addRow(row);
   });
   const totaliRow = ["Totale"];
-  totalColumns.forEach(total => {
-    totaliRow.push(total);
-  });
+  totalColumns.forEach(total => totaliRow.push(total));
   totaliRow.push(totaleGenerale);
   const totaleRowRef = worksheet.addRow(totaliRow);
   totaleRowRef.eachCell(cell => {
@@ -623,8 +604,8 @@ window.esportaInExcel = async function () {
     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFA500" } };
     cell.alignment = { horizontal: "center" };
   });
-  mesi.forEach((mese, meseIndex) => {
-    const colAlessio = 2 + meseIndex * 2;
+  mesi.forEach((mese, idx) => {
+    const colAlessio = 2 + idx * 2;
     const colGiulia = colAlessio + 1;
     worksheet.getColumn(colAlessio).eachCell((cell, rowNumber) => {
       if (rowNumber > 1 && rowNumber !== totaleRowRef.number) {
@@ -647,9 +628,7 @@ window.esportaInExcel = async function () {
     column.eachCell({ includeEmpty: true }, cell => {
       if (cell.value) {
         const valueLength = cell.value.toString().length;
-        if (valueLength > maxLength) {
-          maxLength = valueLength;
-        }
+        if (valueLength > maxLength) maxLength = valueLength;
       }
     });
     column.width = maxLength + 2;
@@ -659,7 +638,26 @@ window.esportaInExcel = async function () {
   saveAs(blob, `RiepilogoSpese_${annoSelezionato}.xlsx`);
 };
 
-// Inizializza la pagina
+window.salvaNomeUtente = function () {
+  const nomeUtente = document.getElementById('userName').value.trim();
+  if (nomeUtente) {
+    localStorage.setItem('nomeUtente', nomeUtente);
+    document.getElementById('personaEntrata').value = nomeUtente;
+    document.getElementById('personaUscita').value = nomeUtente;
+    document.getElementById('welcomeMessage').innerText = `Ciao, ${nomeUtente}!`;
+    document.getElementById('loginContainer').style.display = 'none';
+    document.getElementById('appContainer').style.display = 'block';
+  } else {
+    alert("Inserisci un nome valido.");
+  }
+};
+
+window.vaiAllaPaginaDettagli = function (persona, tipo) {
+  const url = `dettagli.html?persona=${encodeURIComponent(persona)}&tipo=${encodeURIComponent(tipo)}`;
+  console.log("Navigazione verso:", url);
+  window.location.href = url;
+};
+
 window.onload = function () {
   impostaDataCorrente();
   const nomeUtente = localStorage.getItem('nomeUtente');
