@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <!-- La viewport per garantire una corretta visualizzazione su mobile -->
+  <!-- Viewport per dispositivi mobili -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dettagli Differenze</title>
   <link rel="stylesheet" href="styles.css">
@@ -10,7 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
   <style>
-    /* Stili generali per il contenitore principale dei dettagli */
+    /* Stili generali per il contenitore principale */
     .dettaglio-container {
       max-width: 900px;
       margin: 20px auto;
@@ -32,17 +32,16 @@
       margin-top: 20px;
     }
     
-    /* Stili per la tabella principale */
+    /* Contenitore della tabella principale con scorrimento orizzontale */
     #dettagliContainer {
       margin: 0 auto;
-      overflow-x: visible;
+      overflow-x: auto; 
+      -webkit-overflow-scrolling: touch;
       width: 100%;
     }
     #dettagliContainer table {
-      display: inline-block;
-      margin: 0 auto;
-      width: 100%;
-      table-layout: fixed;
+      /* Lasciamo la larghezza automatica per consentire lo scorrimento */
+      min-width: 800px;
       border-collapse: collapse;
       font-size: 0.7em;
     }
@@ -52,15 +51,13 @@
       border: 1px solid #ccc;
       text-align: center;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     .detail-row td {
       background-color: #f9f9f9;
       padding: 10px;
     }
     
-    /* Stili per le sub-table dei dettagli espansi (su desktop) */
+    /* Stili per le sub-table (dettagli espansi) */
     .sub-table {
       width: 100%;
       border-collapse: collapse;
@@ -74,6 +71,8 @@
       text-align: center;
       white-space: normal !important;
     }
+    
+    /* Riga divider */
     .divider-row td {
       border: none;
       background-color: #eee;
@@ -93,6 +92,7 @@
       }
       #dettagliContainer table {
         font-size: 0.65em;
+        min-width: 700px; /* Adattato per schermi medi */
       }
       #dettagliContainer th,
       #dettagliContainer td {
@@ -121,6 +121,7 @@
       }
       #dettagliContainer table {
         font-size: 0.6em;
+        min-width: 600px; /* Adattato per smartphone */
       }
       #dettagliContainer th,
       #dettagliContainer td {
@@ -140,7 +141,7 @@
 <body>
   <div class="container dettaglio-container">
     <header class="dettaglio-header">
-      <h1>Dettaglio Differenze</h1>
+      <h1 id="dettaglioTitle">Dettaglio Differenze</h1>
       <div id="periodoInfo"></div>
     </header>
     <section class="dettaglio-sommario" id="sommarioContainer">
@@ -158,7 +159,7 @@
   </div>
   
   <script>
-    // Configurazione Firebase
+    // Configurazione Firebase (stessa di index.html)
     const firebaseConfig = {
       apiKey: "AIzaSyChK3rrqQ8hYygNLaahaxgtx8W1oUpxBP0",
       authDomain: "budget-a41a6.firebaseapp.com",
@@ -177,7 +178,7 @@
     // Recupera il parametro "tipoDiff" da localStorage
     const tipoDiff = localStorage.getItem('tipoDiff') || "";
     
-    // Funzione di utilità per formattare il valore in valuta (cella vuota se 0)
+    // Funzione di utilità per formattare in valuta
     function formatCurrency(value) {
       return value === 0 ? "" : "€" + value.toFixed(2);
     }
@@ -187,6 +188,26 @@
       const parts = annoMese.split("-");
       return parts[1] + "/" + parts[0];
     }
+    
+    // Aggiorna il titolo dinamico in base a tipoDiff
+    function aggiornaTitoloDettaglio() {
+      let titleText = "Dettaglio Differenze";
+      if(tipoDiff.startsWith("mese")) {
+        const meseCorrente = localStorage.getItem('meseDiff');
+        let personFilter = "";
+        if(tipoDiff === "meseGiulia") personFilter = " - Giulia";
+        else if(tipoDiff === "meseAlessio") personFilter = " - Alessio";
+        titleText = `Differenze Mese: ${formatMonthYear(meseCorrente)}${personFilter}`;
+      } else if(tipoDiff.startsWith("anno")) {
+        const annoCorrente = localStorage.getItem('annoDiff');
+        let personFilter = "";
+        if(tipoDiff === "annoGiulia") personFilter = " - Giulia";
+        else if(tipoDiff === "annoAlessio") personFilter = " - Alessio";
+        titleText = `Differenze Anno: ${annoCorrente}${personFilter}`;
+      }
+      document.getElementById('dettaglioTitle').innerText = titleText;
+    }
+    aggiornaTitoloDettaglio();
     
     // Funzione per costruire la tabella per il dettaglio mensile
     function costruisciTabellaMese(meseCorrente, meseConfronto, personFilter = null) {
@@ -235,12 +256,7 @@
                         <th>Diff Saldo</th>
                       </tr>
                     </thead><tbody>`;
-        let dividerInserito = false;
         categorieArray.forEach(cat => {
-          if (!dividerInserito && cat.toLowerCase() !== "stipendio" && cat.toLowerCase() !== "extra") {
-            html += `<tr class="divider-row"><td colspan="8"></td></tr>`;
-            dividerInserito = true;
-          }
           const curr = gruppiCurr[cat] || { entrate: 0, uscite: 0 };
           const conf = gruppiConf[cat] || { entrate: 0, uscite: 0 };
           const saldoCurr = curr.entrate - curr.uscite;
@@ -262,7 +278,7 @@
       });
     }
     
-    // Funzione per costruire la tabella per il dettaglio annuale (simile)
+    // Funzione per costruire la tabella per il dettaglio annuale
     function costruisciTabellaAnno(annoCorrente, annoPrecedente, personFilter = null) {
       document.getElementById('periodoInfo').innerHTML = `<h2>Anno: ${annoCorrente} vs ${annoPrecedente}</h2>`;
       return db.ref('transazioni').once('value').then(snapshot => {
@@ -309,12 +325,7 @@
                         <th>Diff Saldo</th>
                       </tr>
                     </thead><tbody>`;
-        let dividerInserito = false;
         categorieArray.forEach(cat => {
-          if (!dividerInserito && cat.toLowerCase() !== "stipendio" && cat.toLowerCase() !== "extra") {
-            html += `<tr class="divider-row"><td colspan="8"></td></tr>`;
-            dividerInserito = true;
-          }
           const curr = gruppiCurr[cat] || { entrate: 0, uscite: 0 };
           const prev = gruppiPrev[cat] || { entrate: 0, uscite: 0 };
           const saldoCurr = curr.entrate - curr.uscite;
@@ -342,7 +353,7 @@
         row.parentNode.removeChild(row.nextElementSibling);
       } else {
         var category = row.getAttribute('data-category');
-        var person = row.getAttribute('data-person'); // Filtro per persona (se presente)
+        var person = row.getAttribute('data-person');
         var transactions = Object.values(window.dettaglioData || {});
         var transCurr = transactions.filter(t => t.data.startsWith(periodCurr) && t.categoria === category && (!person || t.persona === person));
         var transPrev = transactions.filter(t => t.data.startsWith(periodPrev) && t.categoria === category && (!person || t.persona === person));
@@ -411,7 +422,7 @@
       }
     }
     
-    // Costruzione della tabella in base al valore di "tipoDiff"
+    // Costruisce la tabella in base al valore di "tipoDiff"
     if (tipoDiff.startsWith("mese")) {
       const meseCorrente = localStorage.getItem('meseDiff');
       const meseConfronto = localStorage.getItem('meseDiffPrev');
