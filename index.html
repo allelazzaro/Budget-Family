@@ -2,6 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
+  <!-- Viewport per dispositivi mobili -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestione Budget Familiare</title>
   <link rel="stylesheet" href="styles.css">
@@ -10,6 +11,205 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>
+    /* ========== Stili Generali ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background: linear-gradient(135deg, #e0eafc, #cfdef3);
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    
+    /* ========== Stili per il Login e App ========== */
+    #loginContainer {
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    #loginContainer input {
+      width: 90%;
+      margin: 10px 0;
+      padding: 10px;
+    }
+    #loginContainer button {
+      padding: 10px 20px;
+      margin-top: 10px;
+    }
+    
+    #appContainer {
+      display: none;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      text-transform: uppercase;
+    }
+    
+    /* ========== Box Dashboard Differenze ========== */
+    .box-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .box {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      flex: 1 1 260px;
+      max-width: 280px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-align: center;
+    }
+    .box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+    .box h2 {
+      margin-bottom: 10px;
+      font-size: 1.3em;
+      color: #2980b9;
+    }
+    .box p {
+      font-size: 1em;
+      color: #555;
+    }
+    @media (max-width: 600px) {
+      .box {
+        flex: 1 1 100%;
+        max-width: 100%;
+      }
+    }
+    
+    /* ========== Stili per Tabelle e Dettagli ========== */
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 15px;
+    }
+    #dettagliContainer {
+      margin: 0 auto;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      width: 100%;
+    }
+    #dettagliContainer table {
+      min-width: 800px;
+      border-collapse: collapse;
+      font-size: 0.7em;
+    }
+    #dettagliContainer th,
+    #dettagliContainer td {
+      padding: 4px;
+      border: 1px solid #ccc;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .detail-row td {
+      background-color: #f9f9f9;
+      padding: 10px;
+    }
+    /* Dettagli espansi: sub-table */
+    .sub-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 2em !important;
+      margin-bottom: 10px;
+    }
+    .sub-table th,
+    .sub-table td {
+      padding: 16px !important;
+      border: 1px solid #aaa;
+      text-align: center;
+      white-space: normal !important;
+    }
+    .divider-row td {
+      border: none;
+      background-color: #eee;
+      height: 10px;
+    }
+    
+    /* ========== Responsive per dispositivi tablet e piccoli ========== */
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      h1 {
+        font-size: 2em;
+      }
+      .box h2 {
+        font-size: 1.2em;
+      }
+      #dettagliContainer table {
+        min-width: 700px;
+        font-size: 0.65em;
+      }
+      #dettagliContainer th,
+      #dettagliContainer td {
+        padding: 3px;
+      }
+      .sub-table {
+        font-size: 1.6em !important;
+        margin-bottom: 8px;
+      }
+      .sub-table th,
+      .sub-table td {
+        padding: 12px !important;
+      }
+    }
+    @media (max-width: 480px) {
+      .container {
+        padding: 10px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+      .box h2 {
+        font-size: 1.1em;
+      }
+      #dettagliContainer table {
+        min-width: 600px;
+        font-size: 0.6em;
+      }
+      #dettagliContainer th,
+      #dettagliContainer td {
+        padding: 2px;
+      }
+      .sub-table {
+        font-size: 1.4em !important;
+        margin-bottom: 6px;
+      }
+      .sub-table th,
+      .sub-table td {
+        padding: 8px !important;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- LOGIN -->
