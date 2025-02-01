@@ -1,262 +1,230 @@
-/* Reset margini e padding */
+/* Reset */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Corpo */
+/* Corpo e sfondo */
 body {
-    font-family: 'Roboto', Arial, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-    color: #333;
-    padding: 20px;
-    line-height: 1.6;
+  font-family: 'Roboto', Arial, sans-serif;
+  background: linear-gradient(135deg, #e0eafc, #cfdef3);
+  color: #333;
+  padding: 20px;
+  line-height: 1.6;
 }
 
 /* Contenitore principale */
 .container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    overflow: hidden;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #fff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
 
-/* Titoli */
-h1, h2 {
-    text-align: center;
-    color: #34495e;
-    margin-bottom: 20px;
-}
-
+/* Titoli principali */
 h1 {
-    font-size: 2.2em;
-    text-transform: uppercase;
+  text-align: center;
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  text-transform: uppercase;
 }
 
 h2 {
-    font-size: 1.8em;
-    border-bottom: 2px solid #2980b9;
-    padding-bottom: 5px;
-    margin-bottom: 15px;
+  font-size: 1.8em;
+  color: #34495e;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #2980b9;
 }
 
-/* Sezioni Entrate, Uscite e Filtro */
+/* Sezioni (Entrate, Uscite, Filtro, ecc.) */
 section {
-    padding: 20px;
-    background-color: #f7f9fc;
-    border: 1px solid #dfe6e9;
-    border-radius: 10px;
-    margin-bottom: 20px;
+  margin-bottom: 25px;
+  padding: 20px;
+  background-color: #fdfdfd;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
 }
 
-/* Etichette */
+/* Etichette e campi form */
 label {
-    font-size: 1em;
-    color: #2980b9;
-    margin-bottom: 5px;
-    display: block;
-    font-weight: bold;
+  font-weight: 600;
+  color: #2980b9;
+  margin-bottom: 5px;
+  display: block;
 }
 
-/* Campi di input e select */
 input, select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #dcdde1;
-    border-radius: 8px;
-    font-size: 1em;
-    background-color: #f4f6f9;
-    color: #555;
-    transition: border 0.3s ease-in-out;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1em;
+  background-color: #fafafa;
+  transition: border 0.3s ease;
 }
 
 input:focus, select:focus {
-    border-color: #3498db;
-    outline: none;
+  border-color: #3498db;
+  outline: none;
 }
 
-/* Pulsanti */
+/* Pulsanti generici */
 button {
-    background-color: #2980b9;
-    color: white;
-    padding: 10px 15px;
-    font-size: 1em;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, box-shadow 0.2s ease;
-    display: block;
-    margin: 0 auto;
+  background-color: #2980b9;
+  color: #fff;
+  padding: 12px 20px;
+  font-size: 1em;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 10px;
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 button:hover {
-    background-color: #3498db;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #3498db;
+  transform: translateY(-2px);
 }
 
-/* Pulsanti azione */
+/* Pulsanti azione nella tabella */
 .btn-azione {
-    padding: 5px 15px;
-    font-size: 0.9em;
-    margin: 5px;
-    border-radius: 5px;
-    background-color: #e74c3c;
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+  background-color: #e74c3c;
+  padding: 8px 12px;
+  font-size: 0.9em;
+  border-radius: 4px;
+  margin: 3px;
 }
 
 .btn-azione:hover {
-    background-color: #c0392b;
-    transform: scale(1.05);
+  background-color: #c0392b;
 }
 
-/* Tabella */
+/* Tabelle */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    overflow: hidden;
-    font-size: 0.95em;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background-color: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 0.95em;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 thead th {
-    background-color: #2980b9;
-    color: white;
-    padding: 12px;
-    text-align: left;
-    text-transform: uppercase;
+  background-color: #2980b9;
+  color: #fff;
+  padding: 12px;
+  text-align: left;
+  text-transform: uppercase;
 }
 
 tbody td {
-    padding: 12px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
 }
 
 tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
+  background-color: #f9f9f9;
 }
 
 tbody tr:hover {
-    background-color: #ecf5fc;
+  background-color: #ecf5fc;
 }
 
 tfoot td {
-    font-weight: bold;
-    padding: 12px;
-    background-color: #f0f3f5;
-    text-align: right;
-    border-top: 2px solid #ddd;
+  font-weight: bold;
+  padding: 12px;
+  background-color: #f0f3f5;
+  text-align: right;
+  border-top: 2px solid #ddd;
 }
 
-/* Stile per entrate e uscite */
-.uscita {
-    color: #e74c3c;
-    background-color: rgba(231, 76, 60, 0.1);
-    font-weight: bold;
-    border-radius: 5px;
-    padding: 5px;
+/* Box per le differenze (confronti) */
+.differenze-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
 }
 
-.entrata {
-    color: #2ecc71;
-    background-color: rgba(46, 204, 113, 0.1);
-    font-weight: bold;
-    border-radius: 5px;
-    padding: 5px;
+.differenze-box {
+  flex: 1 1 280px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fdfdfd;
+  padding: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  text-align: center;
+  margin-bottom: 15px;
 }
 
-/* Grafico */
-#graficoSpeseCategoria {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 20px auto;
-    padding: 15px;
-    max-width: 600px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+.differenze-box h3, .differenze-box h4 {
+  margin-bottom: 10px;
+  color: #2c3e50;
 }
 
-#graficoTortaSpese {
-    width: 100%;
-    max-width: 500px;
-    height: auto;
+.differenze-box p {
+  margin: 5px 0;
+  font-size: 1em;
 }
 
-/* Media Query */
-@media (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
-
-    .container {
-        padding: 15px;
-    }
-
-    h1, h2 {
-        font-size: 1.5em;
-    }
-
-    th, td {
-        font-size: 0.85em;
-        padding: 10px;
-    }
-
-    button {
-        padding: 10px;
-        font-size: 0.9em;
-    }
+/* Classi per differenze positive e negative */
+.differenza-positiva {
+  color: green;
+  font-weight: 600;
 }
 
-/* Nascondere il contenitore delle transazioni inizialmente */
-#listaTransazioniContainer {
-    display: none;
-    transition: all 0.3s ease;
+.differenza-negativa {
+  color: red;
+  font-weight: 600;
 }
 
-/* Contenitore responsivo per la tabella */
+/* Layout per la tabella delle transazioni */
 .table-container {
-    overflow-x: auto; /* Abilita lo scorrimento orizzontale */
-    -webkit-overflow-scrolling: touch; /* Scorrimento fluido su dispositivi mobili */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 15px;
 }
 
-/* Regole per schermi piccoli */
+/* Importante: nascondi il container delle transazioni all'avvio (senza !important) */
+#listaTransazioniContainer {
+  display: none;
+  transition: all 0.3s ease;
+}
+
+/* Responsive */
 @media (max-width: 600px) {
-    table, thead, tbody, th, td, tr {
-        font-size: 0.8em; /* Riduce la dimensione del testo */
-    }
-
-    table {
-        width: 100%; /* Adatta la tabella alla larghezza del contenitore */
-    }
-
-    .btn-azione {
-        padding: 5px 8px; /* Riduce il padding dei pulsanti */
-        font-size: 0.75em; /* Riduce la dimensione del testo dei pulsanti */
-    }
-}
-
-/* Stile generale della tabella */
-table {
-    width: 100%; /* Adatta la larghezza della tabella */
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    overflow: hidden;
-    font-size: 0.95em;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  body {
+    padding: 10px;
+  }
+  .container {
+    padding: 15px;
+  }
+  h1, h2 {
+    font-size: 1.8em;
+  }
+  th, td {
+    font-size: 0.85em;
+    padding: 8px;
+  }
+  button {
+    padding: 10px 15px;
+    font-size: 0.9em;
+  }
+  .btn-azione {
+    padding: 5px 8px;
+    font-size: 0.75em;
+  }
 }
