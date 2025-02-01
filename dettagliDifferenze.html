@@ -9,7 +9,27 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
   <style>
-    /* Stili per la pagina dei dettagli */
+    /* Stili generali per la pagina dei dettagli */
+    .dettaglio-container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .dettaglio-header h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    .dettaglio-header h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+      color: #555;
+    }
+    .dettaglio-tabella {
+      margin-top: 20px;
+    }
     #dettagliContainer {
       margin: 0 auto;
       overflow-x: visible;
@@ -36,16 +56,16 @@
       background-color: #f9f9f9;
       padding: 10px;
     }
-    /* Aggiornamento per le sub-table: righe più compatte */
+    /* Stili per le sub-table (dettagli espansi) – versione desktop */
     .sub-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 1.2em !important;  /* Font ridotto per righe più compatte */
+      font-size: 2em !important;
       margin-bottom: 10px;
     }
     .sub-table th,
     .sub-table td {
-      padding: 8px !important;      /* Padding ridotto per righe più piccole */
+      padding: 16px !important;
       border: 1px solid #aaa;
       text-align: center;
       white-space: normal !important;
@@ -55,25 +75,61 @@
       background-color: #eee;
       height: 10px;
     }
-    .dettaglio-container {
-      max-width: 900px;
-      margin: 20px auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    
+    /* Media Query per dispositivi tablet e schermi medi (max-width: 768px) */
+    @media (max-width: 768px) {
+      .dettaglio-container {
+        padding: 15px;
+      }
+      .dettaglio-header h1 {
+        font-size: 1.8em;
+      }
+      .dettaglio-header h2 {
+        font-size: 1.3em;
+      }
+      #dettagliContainer table {
+        font-size: 0.65em;
+      }
+      #dettagliContainer th,
+      #dettagliContainer td {
+        padding: 3px;
+      }
+      .sub-table {
+        font-size: 1.6em !important;
+        margin-bottom: 8px;
+      }
+      .sub-table th,
+      .sub-table td {
+        padding: 12px !important;
+      }
     }
-    .dettaglio-header h1 {
-      font-size: 2em;
-      margin-bottom: 10px;
-    }
-    .dettaglio-header h2 {
-      font-size: 1.5em;
-      margin-bottom: 10px;
-      color: #555;
-    }
-    .dettaglio-tabella {
-      margin-top: 20px;
+    
+    /* Media Query per dispositivi piccoli (max-width: 480px) */
+    @media (max-width: 480px) {
+      .dettaglio-container {
+        padding: 10px;
+      }
+      .dettaglio-header h1 {
+        font-size: 1.6em;
+      }
+      .dettaglio-header h2 {
+        font-size: 1.2em;
+      }
+      #dettagliContainer table {
+        font-size: 0.6em;
+      }
+      #dettagliContainer th,
+      #dettagliContainer td {
+        padding: 2px;
+      }
+      .sub-table {
+        font-size: 1.4em !important;
+        margin-bottom: 6px;
+      }
+      .sub-table th,
+      .sub-table td {
+        padding: 8px !important;
+      }
     }
   </style>
 </head>
@@ -84,7 +140,7 @@
       <div id="periodoInfo"></div>
     </header>
     <section class="dettaglio-sommario" id="sommarioContainer">
-      <!-- (Eventuale riepilogo generale) -->
+      <!-- Eventuale riepilogo generale -->
     </section>
     <section class="dettaglio-tabella">
       <h2>Dettaglio per Categoria</h2>
@@ -117,12 +173,12 @@
     // Recupera il parametro "tipoDiff" da localStorage
     const tipoDiff = localStorage.getItem('tipoDiff') || "";
     
-    // Funzione di utilità: se il valore è 0, restituisce una stringa vuota, altrimenti formatta come valuta
+    // Funzione di utilità: se il valore è 0, restituisce una stringa vuota, altrimenti lo formatta come valuta
     function formatCurrency(value) {
       return value === 0 ? "" : "€" + value.toFixed(2);
     }
     
-    // Funzione per formattare "YYYY-MM" in "MM/YYYY"
+    // Funzione per formattare una stringa "YYYY-MM" in "MM/YYYY"
     function formatMonthYear(annoMese) {
       const parts = annoMese.split("-");
       return parts[1] + "/" + parts[0];
