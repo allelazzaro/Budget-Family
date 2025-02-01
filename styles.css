@@ -20,7 +20,7 @@ body {
   margin: 0 auto;
   padding: 30px;
   background-color: #fff;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
   border-radius: 10px;
 }
 
@@ -198,33 +198,60 @@ tfoot td {
   margin-top: 15px;
 }
 
-/* Importante: nascondi il container delle transazioni all'avvio (senza !important) */
+/* Nascondi il container delle transazioni all'avvio */
 #listaTransazioniContainer {
   display: none;
   transition: all 0.3s ease;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
+/* Media Query per schermi medi (max-width: 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+  h1 {
+    font-size: 2em;
+  }
+  h2 {
+    font-size: 1.6em;
+  }
+  button {
+    padding: 10px 18px;
+    font-size: 0.95em;
+  }
+  .differenze-box {
+    flex: 1 1 100%;
+  }
+}
+
+/* Media Query per dispositivi piccoli (max-width: 480px) */
+@media (max-width: 480px) {
   body {
     padding: 10px;
   }
   .container {
     padding: 15px;
   }
-  h1, h2 {
+  h1 {
     font-size: 1.8em;
   }
-  th, td {
-    font-size: 0.85em;
-    padding: 8px;
+  h2 {
+    font-size: 1.4em;
   }
-  button {
-    padding: 10px 15px;
+  input, select {
+    padding: 10px;
     font-size: 0.9em;
   }
+  button {
+    padding: 8px 15px;
+    font-size: 0.85em;
+  }
+  th, td {
+    font-size: 0.8em;
+    padding: 6px;
+  }
   .btn-azione {
-    padding: 5px 8px;
+    padding: 4px 6px;
     font-size: 0.75em;
   }
 }
