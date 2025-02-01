@@ -2,6 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
+  <!-- La viewport per garantire una corretta visualizzazione su mobile -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dettagli Differenze</title>
   <link rel="stylesheet" href="styles.css">
@@ -9,7 +10,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
   <style>
-    /* Stili generali per la pagina dei dettagli */
+    /* Stili generali per il contenitore principale dei dettagli */
     .dettaglio-container {
       max-width: 900px;
       margin: 20px auto;
@@ -30,6 +31,8 @@
     .dettaglio-tabella {
       margin-top: 20px;
     }
+    
+    /* Stili per la tabella principale */
     #dettagliContainer {
       margin: 0 auto;
       overflow-x: visible;
@@ -56,7 +59,8 @@
       background-color: #f9f9f9;
       padding: 10px;
     }
-    /* Stili per le sub-table (dettagli espansi) – versione desktop */
+    
+    /* Stili per le sub-table dei dettagli espansi (su desktop) */
     .sub-table {
       width: 100%;
       border-collapse: collapse;
@@ -154,7 +158,7 @@
   </div>
   
   <script>
-    // Configurazione Firebase (stessa di index.html)
+    // Configurazione Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyChK3rrqQ8hYygNLaahaxgtx8W1oUpxBP0",
       authDomain: "budget-a41a6.firebaseapp.com",
@@ -167,18 +171,18 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Salva i dati del database in una variabile globale per riutilizzarli nelle funzioni di espansione.
+    // Salva i dati del database in una variabile globale
     window.dettaglioData = {};
 
     // Recupera il parametro "tipoDiff" da localStorage
     const tipoDiff = localStorage.getItem('tipoDiff') || "";
     
-    // Funzione di utilità: se il valore è 0, restituisce una stringa vuota, altrimenti lo formatta come valuta
+    // Funzione di utilità per formattare il valore in valuta (cella vuota se 0)
     function formatCurrency(value) {
       return value === 0 ? "" : "€" + value.toFixed(2);
     }
     
-    // Funzione per formattare una stringa "YYYY-MM" in "MM/YYYY"
+    // Funzione per convertire "YYYY-MM" in "MM/YYYY"
     function formatMonthYear(annoMese) {
       const parts = annoMese.split("-");
       return parts[1] + "/" + parts[0];
@@ -257,7 +261,7 @@
         document.getElementById('dettagliContainer').innerHTML = html;
       });
     }
-
+    
     // Funzione per costruire la tabella per il dettaglio annuale (simile)
     function costruisciTabellaAnno(annoCorrente, annoPrecedente, personFilter = null) {
       document.getElementById('periodoInfo').innerHTML = `<h2>Anno: ${annoCorrente} vs ${annoPrecedente}</h2>`;
@@ -331,7 +335,7 @@
         document.getElementById('dettagliContainer').innerHTML = html;
       });
     }
-
+    
     // Funzione per espandere/contrarre la riga dei dettagli (accordion)
     function toggleDetailRow(row, periodType, periodCurr, periodPrev) {
       if (row.nextElementSibling && row.nextElementSibling.classList.contains('detail-row')) {
@@ -343,7 +347,7 @@
         var transCurr = transactions.filter(t => t.data.startsWith(periodCurr) && t.categoria === category && (!person || t.persona === person));
         var transPrev = transactions.filter(t => t.data.startsWith(periodPrev) && t.categoria === category && (!person || t.persona === person));
         
-        var subHtmlCurr = `<h3>Dettaglio ${periodCurr}</h3>`;
+        var subHtmlCurr = `<h3>Dettaglio ${category} per ${periodCurr}</h3>`;
         if (transCurr.length > 0) {
           subHtmlCurr += `<table class="sub-table"><thead>
             <tr>
@@ -368,7 +372,7 @@
           subHtmlCurr += `<p>Nessun dettaglio per questo periodo.</p>`;
         }
         
-        var subHtmlPrev = `<h3>Dettaglio ${periodPrev}</h3>`;
+        var subHtmlPrev = `<h3>Dettaglio ${category} per ${periodPrev}</h3>`;
         if (transPrev.length > 0) {
           subHtmlPrev += `<table class="sub-table"><thead>
             <tr>
@@ -406,8 +410,8 @@
         row.parentNode.insertBefore(newRow, row.nextSibling);
       }
     }
-
-    // In base al valore di "tipoDiff", costruisco la tabella corrispondente.
+    
+    // Costruzione della tabella in base al valore di "tipoDiff"
     if (tipoDiff.startsWith("mese")) {
       const meseCorrente = localStorage.getItem('meseDiff');
       const meseConfronto = localStorage.getItem('meseDiffPrev');
