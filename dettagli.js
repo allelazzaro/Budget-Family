@@ -185,5 +185,6 @@ onValue(ref(db, 'transazioni'), snapshot => {
     mostraDettagli();
 });
 
+
 // Funzione per tornare alla home
 window.tornaIndietro = () => window.location.href = 'index.html';

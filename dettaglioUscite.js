@@ -18,135 +18,103 @@ initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getDatabase();
 
-// Verifica l'autenticazione dell'utente prima di mostrare i dati
+// Verifica autenticazione utente
 onAuthStateChanged(auth, (utente) => {
     if (utente) {
-        console.log("Utente autenticato:", utente);
-        mostraDettaglioUscitePerCategoria(); // Carica i dati se l'utente è autenticato
+        mostraDettaglioUscitePerCategoria();
     } else {
-        console.error("Errore: utente non autenticato, impossibile caricare i dati.");
-        window.location.href = "index.html"; // Reindirizza alla pagina di login
+        window.location.href = "index.html"; // Reindirizza se non autenticato
     }
 });
 
-// Funzione per mostrare il dettaglio delle uscite per categoria
-// Funzione per mostrare il dettaglio delle uscite per categoria
+// Funzione per mostrare la suddivisione delle uscite tra Alessio e Giulia
 function mostraDettaglioUscitePerCategoria() {
     const meseFiltro = localStorage.getItem('meseFiltro') || new Date().toISOString().slice(0, 7);
     const annoSelezionato = meseFiltro.slice(0, 4);
-    const uscitePerCategoria = {};
+
+    let spesePerCategoria = {};
+    let totaleGenerale = { totale: 0, Alessio: 0, Giulia: 0 };
 
     const transazioniRef = ref(db, 'transazioni');
 
     onValue(transazioniRef, (snapshot) => {
         const transazioni = snapshot.val();
-
         if (transazioni) {
             for (let id in transazioni) {
                 const transazione = transazioni[id];
                 const annoTransazione = transazione.data.slice(0, 4);
 
                 if (transazione.tipo === 'Uscita' && annoTransazione === annoSelezionato) {
-                    if (uscitePerCategoria[transazione.categoria]) {
-                        uscitePerCategoria[transazione.categoria] += parseFloat(transazione.importo);
-                    } else {
-                        uscitePerCategoria[transazione.categoria] = parseFloat(transazione.importo);
+                    const importo = parseFloat(transazione.importo);
+                    const categoria = transazione.categoria;
+
+                    // Corretto: il campo giusto è "persona"
+                    let pagatoDa = transazione.persona?.trim().toLowerCase();
+
+                    console.log(`Categoria: ${categoria}, Importo: €${importo}, Pagato da: ${pagatoDa}`); // Debug
+
+                    if (!spesePerCategoria[categoria]) {
+                        spesePerCategoria[categoria] = { totale: 0, Alessio: 0, Giulia: 0 };
+                    }
+
+                    spesePerCategoria[categoria].totale += importo;
+                    totaleGenerale.totale += importo;
+
+                    if (pagatoDa === "alessio") {
+                        spesePerCategoria[categoria].Alessio += importo;
+                        totaleGenerale.Alessio += importo;
+                    } else if (pagatoDa === "giulia") {
+                        spesePerCategoria[categoria].Giulia += importo;
+                        totaleGenerale.Giulia += importo;
                     }
                 }
             }
 
-            const riepilogoDiv = document.getElementById('riepilogoUscitePerCategoria');
-            riepilogoDiv.innerHTML = ''; // Pulisce il contenuto precedente
+            // Ordina le categorie per spesa totale decrescente
+            let categorieOrdinate = Object.entries(spesePerCategoria).sort((a, b) => {
+                return b[1].totale - a[1].totale;
+            });
 
-            if (Object.keys(uscitePerCategoria).length > 0) {
-                // Converte l'oggetto in un array e ordina per importo decrescente
-                const categorieOrdinate = Object.entries(uscitePerCategoria).sort((a, b) => b[1] - a[1]);
+            // Genera la tabella HTML
+            const suddivisioneDiv = document.getElementById('suddivisioneSpese');
+            suddivisioneDiv.innerHTML = `
+                <h2>Suddivisione Uscite</h2>
+                <table class="tabella-spese">
+                    <thead>
+                        <tr>
+                            <th>Categoria</th>
+                            <th>Totale (€)</th>
+                            <th>Alessio (€)</th>
+                            <th>Giulia (€)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${categorieOrdinate.map(([categoria, spese]) => `
+                            <tr>
+                                <td>${categoria}</td>
+                                <td><strong>€${spese.totale.toFixed(2)}</strong></td>
+                                <td>€${spese.Alessio.toFixed(2)}</td>
+                                <td>€${spese.Giulia.toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                    <tfoot>
+                        <tr class="totale-riga">
+                            <td><strong>Totale</strong></td>
+                            <td><strong>€${totaleGenerale.totale.toFixed(2)}</strong></td>
+                            <td><strong>€${totaleGenerale.Alessio.toFixed(2)}</strong></td>
+                            <td><strong>€${totaleGenerale.Giulia.toFixed(2)}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
 
-                // Mostra le categorie ordinate
-                categorieOrdinate.forEach(([categoria, importo]) => {
-                    riepilogoDiv.innerHTML += `<p><strong>${categoria}:</strong> €${importo.toFixed(2)}</p>`;
-                });
-
-                // Crea il grafico delle uscite per categoria
-                creaGraficoUscite(Object.fromEntries(categorieOrdinate));
-
-            } else {
-                riepilogoDiv.innerHTML = "<p>Nessuna uscita per l'anno selezionato.</p>";
-            }
-        } else {
-            document.getElementById('riepilogoUscitePerCategoria').innerHTML = "<p>Nessun dato disponibile.</p>";
+                <!-- Pulsante per tornare alla home -->
+                <button id="btn-home" onclick="window.location.href='index.html'">
+                    🔙 Torna alla Pagina Principale
+                </button>
+            `;
         }
     }, (error) => {
         console.error("Errore nel caricamento dei dati:", error);
-    });
-}
-
-// Funzione per creare il grafico delle uscite per categoria
-function creaGraficoUscite(uscitePerCategoria) {
-    const categorie = Object.keys(uscitePerCategoria);
-    const importi = Object.values(uscitePerCategoria);
-
-    const ctx = document.getElementById('graficoUsciteCategoria').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: categorie,
-            datasets: [{
-                label: 'Spese per Categoria',
-                data: importi,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.6)',
-                    'rgba(54, 162, 235, 0.6)',
-                    'rgba(255, 206, 86, 0.6)',
-                    'rgba(75, 192, 192, 0.6)',
-                    'rgba(153, 102, 255, 0.6)',
-                    'rgba(255, 159, 64, 0.6)',
-                    'rgba(199, 199, 199, 0.6)',
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(159, 159, 159, 1)',
-                ],
-                borderWidth: 1,
-                borderRadius: 10,
-                barThickness: 40
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                title: {
-                    display: true,
-                    text: 'Distribuzione Spese per Categoria',
-                    font: {
-                        size: 18,
-                        family: 'Arial, sans-serif',
-                        weight: 'bold'
-                    },
-                    color: '#333'
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    borderWidth: 1,
-                    borderColor: '#fff',
-                    cornerRadius: 8,
-                }
-            },
-            scales: {
-                x: { grid: { display: false } },
-                y: {
-                    beginAtZero: true,
-                    grid: { color: 'rgba(200, 200, 200, 0.2)' },
-                }
-            }
-        }
     });
 }
