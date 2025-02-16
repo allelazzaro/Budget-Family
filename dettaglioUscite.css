@@ -14,27 +14,30 @@ h2 {
     color: #007bff;
 }
 
+/* Contenitore della tabella */
+.tabella-container {
+    overflow-x: auto; /* Aggiunge lo scroll orizzontale su schermi piccoli */
+}
+
 /* Stile per la tabella delle spese */
 .tabella-spese {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    min-width: 600px; /* Evita che la tabella sia troppo compressa */
 }
 
 .tabella-spese th, .tabella-spese td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: center;
+    font-size: 16px;
 }
 
 .tabella-spese th {
     background-color: #007bff;
     color: white;
     font-weight: bold;
-}
-
-.tabella-spese tr:nth-child(even) {
-    background-color: #f2f2f2;
 }
 
 /* Riga del totale */
@@ -50,7 +53,7 @@ h2 {
     width: 100%;
     max-width: 250px;
     margin: 20px auto;
-    padding: 12px;
+    padding: 14px;
     font-size: 18px;
     font-weight: bold;
     text-align: center;
@@ -66,4 +69,50 @@ h2 {
 #btn-home:hover {
     background: #0056b3;
     transform: scale(1.05);
+}
+
+/* ✅ Responsive per schermi piccoli */
+@media (max-width: 600px) {
+    .container {
+        padding: 15px;
+    }
+
+    .tabella-spese th, .tabella-spese td {
+        padding: 8px;
+        font-size: 14px; /* Riduce la dimensione del testo su mobile */
+    }
+
+    /* Layout adattato per mobile: "Alessio" e "Giulia" sotto il "Totale" */
+    .tabella-spese thead {
+        display: none;
+    }
+
+    .tabella-spese tr {
+        display: flex;
+        flex-direction: column;
+        border-bottom: 1px solid #ddd;
+        padding: 10px;
+    }
+
+    .tabella-spese td {
+        text-align: left;
+        padding: 5px 10px;
+        border: none;
+    }
+
+    .tabella-spese td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #007bff;
+        display: block;
+    }
+
+    .totale-riga {
+        font-size: 16px;
+    }
+
+    #btn-home {
+        font-size: 16px;
+        padding: 12px;
+    }
 }
