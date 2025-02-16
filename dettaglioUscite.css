@@ -16,6 +16,7 @@ h2 {
 
 /* Contenitore della tabella */
 .tabella-container {
+    width: 100%;
     overflow-x: auto; /* Aggiunge lo scroll orizzontale su schermi piccoli */
 }
 
@@ -29,7 +30,7 @@ h2 {
 
 .tabella-spese th, .tabella-spese td {
     border: 1px solid #ddd;
-    padding: 10px;
+    padding: 12px;
     text-align: center;
     font-size: 16px;
 }
@@ -71,48 +72,40 @@ h2 {
     transform: scale(1.05);
 }
 
-/* ✅ Responsive per schermi piccoli */
+/* ✅ Responsive per smartphone */
 @media (max-width: 600px) {
     .container {
-        padding: 15px;
+        padding: 10px;
+    }
+
+    .tabella-container {
+        overflow-x: auto;
+    }
+
+    .tabella-spese {
+        width: 100%;
+        font-size: 14px;
     }
 
     .tabella-spese th, .tabella-spese td {
         padding: 8px;
-        font-size: 14px; /* Riduce la dimensione del testo su mobile */
+        font-size: 14px;
     }
 
-    /* Layout adattato per mobile: "Alessio" e "Giulia" sotto il "Totale" */
-    .tabella-spese thead {
-        display: none;
-    }
+    /* Se lo schermo è molto stretto, il testo diventa più piccolo */
+    @media (max-width: 400px) {
+        .tabella-spese {
+            font-size: 12px;
+        }
 
-    .tabella-spese tr {
-        display: flex;
-        flex-direction: column;
-        border-bottom: 1px solid #ddd;
-        padding: 10px;
-    }
+        .tabella-spese th, .tabella-spese td {
+            padding: 6px;
+            font-size: 12px;
+        }
 
-    .tabella-spese td {
-        text-align: left;
-        padding: 5px 10px;
-        border: none;
-    }
-
-    .tabella-spese td::before {
-        content: attr(data-label);
-        font-weight: bold;
-        color: #007bff;
-        display: block;
-    }
-
-    .totale-riga {
-        font-size: 16px;
-    }
-
-    #btn-home {
-        font-size: 16px;
-        padding: 12px;
+        #btn-home {
+            font-size: 14px;
+            padding: 10px;
+        }
     }
 }

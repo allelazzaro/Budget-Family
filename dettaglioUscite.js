@@ -48,10 +48,7 @@ function mostraDettaglioUscitePerCategoria() {
                     const importo = parseFloat(transazione.importo);
                     const categoria = transazione.categoria;
 
-                    // Corretto: il campo giusto è "persona"
                     let pagatoDa = transazione.persona?.trim().toLowerCase();
-
-                    console.log(`Categoria: ${categoria}, Importo: €${importo}, Pagato da: ${pagatoDa}`); // Debug
 
                     if (!spesePerCategoria[categoria]) {
                         spesePerCategoria[categoria] = { totale: 0, Alessio: 0, Giulia: 0 };
@@ -70,45 +67,44 @@ function mostraDettaglioUscitePerCategoria() {
                 }
             }
 
-            // Ordina le categorie per spesa totale decrescente
             let categorieOrdinate = Object.entries(spesePerCategoria).sort((a, b) => {
                 return b[1].totale - a[1].totale;
             });
 
-            // Genera la tabella HTML
             const suddivisioneDiv = document.getElementById('suddivisioneSpese');
             suddivisioneDiv.innerHTML = `
                 <h2>Suddivisione Uscite</h2>
-                <table class="tabella-spese">
-                    <thead>
-                        <tr>
-                            <th>Categoria</th>
-                            <th>Totale (€)</th>
-                            <th>Alessio (€)</th>
-                            <th>Giulia (€)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${categorieOrdinate.map(([categoria, spese]) => `
+                <div class="tabella-container">
+                    <table class="tabella-spese">
+                        <thead>
                             <tr>
-                                <td>${categoria}</td>
-                                <td><strong>€${spese.totale.toFixed(2)}</strong></td>
-                                <td>€${spese.Alessio.toFixed(2)}</td>
-                                <td>€${spese.Giulia.toFixed(2)}</td>
+                                <th>Categoria</th>
+                                <th>Totale (€)</th>
+                                <th>Alessio (€)</th>
+                                <th>Giulia (€)</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                    <tfoot>
-                        <tr class="totale-riga">
-                            <td><strong>Totale</strong></td>
-                            <td><strong>€${totaleGenerale.totale.toFixed(2)}</strong></td>
-                            <td><strong>€${totaleGenerale.Alessio.toFixed(2)}</strong></td>
-                            <td><strong>€${totaleGenerale.Giulia.toFixed(2)}</strong></td>
-                        </tr>
-                    </tfoot>
-                </table>
+                        </thead>
+                        <tbody>
+                            ${categorieOrdinate.map(([categoria, spese]) => `
+                                <tr>
+                                    <td>${categoria}</td>
+                                    <td><strong>€${spese.totale.toFixed(2)}</strong></td>
+                                    <td>€${spese.Alessio.toFixed(2)}</td>
+                                    <td>€${spese.Giulia.toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        <tfoot>
+                            <tr class="totale-riga">
+                                <td><strong>Totale</strong></td>
+                                <td><strong>€${totaleGenerale.totale.toFixed(2)}</strong></td>
+                                <td><strong>€${totaleGenerale.Alessio.toFixed(2)}</strong></td>
+                                <td><strong>€${totaleGenerale.Giulia.toFixed(2)}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
 
-                <!-- Pulsante per tornare alla home -->
                 <button id="btn-home" onclick="window.location.href='index.html'">
                     🔙 Torna alla Pagina Principale
                 </button>
