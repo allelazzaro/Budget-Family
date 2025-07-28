@@ -1,0 +1,136 @@
+/* =====================================================
+   THEME OVERRIDES – Gestione Budget A&G
+   Versione: 2025‑07‑28 (rev 3 – niente più "buchi" bianchi!)
+   -----------------------------------------------------
+   👉  Linka questo foglio DOPO il tuo styles.css così da sovrascrivere le
+       vecchie regole senza toccare la logica JS/HTML.
+   -----------------------------------------------------
+   PALETTE (CSS variables)
+   -----------------------------------------------------
+   --primary      #008CFF   deep‑sky blu
+   --secondary    #FF5E7D   corallo acceso
+   --accent       #4CD7BE   menta fresca
+   --warning      #FFD45E   giallo sole
+
+   TINTE GLASS (per overlay)
+   --glass‑t1     rgba(0,140,255,0.14)
+   --glass‑t2     rgba(76,215,190,0.14)
+   -----------------------------------------------------*/
+
+:root {
+  --primary: #008CFF;
+  --secondary: #FF5E7D;
+  --accent: #4CD7BE;
+  --warning: #FFD45E;
+
+  --glass-t1: rgba(0,140,255,0.14);
+  --glass-t2: rgba(76,215,190,0.14);
+  --glass-overlay: linear-gradient(145deg,var(--glass-t1) 0%,var(--glass-t2) 100%);
+}
+
+/* ----------------------------------
+   SFONDO BASE (pattern + sfumatura)
+   ----------------------------------*/
+body{
+  background-image: url('animaletti.png'),
+                    linear-gradient(135deg,#e0eafc 0%,#cfdef3 100%);
+  background-repeat: repeat,no-repeat;
+  background-size: 250px,cover;
+  background-attachment: fixed;
+  font-family: 'Roboto',Arial,sans-serif;
+  color:#243447;
+  line-height:1.6;
+}
+
+/* ----------------------------------
+   CARD / CONTENITORI – tinta vetro
+   ----------------------------------*/
+.container,
+#loginContainer,
+.box,
+.table-container,
+#dettagliContainer,
+.differenze-container,
+.differenze-box,
+section{
+  position:relative;
+  padding:1.2rem 1rem;
+  border-radius:18px;
+  overflow:hidden;
+  backdrop-filter:blur(6px) saturate(120%);
+  background:var(--glass-overlay);
+  box-shadow:0 8px 16px rgba(0,0,0,0.07);
+}
+
+/* pseudo‑elemento per una sfumatura diagonale leggerissima sopra il vetro */
+.container::before,
+#loginContainer::before,
+.box::before,
+.table-container::before,
+#dettagliContainer::before,
+.differenze-container::before,
+.differenze-box::before,
+section::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15) 0%,rgba(255,255,255,0.05) 100%);
+  pointer-events:none;
+  z-index:-1;
+}
+
+/* ----------------------------------
+   TITOLI con gradient‑fill
+   ----------------------------------*/
+h1,h2{
+  background:linear-gradient(90deg,var(--primary) 0%,var(--accent) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-fill-color:transparent;
+}
+
+/* ----------------------------------
+   BUTTONS – gradiente animato
+   ----------------------------------*/
+button{
+  background:linear-gradient(90deg,var(--secondary) 0%,var(--warning) 100%);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  padding:10px 22px;
+  font-weight:600;
+  cursor:pointer;
+  transition:filter .25s ease,transform .25s ease;
+}
+button:hover{
+  filter:brightness(1.1);
+  transform:translateY(-2px);
+}
+button:active{
+  transform:translateY(0);
+}
+
+/* input / select bordi colorati */
+input,select{
+  border:2px solid rgba(0,0,0,0.07);
+  border-radius:8px;
+  padding:.55rem .75rem;
+  transition:border-color .2s ease;
+}
+input:focus,select:focus{
+  outline:none;
+  border-color:var(--primary);
+}
+
+/* table header colorato */
+th{
+  background:var(--primary);
+  color:#fff;
+}
+
+/* responsive tweaks */
+@media(max-width:480px){
+  .container{width:92vw;padding:14px;}
+  h1{font-size:1.5em;}
+  button{width:100%;}
+}
