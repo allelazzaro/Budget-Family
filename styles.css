@@ -8,7 +8,10 @@
 /* Corpo e sfondo */
 body {
   font-family: 'Roboto', Arial, sans-serif;
-  background: linear-gradient(135deg, #e0eafc, #cfdef3);
+  background-image: url('animaletti.png');
+  background-size: 300px;
+  background-repeat: repeat;
+  background-color: #fefefe;
   color: #333;
   padding: 20px;
   line-height: 1.6;
@@ -263,13 +266,6 @@ tfoot td {
 }
 
 /* Corpo e sfondo */
-body {
-  font-family: 'Roboto', Arial, sans-serif;
-  background: linear-gradient(135deg, #e0eafc, #cfdef3);
-  color: #333;
-  padding: 20px;
-  line-height: 1.6;
-}
 
 /* Contenitore principale */
 .container {
