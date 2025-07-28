@@ -134,14 +134,11 @@ th{
   h1{font-size:1.5em;}
   button{width:100%;}
 }
-/* ===== FIX scroll tabella transazioni su mobile ===== */
-.table-container {
-  overflow: auto;                 /* sia X che Y */
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;            /* suggerisce al browser che il gesto è orizzontale */
+.table-container{
+  overflow-x:auto;          /* scroll orizzontale solo qui */
+  overflow-y:hidden;        /* i drag verticali passano al body */
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-x;       /* dice al browser: questo gesto è solo orizzontale */
 }
+.table-container::before{display:none;} /* niente overlay che intercetta tocchi */
 
-/* togli l’overlay solo per la tabella, così il drag non è “filtrato” */
-.table-container::before {
-  display: none;
-}
