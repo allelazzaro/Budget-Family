@@ -673,3 +673,16 @@ window.onload = function () {
 window.registrati       = registrati;
 window.accedi           = accedi;
 window.salvaNomeUtente  = salvaNomeUtente;
+// ==============================
+// AUTO‑LOAD DIFFERENZE SU MOBILE
+// ==============================
+document.addEventListener('DOMContentLoaded', () => {
+  const filtro = document.getElementById('meseFiltro');
+
+  // se il campo mese ha già un valore salvato, calcola subito
+  if (filtro && filtro.value) calcolaDifferenze();
+
+  // ogni volta che tocchi il titolo/sezione differenze, ricalcola
+  const diffSection = document.getElementById('differenze');
+  diffSection.addEventListener('click', calcolaDifferenze);
+});
