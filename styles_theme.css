@@ -130,10 +130,20 @@ th { background:var(--primary); color:#fff; }
   h1{font-size:1.5em;}
   button{width:100%;}
 }
+/* ===== RIEPILOGO DIFFERENZE – mobile fix ===== */
+#riepilogoDifferenze,
+#riepilogoDifferenze *,
 #differenzeMese,
-#differenzeAnno{
-  background:rgba(255,255,255,.80); /* bianco semi‑trasp. */
-  backdrop-filter:blur(4px);
-  border-radius:12px;
-  padding:16px 18px;
+#differenzeAnno,
+#differenzeMese *,
+#differenzeAnno *{
+  color:#2c3e50 !important;      /* testo scuro SEMPRE visibile */
+  z-index:1;                     /* sopra l'overlay blur */
+}
+
+/* sposta l’overlay sotto il testo */
+#riepilogoDifferenze::before,
+#differenzeMese::before,
+#differenzeAnno::before{
+  z-index:-1;                    /* dietro al contenuto */
 }
