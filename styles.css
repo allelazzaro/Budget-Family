@@ -720,3 +720,17 @@ section::before {
   pointer-events: none;
 }
 
+/* ===== CAMP I DATA / MESE – Mobile fix ===== */
+@media (max-width: 480px) {
+
+  /* tutti i date/month picker */
+  input[type="date"],
+  input[type="month"] {
+    width: 92%;          /* o 90‑95% secondo gusto */
+    min-width: 0;        /* annulla la larghezza minima di default */
+    box-sizing: border-box; /* include padding/border nel 92% */
+    padding: 8px;        /* se vuoi ridurlo: 6‑8px */
+    font-size: .9em;     /* testo leggermente più piccolo */
+  }
+
+}
