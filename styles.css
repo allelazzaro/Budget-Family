@@ -687,4 +687,36 @@ tfoot td {
         padding: 8px !important;
       }
     }
-  
+
+
+/* === Overlay semitrasparente con pseudo-elemento === */
+.container,
+#loginContainer,
+.box,
+.table-container,
+#dettagliContainer,
+.differenze-container,
+.differenze-box,
+section {
+  position: relative;
+  background: transparent; /* non bianco opaco */
+}
+
+/* overlay con pattern attenuato */
+.container::before,
+#loginContainer::before,
+.box::before,
+.table-container::before,
+#dettagliContainer::before,
+.differenze-container::before,
+.differenze-box::before,
+section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7); /* scegli opacità 0.7 (30% trasparente) */
+  backdrop-filter: blur(2px);
+  z-index: -1; /* dietro il contenuto ma sopra il body */
+  pointer-events: none;
+}
+
