@@ -1,4 +1,3 @@
-/* styles.css */
 /* Reset */
 * {
   margin: 0;
@@ -9,16 +8,264 @@
 /* Corpo e sfondo */
 body {
   font-family: 'Roboto', Arial, sans-serif;
-  background-image:
-    url('animaletti.png'),
-    linear-gradient(135deg, #e0eafc, #cfdef3);
-  background-size: 300px, cover;
-  background-repeat: repeat, no-repeat;
+  background-image: url('animaletti.png');
+  background-size: 300px;
+  background-repeat: repeat;
   background-color: #fefefe;
   color: #333;
   padding: 20px;
   line-height: 1.6;
 }
+
+/* Contenitore principale */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #fff;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  border-radius: 10px;
+}
+
+/* Titoli principali */
+h1 {
+  text-align: center;
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  text-transform: uppercase;
+}
+
+h2 {
+  font-size: 1.8em;
+  color: #34495e;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #2980b9;
+}
+
+/* Sezioni (Entrate, Uscite, Filtro, ecc.) */
+section {
+  margin-bottom: 25px;
+  padding: 20px;
+  background-color: #fdfdfd;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+/* Etichette e campi form */
+label {
+  font-weight: 600;
+  color: #2980b9;
+  margin-bottom: 5px;
+  display: block;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1em;
+  background-color: #fafafa;
+  transition: border 0.3s ease;
+}
+
+input:focus, select:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+/* Pulsanti generici */
+button {
+  background-color: #2980b9;
+  color: #fff;
+  padding: 12px 20px;
+  font-size: 1em;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 10px;
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+button:hover {
+  background-color: #3498db;
+  transform: translateY(-2px);
+}
+
+/* Pulsanti azione nella tabella */
+.btn-azione {
+  background-color: #e74c3c;
+  padding: 8px 12px;
+  font-size: 0.9em;
+  border-radius: 4px;
+  margin: 3px;
+}
+
+.btn-azione:hover {
+  background-color: #c0392b;
+}
+
+/* Tabelle */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background-color: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 0.95em;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+thead th {
+  background-color: #2980b9;
+  color: #fff;
+  padding: 12px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+tbody td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+  background-color: #ecf5fc;
+}
+
+tfoot td {
+  font-weight: bold;
+  padding: 12px;
+  background-color: #f0f3f5;
+  text-align: right;
+  border-top: 2px solid #ddd;
+}
+
+/* Box per le differenze (confronti) */
+.differenze-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.differenze-box {
+  flex: 1 1 280px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fdfdfd;
+  padding: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.differenze-box h3, .differenze-box h4 {
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.differenze-box p {
+  margin: 5px 0;
+  font-size: 1em;
+}
+
+/* Classi per differenze positive e negative */
+.differenza-positiva {
+  color: green;
+  font-weight: 600;
+}
+
+.differenza-negativa {
+  color: red;
+  font-weight: 600;
+}
+
+/* Layout per la tabella delle transazioni */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 15px;
+}
+
+/* Nascondi il container delle transazioni all'avvio */
+#listaTransazioniContainer {
+  display: none;
+  transition: all 0.3s ease;
+}
+
+/* Media Query per schermi medi (max-width: 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+  h1 {
+    font-size: 2em;
+  }
+  h2 {
+    font-size: 1.6em;
+  }
+  button {
+    padding: 10px 18px;
+    font-size: 0.95em;
+  }
+  .differenze-box {
+    flex: 1 1 100%;
+  }
+}
+
+/* Media Query per dispositivi piccoli (max-width: 480px) */
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+  .container {
+    padding: 15px;
+  }
+  h1 {
+    font-size: 1.8em;
+  }
+  h2 {
+    font-size: 1.4em;
+  }
+  input, select {
+    padding: 10px;
+    font-size: 0.9em;
+  }
+  button {
+    padding: 8px 15px;
+    font-size: 0.85em;
+  }
+  th, td {
+    font-size: 0.8em;
+    padding: 6px;
+  }
+  .btn-azione {
+    padding: 4px 6px;
+    font-size: 0.75em;
+  }
+}
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Corpo e sfondo */
 
 /* Contenitore principale */
 .container {
@@ -80,7 +327,7 @@ input:focus, select:focus {
   outline: none;
 }
 
-/* Pulsanti generici */
+/* Pulsanti */
 button {
   background-color: #2980b9;
   color: #fff;
@@ -144,26 +391,100 @@ tfoot td {
   border-top: 2px solid #ddd;
 }
 
-/* Nascondi il container delle transazioni all’avvio */
-#listaTransazioniContainer {
-  display: none;
-  transition: all 0.3s ease;
+/* Box per le differenze */
+.differenze-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.differenze-box {
+  flex: 1 1 280px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fdfdfd;
+  padding: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* Stili per la pagina dei dettagli */
+.dettaglio-container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.dettaglio-header h1 {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.dettaglio-header h2 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+.dettaglio-tabella table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dettaglio-tabella th, .dettaglio-tabella td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: center;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .container { padding: 20px; }
-  h1 { font-size: 2em; }
-  h2 { font-size: 1.6em; }
-  button { padding: 10px 18px; font-size: 0.95em; }
+  .container, .dettaglio-container {
+    padding: 20px;
+  }
+  h1 {
+    font-size: 2em;
+  }
+  h2 {
+    font-size: 1.6em;
+  }
+  button {
+    padding: 10px 18px;
+    font-size: 0.95em;
+  }
+  .differenze-box {
+    flex: 1 1 100%;
+  }
 }
 
 @media (max-width: 480px) {
-  body { padding: 10px; }
-  .container { padding: 15px; }
-  h1 { font-size: 1.8em; }
-  h2 { font-size: 1.4em; }
-  input, select { padding: 10px; font-size: 0.9em; }
-  button { padding: 8px 15px; font-size: 0.85em; }
-  th, td { font-size: 0.8em; padding: 6px; }
+  body {
+    padding: 10px;
+  }
+  .container, .dettaglio-container {
+    padding: 15px;
+  }
+  h1 {
+    font-size: 1.8em;
+  }
+  h2 {
+    font-size: 1.4em;
+  }
+  input, select {
+    padding: 10px;
+    font-size: 0.9em;
+  }
+  button {
+    padding: 8px 15px;
+    font-size: 0.85em;
+  }
+  th, td {
+    font-size: 0.8em;
+    padding: 6px;
+  }
 }
