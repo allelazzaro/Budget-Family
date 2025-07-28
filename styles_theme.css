@@ -130,3 +130,10 @@ th { background:var(--primary); color:#fff; }
   h1{font-size:1.5em;}
   button{width:100%;}
 }
+#differenzeMese,
+#differenzeAnno{
+  background:rgba(255,255,255,.80); /* bianco semi‑trasp. */
+  backdrop-filter:blur(4px);
+  border-radius:12px;
+  padding:16px 18px;
+}
