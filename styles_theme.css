@@ -130,20 +130,15 @@ th { background:var(--primary); color:#fff; }
   h1{font-size:1.5em;}
   button{width:100%;}
 }
-/* ===== RIEPILOGO DIFFERENZE – mobile fix ===== */
+/* ===== DIFFERENZE – forza testo scuro su riepilogo + tabella ===== */
 #riepilogoDifferenze,
-#riepilogoDifferenze *,
-#differenzeMese,
-#differenzeAnno,
-#differenzeMese *,
-#differenzeAnno *{
-  color:#2c3e50 !important;      /* testo scuro SEMPRE visibile */
-  z-index:1;                     /* sopra l'overlay blur */
-}
-
-/* sposta l’overlay sotto il testo */
-#riepilogoDifferenze::before,
-#differenzeMese::before,
-#differenzeAnno::before{
-  z-index:-1;                    /* dietro al contenuto */
+#riepilogoDifferenze *,   /* dentro al riquadro entrate/uscite/saldo */
+.differenze-box,
+.differenze-box *,
+#dettaglioCategoria,
+#dettaglioCategoria *,    /* tabella categorie */
+table,
+table *{
+  color:#2c3e50!important;     /* blu-grigio scuro, sempre leggibile */
+  text-shadow:none!important;  /* niente ombre bianche residue */
 }
