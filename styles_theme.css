@@ -134,3 +134,14 @@ th{
   h1{font-size:1.5em;}
   button{width:100%;}
 }
+/* ===== FIX scroll tabella transazioni su mobile ===== */
+.table-container {
+  overflow: auto;                 /* sia X che Y */
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;            /* suggerisce al browser che il gesto è orizzontale */
+}
+
+/* togli l’overlay solo per la tabella, così il drag non è “filtrato” */
+.table-container::before {
+  display: none;
+}
