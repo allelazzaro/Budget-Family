@@ -1,27 +1,17 @@
 /* =====================================================
    THEME OVERRIDES – Gestione Budget A&G
-   Versione: 2025‑07‑28 (rev 3 – niente più "buchi" bianchi!)
+   Versione: 2025‑07‑28 (rev 4 – fix scroll tabella su mobile)
    -----------------------------------------------------
-   👉  Linka questo foglio DOPO il tuo styles.css così da sovrascrivere le
-       vecchie regole senza toccare la logica JS/HTML.
+   👉  Collega questo foglio DOPO il tuo styles.css.
    -----------------------------------------------------
    PALETTE (CSS variables)
-   -----------------------------------------------------
-   --primary      #008CFF   deep‑sky blu
-   --secondary    #FF5E7D   corallo acceso
-   --accent       #4CD7BE   menta fresca
-   --warning      #FFD45E   giallo sole
-
-   TINTE GLASS (per overlay)
-   --glass‑t1     rgba(0,140,255,0.14)
-   --glass‑t2     rgba(76,215,190,0.14)
-   -----------------------------------------------------*/
+   ----------------------------------------------------- */
 
 :root {
-  --primary: #008CFF;
-  --secondary: #FF5E7D;
-  --accent: #4CD7BE;
-  --warning: #FFD45E;
+  --primary:  #008CFF; /* deep‑sky blu */
+  --secondary:#FF5E7D; /* corallo acceso */
+  --accent:   #4CD7BE; /* menta fresca */
+  --warning:  #FFD45E; /* giallo sole */
 
   --glass-t1: rgba(0,140,255,0.14);
   --glass-t2: rgba(76,215,190,0.14);
@@ -31,7 +21,7 @@
 /* ----------------------------------
    SFONDO BASE (pattern + sfumatura)
    ----------------------------------*/
-body{
+body {
   background-image: url('animaletti.png'),
                     linear-gradient(135deg,#e0eafc 0%,#cfdef3 100%);
   background-repeat: repeat,no-repeat;
@@ -44,15 +34,15 @@ body{
 
 /* ----------------------------------
    CARD / CONTENITORI – tinta vetro
+   (NOTA: .table-container esclusa per fix scroll)
    ----------------------------------*/
 .container,
 #loginContainer,
 .box,
-.table-container,
 #dettagliContainer,
 .differenze-container,
 .differenze-box,
-section{
+section {
   position:relative;
   padding:1.2rem 1rem;
   border-radius:18px;
@@ -62,15 +52,14 @@ section{
   box-shadow:0 8px 16px rgba(0,0,0,0.07);
 }
 
-/* pseudo‑elemento per una sfumatura diagonale leggerissima sopra il vetro */
+/* pseudo‑elemento per sfumatura diagonale sopra il vetro */
 .container::before,
 #loginContainer::before,
 .box::before,
-.table-container::before,
 #dettagliContainer::before,
 .differenze-container::before,
 .differenze-box::before,
-section::before{
+section::before {
   content:"";
   position:absolute;
   inset:0;
@@ -80,9 +69,27 @@ section::before{
 }
 
 /* ----------------------------------
+   TABLE‑CONTAINER – FIX SCROLL MOBILE
+   ----------------------------------*/
+.table-container {
+  position:relative;
+  overflow-x:auto;          /* scroll orizzontale */
+  overflow-y:hidden;        /* lascia il verticale al body */
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;      /* gesti orizzontali ok, verticali propagano */
+  padding:1rem 0;           /* niente padding laterale per spazio scrollbar */
+  border-radius:18px;
+  backdrop-filter:blur(6px) saturate(120%);
+  background:var(--glass-overlay);
+  box-shadow:0 8px 16px rgba(0,0,0,0.07);
+}
+/* rimuovo overlay pseudo-elemento su .table-container per non bloccare touch */
+.table-container::before { display:none; }
+
+/* ----------------------------------
    TITOLI con gradient‑fill
    ----------------------------------*/
-h1,h2{
+h1,h2 {
   background:linear-gradient(90deg,var(--primary) 0%,var(--accent) 100%);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
@@ -92,7 +99,7 @@ h1,h2{
 /* ----------------------------------
    BUTTONS – gradiente animato
    ----------------------------------*/
-button{
+button {
   background:linear-gradient(90deg,var(--secondary) 0%,var(--warning) 100%);
   color:#fff;
   border:none;
@@ -102,31 +109,20 @@ button{
   cursor:pointer;
   transition:filter .25s ease,transform .25s ease;
 }
-button:hover{
-  filter:brightness(1.1);
-  transform:translateY(-2px);
-}
-button:active{
-  transform:translateY(0);
-}
+button:hover { filter:brightness(1.1); transform:translateY(-2px); }
+button:active{ transform:translateY(0); }
 
 /* input / select bordi colorati */
-input,select{
+input,select {
   border:2px solid rgba(0,0,0,0.07);
   border-radius:8px;
   padding:.55rem .75rem;
   transition:border-color .2s ease;
 }
-input:focus,select:focus{
-  outline:none;
-  border-color:var(--primary);
-}
+input:focus,select:focus { outline:none; border-color:var(--primary); }
 
 /* table header colorato */
-th{
-  background:var(--primary);
-  color:#fff;
-}
+th { background:var(--primary); color:#fff; }
 
 /* responsive tweaks */
 @media(max-width:480px){
@@ -134,11 +130,3 @@ th{
   h1{font-size:1.5em;}
   button{width:100%;}
 }
-.table-container{
-  overflow-x:auto;          /* scroll orizzontale solo qui */
-  overflow-y:hidden;        /* i drag verticali passano al body */
-  -webkit-overflow-scrolling:touch;
-  touch-action:pan-x;       /* dice al browser: questo gesto è solo orizzontale */
-}
-.table-container::before{display:none;} /* niente overlay che intercetta tocchi */
-
