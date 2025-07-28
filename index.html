@@ -5,119 +5,18 @@
   <!-- Viewport per dispositivi mobili -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestione Budget Familiare</title>
-  <link rel="stylesheet" href="styles.css">
+
+  <!-- Google Font Roboto -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <!-- Manifest PWA -->
   <link rel="manifest" href="manifest.json">
-  <!-- Librerie per grafici ed Excel -->
+  <!-- Stili principali esterni -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Librerie esterne -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  <style>
-    
-    
-    /* ========== Stili per Tabelle e Dettagli ========== */
-    .table-container {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      margin-top: 15px;
-    }
-    #dettagliContainer {
-      margin: 0 auto;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      width: 100%;
-    }
-    #dettagliContainer table {
-      min-width: 800px;
-      border-collapse: collapse;
-      font-size: 0.7em;
-    }
-    #dettagliContainer th,
-    #dettagliContainer td {
-      padding: 4px;
-      border: 1px solid #ccc;
-      text-align: center;
-      white-space: nowrap;
-    }
-    .detail-row td {
-      background-color: #f9f9f9;
-      padding: 10px;
-    }
-    /* Dettagli espansi: sub-table */
-    .sub-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 2em !important;
-      margin-bottom: 10px;
-    }
-    .sub-table th,
-    .sub-table td {
-      padding: 16px !important;
-      border: 1px solid #aaa;
-      text-align: center;
-      white-space: normal !important;
-    }
-    .divider-row td {
-      border: none;
-      background-color: #eee;
-      height: 10px;
-    }
-    
-    /* ========== Responsive per dispositivi tablet e piccoli ========== */
-    @media (max-width: 768px) {
-      .container {
-        padding: 15px;
-      }
-      h1 {
-        font-size: 2em;
-      }
-      .box h2 {
-        font-size: 1.2em;
-      }
-      #dettagliContainer table {
-        min-width: 700px;
-        font-size: 0.65em;
-      }
-      #dettagliContainer th,
-      #dettagliContainer td {
-        padding: 3px;
-      }
-      .sub-table {
-        font-size: 1.6em !important;
-        margin-bottom: 8px;
-      }
-      .sub-table th,
-      .sub-table td {
-        padding: 12px !important;
-      }
-    }
-    @media (max-width: 480px) {
-      .container {
-        padding: 10px;
-      }
-      h1 {
-        font-size: 1.8em;
-      }
-      .box h2 {
-        font-size: 1.1em;
-      }
-      #dettagliContainer table {
-        min-width: 600px;
-        font-size: 0.6em;
-      }
-      #dettagliContainer th,
-      #dettagliContainer td {
-        padding: 2px;
-      }
-      .sub-table {
-        font-size: 1.4em !important;
-        margin-bottom: 6px;
-      }
-      .sub-table th,
-      .sub-table td {
-        padding: 8px !important;
-      }
-    }
-  </style>
 </head>
 <body>
   <!-- LOGIN -->
@@ -132,7 +31,7 @@
     <input type="password" id="passwordLogin" placeholder="Password" />
     <button onclick="accedi()">Accedi</button>
     
-    <!-- Nome Utente -->
+    <h2>Benvenuto!</h2>
     <input type="text" id="userName" placeholder="Inserisci il tuo nome" />
     <button onclick="salvaNomeUtente()">Salva Nome</button>
     <div id="welcomeMessage"></div>
@@ -141,9 +40,9 @@
   <!-- APP PRINCIPALE -->
   <div id="appContainer" style="display: none;">
     <div class="container">
-      <h1>Gestione Budget A&G</h1>
+      <h1>Gestione Budget A&amp;G</h1>
 
-      <!-- Entrate -->
+      <!-- Sezione Entrate -->
       <section id="entrate">
         <h2>Entrate</h2>
         <div>
@@ -171,7 +70,7 @@
         <button onclick="aggiungiEntrata()">Aggiungi Entrata</button>
       </section>
 
-      <!-- Uscite -->
+      <!-- Sezione Uscite -->
       <section id="uscite">
         <h2>Uscite</h2>
         <div>
@@ -182,7 +81,7 @@
           </select>
         </div>
         <div>
-          <label for="categoriaUscita">Seleziona Categoria:</label>
+          <label for="categoriaUscita">Categoria:</label>
           <select id="categoriaUscita">
             <option value="CONDOMINIO">CONDOMINIO</option>
             <option value="ALIMENTARI">ALIMENTARI</option>
@@ -210,7 +109,7 @@
             <option value="SERATE CON AMICI">SERATE CON AMICI</option>
             <option value="VACANZE">VACANZE</option>
             <option value="REGALI">REGALI</option>
-	    <option value="ELETTRONICA">ELETTRONICA</option>
+            <option value="ELETTRONICA">ELETTRONICA</option>
           </select>
         </div>
         <div>
@@ -234,8 +133,8 @@
         <input type="month" id="meseFiltro">
       </section>
 
-      <!-- Lista Transazioni -->
-      <button id="toggleButton" onclick="toggleTransazioniVisibili()">Mostra Transazioni</button>
+      <!-- Toggle Transazioni -->
+      <button id="toggleButton" onclick="toggleTransazioniVisibili()">Mostra/Nascondi Transazioni</button>
       <div class="table-container" id="listaTransazioniContainer">
         <h2>Transazioni</h2>
         <table>
@@ -267,66 +166,24 @@
         <div id="riepilogoSaldo">Saldo Totale: €0</div>
       </section>
 
-      <!-- Riepilogo per Persona -->
+      <!-- Riepilogo Persone -->
       <section id="riepiloghiPersone">
         <h2>Riepilogo Giulia</h2>
-        <div onclick="vaiAllaPaginaDettagli('Giulia', 'Entrate')" style="cursor: pointer; color: #2980b9;">
-          <span id="riepilogoGiuliaEntrate">0</span>
-        </div>
-        <div onclick="vaiAllaPaginaDettagli('Giulia', 'Uscite')" style="cursor: pointer; color: #e74c3c;">
-          <span id="riepilogoGiuliaUscite">0</span>
-        </div>
-        <div id="riepilogoGiuliaSaldo">Saldo Giulia: €0</div>
+        <div class="link" onclick="vaiAllaPaginaDettagli('Giulia','Entrate')">Entrate: <span id="riepilogoGiuliaEntrate">0</span></div>
+        <div class="link" onclick="vaiAllaPaginaDettagli('Giulia','Uscite')">Uscite: <span id="riepilogoGiuliaUscite">0</span></div>
+        <div>Saldo: <span id="riepilogoGiuliaSaldo">€0</span></div>
 
         <h2>Riepilogo Alessio</h2>
-        <div onclick="vaiAllaPaginaDettagli('Alessio', 'Entrate')" style="cursor: pointer; color: #2980b9;">
-          <span id="riepilogoAlessioEntrate">0</span>
-        </div>
-        <div onclick="vaiAllaPaginaDettagli('Alessio', 'Uscite')" style="cursor: pointer; color: #e74c3c;">
-          <span id="riepilogoAlessioUscite">0</span>
-        </div>
-        <div id="riepilogoAlessioSaldo">Saldo Alessio: €0</div>
+        <div class="link" onclick="vaiAllaPaginaDettagli('Alessio','Entrate')">Entrate: <span id="riepilogoAlessioEntrate">0</span></div>
+        <div class="link" onclick="vaiAllaPaginaDettagli('Alessio','Uscite')">Uscite: <span id="riepilogoAlessioUscite">0</span></div>
+        <div>Saldo: <span id="riepilogoAlessioSaldo">€0</span></div>
       </section>
 
-      <!-- Confronti: Box per Differenze Mensili e Annuali -->
+      <!-- Differenze Rispetto al Periodo Precedente -->
       <section id="differenze">
         <h2>Differenze Rispetto al Periodo Precedente</h2>
         <div class="differenze-container">
-          <!-- Box Differenze Mensili -->
           <div class="differenze-box" id="differenzeMese"></div>
-          <!-- Box Differenze Annuali -->
           <div class="differenze-box" id="differenzeAnno"></div>
         </div>
       </section>
-
-      <!-- Bottone per visualizzare i dettagli delle uscite per categoria -->
-      <button onclick="apriPaginaDettaglio()">Visualizza Dettaglio Uscite per Categoria</button>
-      <script>
-        function apriPaginaDettaglio() {
-          const filtroAnno = document.getElementById('meseFiltro').value.slice(0, 4);
-          localStorage.setItem('filtroAnno', filtroAnno);
-          window.location.href = "dettaglioUscite.html";
-        }
-      </script>
-
-      <!-- Grafico a torta -->
-      <section id="graficoSpeseCategoria">
-        <h2>Distribuzione Spese per Categoria</h2>
-        <canvas id="graficoTortaSpese"></canvas>
-      </section>
-
-      <!-- Esporta in Excel -->
-      <button id="exportExcel" onclick="esportaInExcel()">Esporta Riepilogo in Excel</button>
-
-      <!-- Logout -->
-      <button onclick="esci()">Esci</button>
-    </div>
-    <footer style="text-align: center; padding: 10px; margin-top: 20px; font-size: 0.85em; color: #666;">
-      Gestione Budget Familiare - Creato con ❤️ da Alessio
-    </footer>
-  </div>
-
-  <!-- Includi lo script principale -->
-  <script src="script.js" type="module"></script>
-</body>
-</html>
