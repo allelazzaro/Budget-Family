@@ -669,3 +669,7 @@ window.onload = function () {
     document.getElementById('loginContainer').style.display = 'block';
   }
 };
+// alla fine di script.js
+window.registrati       = registrati;
+window.accedi           = accedi;
+window.salvaNomeUtente  = salvaNomeUtente;
