@@ -203,6 +203,16 @@
           window.location.href = "dettaglioUscite.html";
         }
       </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const mf = document.getElementById('meseFiltro');
+  if (mf && !mf.value) {
+    mf.value = new Date().toISOString().slice(0, 7); // "YYYY‑MM"
+  }
+  // lancia subito la catena di aggiornamenti
+  if (typeof filtraPerMese === 'function') filtraPerMese();
+});
+</script>
 
       <!-- Grafico a torta -->
       <section id="graficoSpeseCategoria">
