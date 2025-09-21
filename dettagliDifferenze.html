@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dettagli Differenze</title>
+
+  <!-- Se i fogli esterni nascondono/tamponano, teniamo il nostro CSS dopo -->
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="fix_mobile_differenze.css">
 
@@ -12,68 +14,56 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
 
   <style>
-    .dettaglio-container{max-width:900px;margin:20px auto;padding:20px;background:#fff;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.1)}
-    .dettaglio-header h1{font-size:2em;margin-bottom:10px}
-    .dettaglio-header h2{font-size:1.5em;margin-bottom:10px;color:#555}
-    .dettaglio-tabella{margin-top:20px}
+    /* Antiproiettile contro temi troppo aggressivi */
+    :root { --ink:#122; --line:#cfd6de; --card:#fff; }
+    body{color:var(--ink); background:#f3f6f9;}
+    .container{max-width:900px;margin:16px auto;padding:16px;background:var(--card);
+      border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,.08)}
+    h1,h2,h3{margin:.2em 0 .4em}
+    #periodoInfo{color:#456}
 
-    #dettagliContainer{margin:0 auto;overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%}
-    #dettagliContainer table{min-width:800px;border-collapse:collapse;font-size:.7em}
-    #dettagliContainer th,#dettagliContainer td{padding:4px;border:1px solid #ccc;text-align:center;white-space:nowrap}
-    .detail-row td{background:#f9f9f9;padding:10px}
-
-    .sub-table{width:100%;border-collapse:collapse;font-size:2em !important;margin-bottom:10px}
-    .sub-table th,.sub-table td{padding:16px !important;border:1px solid #aaa;text-align:center;white-space:normal !important}
-
-    .divider-row td{border:none;background:#eee;height:10px}
-
-    @media (max-width:768px){
-      .dettaglio-container{padding:15px}
-      .dettaglio-header h1{font-size:1.8em}
-      .dettaglio-header h2{font-size:1.3em}
-      #dettagliContainer table{font-size:.65em;min-width:700px}
-      #dettagliContainer th,#dettagliContainer td{padding:3px}
-      .sub-table{font-size:1.6em !important;margin-bottom:8px}
-      .sub-table th,.sub-table td{padding:12px !important}
+    /* Tabella forzata visibile anche con temi esterni */
+    #dettagliContainer{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    #dettagliContainer table{display:table !important; border-collapse:collapse;
+      min-width:800px; font-size:.9rem; background:#fff}
+    #dettagliContainer th,#dettagliContainer td{
+      border:1px solid var(--line) !important; padding:6px 8px; text-align:center;
+      color:#111 !important; background:#fff !important; white-space:nowrap;
     }
-
-    @media (max-width:480px){
-      .dettaglio-container{padding:10px}
-      .dettaglio-header h1{font-size:1.6em}
-      .dettaglio-header h2{font-size:1.2em}
-      #dettagliContainer table{font-size:.6em;min-width:600px}
-      #dettagliContainer th,#dettagliContainer td{padding:2px}
-      .sub-table{font-size:1.4em !important;margin-bottom:6px}
-      .sub-table th,.sub-table td{padding:8px !important}
-    }
-
-    .muted{color:#777;font-size:.9em;margin-top:10px}
-    .differenza-positiva{color:#0a7a1b;font-weight:600}
-    .differenza-negativa{color:#b00020;font-weight:600}
+    .detail-row td{background:#fafbfc !important}
+    .sub-table{width:100%; border-collapse:collapse; margin:8px 0}
+    .sub-table th,.sub-table td{border:1px solid var(--line); padding:8px; white-space:normal}
+    .differenza-positiva{color:#0b7a22; font-weight:600}
+    .differenza-negativa{color:#b00020; font-weight:600}
+    #noDataMsg{margin-top:10px; color:#666}
+    /* Pannello diagnostico */
+    #diag{margin:12px 0; font:12px/1.3 system-ui; background:#ffffe3; border:1px solid #e6d86a;
+      padding:8px; border-radius:8px; color:#5a5300}
+    #diag strong{font-weight:700}
+    @media (max-width:480px){ #dettagliContainer table{min-width:600px; font-size:.8rem} }
   </style>
 </head>
 <body>
-  <div class="container dettaglio-container">
-    <header class="dettaglio-header">
+  <div class="container">
+    <header>
       <h1 id="dettaglioTitle">Dettaglio Differenze</h1>
       <div id="periodoInfo"></div>
+      <div id="diag" style="display:none"></div>
     </header>
 
-    <section class="dettaglio-sommario" id="sommarioContainer"></section>
-
-    <section class="dettaglio-tabella">
+    <section>
       <h2>Dettaglio per Categoria</h2>
       <div id="dettagliContainer"></div>
-      <div id="noDataMsg" class="muted" style="display:none">Nessun dato disponibile per il periodo selezionato.</div>
+      <div id="noDataMsg" style="display:none">Nessun dato disponibile per il periodo selezionato.</div>
     </section>
 
-    <footer class="dettaglio-footer">
+    <footer style="margin-top:14px">
       <button onclick="tornaIndietro()">Torna Indietro</button>
     </footer>
   </div>
 
   <script>
-    // --- Firebase ---
+    /* ------------ Firebase ------------ */
     const firebaseConfig = {
       apiKey: "AIzaSyChK3rrqQ8hYygNLaahaxgtx8W1oUpxBP0",
       authDomain: "budget-a41a6.firebaseapp.com",
@@ -86,325 +76,246 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- Stato ---
-    window.dettaglioData = {};
+    /* ------------ Stato & util ------------ */
     const tipoDiff = localStorage.getItem('tipoDiff') || "";
-
-    // --- Util ---
-    function toNumber(x){
-      const n = parseFloat(String(x).replace(',', '.'));
-      return isFinite(n) ? n : 0;
-    }
-
-    // Ritorna {y, ym} da una stringa data
-    // Supporta "YYYY-MM", "YYYY-MM-DD", "DD/MM/YYYY"
+    function toNumber(x){ const n = parseFloat(String(x).replace(',', '.')); return isFinite(n)?n:0; }
+    function formatCurrency(v){ const n = toNumber(v); return n===0 ? "" : "€"+n.toFixed(2); }
+    function formatMonthYear(ym){ if(!ym) return ""; const p=ym.split('-'); return p.length>=2?`${p[1]}/${p[0]}`:ym; }
     function parseDateKey(s){
-      if(!s || typeof s !== 'string') return { y:null, ym:null };
-      s = s.trim();
-
-      // ISO YYYY-MM or YYYY-MM-DD
-      const iso = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/;
-      const mIso = s.match(iso);
-      if(mIso){
-        const y = mIso[1];
-        const m = mIso[2];
-        return { y, ym: `${y}-${m}` };
-      }
-
-      // Italian DD/MM/YYYY
-      const it = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-      const mIt = s.match(it);
-      if(mIt){
-        const y = mIt[3];
-        const m = mIt[2];
-        return { y, ym: `${y}-${m}` };
-      }
-
-      // Fallback: prova a prendere solo l'anno iniziale
-      const yOnly = /^(\d{4})/;
-      const mY = s.match(yOnly);
-      if(mY){
-        const y = mY[1];
-        // prova a pescare anche il mese
-        const m2 = s.slice(5,7);
-        return { y, ym: /^\d{2}$/.test(m2) ? `${y}-${m2}` : null };
-      }
-      return { y:null, ym:null };
+      if(!s) return {y:null, ym:null};
+      s=String(s).trim();
+      let m=s.match(/^(\d{4})-(\d{2})(?:-\d{2})?$/);              // 2025-03 or 2025-03-14
+      if(m) return {y:m[1], ym:`${m[1]}-${m[2]}`};
+      m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);                   // 14/03/2025
+      if(m) return {y:m[3], ym:`${m[3]}-${m[2]}`};
+      m=s.match(/^(\d{4})/);                                      // almeno l'anno
+      if(m){ const y=m[1]; const mm=s.slice(5,7); return {y, ym:/^\d{2}$/.test(mm)?`${y}-${mm}`:null}; }
+      return {y:null, ym:null};
     }
-
-    function formatCurrency(value){
-      const v = toNumber(value);
-      return v === 0 ? "" : "€" + v.toFixed(2);
-    }
-
-    function formatMonthYear(ym){ // "YYYY-MM" -> "MM/YYYY"
-      if(!ym) return "";
-      const p = ym.split("-");
-      return p.length >= 2 ? `${p[1]}/${p[0]}` : ym;
-    }
-
-    function aggiornaTitoloDettaglio(){
-      let titleText = "Dettaglio Differenze";
+    function setTitle(){
+      let t="Dettaglio Differenze";
       if(tipoDiff.startsWith("mese")){
-        const meseCorrente = localStorage.getItem('meseDiff');
-        let pf = "";
-        if(tipoDiff === "meseGiulia") pf = " - Giulia";
-        else if(tipoDiff === "meseAlessio") pf = " - Alessio";
-        titleText = `Differenze Mese: ${formatMonthYear(meseCorrente)}${pf}`;
-      }else if(tipoDiff.startsWith("anno")){
-        const annoCorrente = localStorage.getItem('annoDiff');
-        let pf = "";
-        if(tipoDiff === "annoGiulia") pf = " - Giulia";
-        else if(tipoDiff === "annoAlessio") pf = " - Alessio";
-        titleText = `Differenze Anno: ${annoCorrente}${pf}`;
+        const mc=localStorage.getItem('meseDiff'); let pf="";
+        if(tipoDiff==="meseGiulia") pf=" - Giulia";
+        else if(tipoDiff==="meseAlessio") pf=" - Alessio";
+        t=`Differenze Mese: ${formatMonthYear(mc)}${pf}`;
+      } else if (tipoDiff.startsWith("anno")){
+        const ac=localStorage.getItem('annoDiff'); let pf="";
+        if(tipoDiff==="annoGiulia") pf=" - Giulia";
+        else if(tipoDiff==="annoAlessio") pf=" - Alessio";
+        t=`Differenze Anno: ${ac}${pf}`;
       }
-      document.getElementById('dettaglioTitle').innerText = titleText;
+      document.getElementById('dettaglioTitle').textContent=t;
     }
-    aggiornaTitoloDettaglio();
+    setTitle();
 
-    // --- Costruzione tabelle ---
-    function costruisciTabellaMese(meseCorrente, meseConfronto, personFilter=null){
-      document.getElementById('periodoInfo').innerHTML =
-        `<h2>Mese: ${formatMonthYear(meseCorrente)} vs ${formatMonthYear(meseConfronto)}</h2>`;
-
-      return db.ref('transazioni').once('value').then(snap=>{
-        window.dettaglioData = snap.val() || {};
-        const all = Object.values(window.dettaglioData);
-
-        const transazioniCorrenti = all.filter(t=>{
-          const k = parseDateKey(t.data).ym;
-          return k === meseCorrente && (!personFilter || t.persona === personFilter);
-        });
-
-        const transazioniConfronto = all.filter(t=>{
-          const k = parseDateKey(t.data).ym;
-          return k === meseConfronto && (!personFilter || t.persona === personFilter);
-        });
-
-        renderDifferenzeTableByCategory(
-          transazioniCorrenti,
-          transazioniConfronto,
-          `Entrate (${formatMonthYear(meseCorrente)})`,
-          `Entrate (${formatMonthYear(meseConfronto)})`,
-          `Uscite (${formatMonthYear(meseCorrente)})`,
-          `Uscite (${formatMonthYear(meseConfronto)})`,
-          (rowEl)=>rowEl.setAttribute('onclick', `toggleDetailRow(this,'mese','${meseCorrente}','${meseConfronto}')`),
-          personFilter
-        );
-      }).catch(err=>{
-        console.error(err);
-        showNoData("Errore di lettura dati.");
-      });
+    function showNoData(msg){
+      const el=document.getElementById('noDataMsg');
+      el.textContent=msg||"Nessun dato disponibile per il periodo selezionato.";
+      el.style.display='block';
+    }
+    function diag(o){
+      const d=document.getElementById('diag');
+      d.innerHTML = Object.entries(o).map(([k,v])=>`<div><strong>${k}:</strong> ${v}</div>`).join('');
+      d.style.display='block';
     }
 
-    function costruisciTabellaAnno(annoCorrente, annoPrecedente, personFilter=null){
-      document.getElementById('periodoInfo').innerHTML =
-        `<h2>Anno: ${annoCorrente} vs ${annoPrecedente}</h2>`;
-
-      return db.ref('transazioni').once('value').then(snap=>{
-        window.dettaglioData = snap.val() || {};
-        const all = Object.values(window.dettaglioData);
-
-        const transazioniCorrenti = all.filter(t=>{
-          const y = parseDateKey(t.data).y;
-          return y === annoCorrente && (!personFilter || t.persona === personFilter);
-        });
-
-        const transazioniPrecedenti = all.filter(t=>{
-          const y = parseDateKey(t.data).y;
-          return y === annoPrecedente && (!personFilter || t.persona === personFilter);
-        });
-
-        renderDifferenzeTableByCategory(
-          transazioniCorrenti,
-          transazioniPrecedenti,
-          `Entrate (${annoCorrente})`,
-          `Entrate (${annoPrecedente})`,
-          `Uscite (${annoCorrente})`,
-          `Uscite (${annoPrecedente})`,
-          (rowEl)=>rowEl.setAttribute('onclick', `toggleDetailRow(this,'anno','${annoCorrente}','${annoPrecedente}')`),
-          personFilter
-        );
-      }).catch(err=>{
-        console.error(err);
-        showNoData("Errore di lettura dati.");
-      });
-    }
-
-    function renderDifferenzeTableByCategory(listCurr, listPrev, labECurr, labEPrev, labUCurr, labUPrev, attachOnclick, personFilter){
-      const gruppiCurr = {};
+    /* ------------ Costruzione ------------ */
+    function buildTable(listCurr, listPrev, labels, personFilter, periodo){
+      const groupsCurr={}, groupsPrev={};
       listCurr.forEach(t=>{
-        const cat = t.categoria || "Sconosciuta";
-        if(!gruppiCurr[cat]) gruppiCurr[cat] = {entrate:0, uscite:0};
-        if(t.tipo === 'Entrata') gruppiCurr[cat].entrate += toNumber(t.importo);
-        else if(t.tipo === 'Uscita') gruppiCurr[cat].uscite += toNumber(t.importo);
+        const c=t.categoria||"Sconosciuta";
+        if(!groupsCurr[c]) groupsCurr[c]={entrate:0, uscite:0};
+        if(t.tipo==='Entrata') groupsCurr[c].entrate+=toNumber(t.importo);
+        else if(t.tipo==='Uscita') groupsCurr[c].uscite+=toNumber(t.importo);
       });
-
-      const gruppiPrev = {};
       listPrev.forEach(t=>{
-        const cat = t.categoria || "Sconosciuta";
-        if(!gruppiPrev[cat]) gruppiPrev[cat] = {entrate:0, uscite:0};
-        if(t.tipo === 'Entrata') gruppiPrev[cat].entrate += toNumber(t.importo);
-        else if(t.tipo === 'Uscita') gruppiPrev[cat].uscite += toNumber(t.importo);
+        const c=t.categoria||"Sconosciuta";
+        if(!groupsPrev[c]) groupsPrev[c]={entrate:0, uscite:0};
+        if(t.tipo==='Entrata') groupsPrev[c].entrate+=toNumber(t.importo);
+        else if(t.tipo==='Uscita') groupsPrev[c].uscite+=toNumber(t.importo);
       });
 
-      let categorie = Array.from(new Set([...Object.keys(gruppiCurr), ...Object.keys(gruppiPrev)]));
-
-      if(categorie.length === 0){
-        document.getElementById('dettagliContainer').innerHTML = "";
+      const categories = Array.from(new Set([...Object.keys(groupsCurr), ...Object.keys(groupsPrev)]));
+      if(categories.length===0){
+        document.getElementById('dettagliContainer').innerHTML="";
         showNoData();
         return;
       }
 
-      categorie.sort((a,b)=>{
-        if(a.toLowerCase()==="stipendio") return -1;
-        if(b.toLowerCase()==="stipendio") return 1;
-        if(a.toLowerCase()==="extra") return -1;
-        if(b.toLowerCase()==="extra") return 1;
-        const ua = gruppiCurr[a]?gruppiCurr[a].uscite:0;
-        const ub = gruppiCurr[b]?gruppiCurr[b].uscite:0;
-        return ub - ua;
+      categories.sort((a,b)=>{
+        if(a.toLowerCase()==='stipendio') return -1;
+        if(b.toLowerCase()==='stipendio') return 1;
+        if(a.toLowerCase()==='extra') return -1;
+        if(b.toLowerCase()==='extra') return 1;
+        const ua=groupsCurr[a]?groupsCurr[a].uscite:0;
+        const ub=groupsCurr[b]?groupsCurr[b].uscite:0;
+        return ub-ua;
       });
 
-      let html = `<table class="dettaglio-table"><thead>
-        <tr>
-          <th>Categoria</th>
-          <th>${labECurr}</th>
-          <th>${labEPrev}</th>
-          <th>${labUCurr}</th>
-          <th>${labUPrev}</th>
-          <th>Saldo ${labECurr.replace('Entrate ','')}</th>
-          <th>Saldo ${labEPrev.replace('Entrate ','')}</th>
-          <th>Diff Saldo</th>
-        </tr>
-      </thead><tbody>`;
+      let html=`<table><thead><tr>
+        <th>Categoria</th>
+        <th>${labels.eCurr}</th>
+        <th>${labels.ePrev}</th>
+        <th>${labels.uCurr}</th>
+        <th>${labels.uPrev}</th>
+        <th>Saldo ${labels.sCurr}</th>
+        <th>Saldo ${labels.sPrev}</th>
+        <th>Diff Saldo</th>
+      </tr></thead><tbody>`;
 
-      categorie.forEach(cat=>{
-        const curr = gruppiCurr[cat] || {entrate:0, uscite:0};
-        const prev = gruppiPrev[cat] || {entrate:0, uscite:0};
-        const saldoCurr = curr.entrate - curr.uscite;
-        const saldoPrev = prev.entrate - prev.uscite;
-        const diffSaldo = saldoCurr - saldoPrev;
-
-        html += `<tr class="category-row" data-category="${cat}" data-person="${personFilter || ''}">
+      categories.forEach(cat=>{
+        const curr=groupsCurr[cat]||{entrate:0, uscite:0};
+        const prev=groupsPrev[cat]||{entrate:0, uscite:0};
+        const saldoCurr=curr.entrate-curr.uscite;
+        const saldoPrev=prev.entrate-prev.uscite;
+        const diff=saldoCurr-saldoPrev;
+        html+=`<tr class="category-row" data-category="${cat}" data-person="${personFilter||''}"
+                onclick="toggleDetailRow(this,'${periodo.kind}','${periodo.curr}','${periodo.prev}')">
           <td>${cat}</td>
           <td>${formatCurrency(curr.entrate)}</td>
           <td>${formatCurrency(prev.entrate)}</td>
           <td>${formatCurrency(curr.uscite)}</td>
           <td>${formatCurrency(prev.uscite)}</td>
-          <td>${saldoCurr===0 ? "" : "€"+saldoCurr.toFixed(2)}</td>
-          <td>${saldoPrev===0 ? "" : "€"+saldoPrev.toFixed(2)}</td>
-          <td class="${diffSaldo>=0?'differenza-positiva':'differenza-negativa'}">
-            ${diffSaldo===0 ? "" : "€"+diffSaldo.toFixed(2)}
-          </td>
+          <td>${saldoCurr===0?"":"€"+saldoCurr.toFixed(2)}</td>
+          <td>${saldoPrev===0?"":"€"+saldoPrev.toFixed(2)}</td>
+          <td class="${diff>=0?'differenza-positiva':'differenza-negativa'}">${diff===0?"":"€"+diff.toFixed(2)}</td>
         </tr>`;
       });
 
-      html += `</tbody></table>`;
-      const wrap = document.getElementById('dettagliContainer');
-      wrap.innerHTML = html;
-      document.getElementById('noDataMsg').style.display = 'none';
-
-      // attacca l'onclick riga per riga
-      wrap.querySelectorAll('.category-row').forEach(tr=>attachOnclick(tr));
+      html+=`</tbody></table>`;
+      document.getElementById('dettagliContainer').innerHTML=html;
+      document.getElementById('noDataMsg').style.display='none';
     }
 
-    function showNoData(msg){
-      document.getElementById('noDataMsg').textContent = msg || "Nessun dato disponibile per il periodo selezionato.";
-      document.getElementById('noDataMsg').style.display = 'block';
+    function toggleDetailRow(row, kind, curr, prev){
+      if(row.nextElementSibling && row.nextElementSibling.classList.contains('detail-row')){
+        row.parentNode.removeChild(row.nextElementSibling); return;
+      }
+      const category=row.getAttribute('data-category');
+      const person=row.getAttribute('data-person');
+      const tx=Object.values(window.dettaglioData||{});
+
+      const filt = (t, mode, key)=> {
+        const k = parseDateKey(t.data);
+        if(mode==='mese') return k.ym===key;
+        return k.y===key;
+      };
+      const listCurr = tx.filter(t=>filt(t,kind,curr) && t.categoria===category && (!person || t.persona===person));
+      const listPrev = tx.filter(t=>filt(t,kind,prev) && t.categoria===category && (!person || t.persona===person));
+
+      function sub(label, arr){
+        if(!arr.length) return `<h3>${label}</h3><p>Nessun dettaglio per questo periodo.</p>`;
+        let s=`<h3>${label}</h3><table class="sub-table"><thead>
+          <tr><th>Data</th><th>Persona</th><th>Tipo</th><th>Importo</th><th>Descrizione</th></tr>
+        </thead><tbody>`;
+        arr.forEach(t=>{
+          s+=`<tr><td>${t.data||""}</td><td>${t.persona||""}</td><td>${t.tipo||""}</td>
+               <td>${formatCurrency(t.importo)}</td><td>${t.descrizione||""}</td></tr>`;
+        });
+        return s+`</tbody></table>`;
+      }
+
+      const detail=`<div style="display:flex;flex-direction:column;gap:8px">
+        ${sub(`Dettaglio ${category} – ${kind==='mese'?formatMonthYear(curr):curr}`,listCurr)}
+        ${sub(`Dettaglio ${category} – ${kind==='mese'?formatMonthYear(prev):prev}`,listPrev)}
+      </div>`;
+
+      const tr=document.createElement('tr'); tr.className='detail-row';
+      const td=document.createElement('td'); td.colSpan=row.children.length; td.innerHTML=detail;
+      tr.appendChild(td); row.parentNode.insertBefore(tr,row.nextSibling);
     }
 
-    // --- Dettaglio (accordion) ---
-    function toggleDetailRow(row, periodType, periodCurr, periodPrev){
-      if (row.nextElementSibling && row.nextElementSibling.classList.contains('detail-row')) {
-        row.parentNode.removeChild(row.nextElementSibling);
-        return;
+    /* ------------ Lettura dati con fallback + diagnosi ------------ */
+    async function loadAndRender(){
+      // Parametri dal localStorage
+      const meseCorrente = localStorage.getItem('meseDiff');
+      const meseConfronto = localStorage.getItem('meseDiffPrev');
+      const annoCorrente = localStorage.getItem('annoDiff');
+      const annoPrecedente = localStorage.getItem('annoDiffPrev');
+      let personFilter = null;
+      if(tipoDiff==="meseGiulia" || tipoDiff==="annoGiulia") personFilter="Giulia";
+      if(tipoDiff==="meseAlessio" || tipoDiff==="annoAlessio") personFilter="Alessio";
+
+      // Prova DB
+      let data=null, origin="Firebase";
+      try{
+        const snap = await db.ref('transazioni').once('value');
+        data = snap.val();
+      }catch(e){
+        origin="(errore Firebase)"; data=null;
       }
-      const category = row.getAttribute('data-category');
-      const person = row.getAttribute('data-person');
-      const transactions = Object.values(window.dettaglioData || {});
-
-      let transCurr, transPrev;
-
-      if(periodType === 'mese'){
-        transCurr = transactions.filter(t=>{
-          const k = parseDateKey(t.data).ym;
-          return k === periodCurr && t.categoria === category && (!person || t.persona === person);
-        });
-        transPrev = transactions.filter(t=>{
-          const k = parseDateKey(t.data).ym;
-          return k === periodPrev && t.categoria === category && (!person || t.persona === person);
-        });
-      }else{ // anno
-        transCurr = transactions.filter(t=>{
-          const y = parseDateKey(t.data).y;
-          return y === periodCurr && t.categoria === category && (!person || t.persona === person);
-        });
-        transPrev = transactions.filter(t=>{
-          const y = parseDateKey(t.data).y;
-          return y === periodPrev && t.categoria === category && (!person || t.persona === person);
-        });
+      // Fallback a localStorage se vuoto
+      if(!data || Object.keys(data).length===0){
+        const ls = localStorage.getItem('transazioni');
+        if(ls){ try{ data = JSON.parse(ls); origin="localStorage"; }catch{ /* ignore */ } }
       }
+      window.dettaglioData = data || {};
 
-      function buildSub(label, arr){
-        let out = `<h3>${label}</h3>`;
-        if(arr.length){
-          out += `<table class="sub-table"><thead>
-            <tr><th>Data</th><th>Persona</th><th>Tipo</th><th>Importo</th><th>Descrizione</th></tr>
-          </thead><tbody>`;
-          arr.forEach(t=>{
-            out += `<tr>
-              <td>${t.data || ""}</td>
-              <td>${t.persona || ""}</td>
-              <td>${t.tipo || ""}</td>
-              <td>${formatCurrency(t.importo)}</td>
-              <td>${t.descrizione || ""}</td>
-            </tr>`;
-          });
-          out += `</tbody></table>`;
-        }else{
-          out += `<p>Nessun dettaglio per questo periodo.</p>`;
-        }
-        return out;
-      }
+      // Contatori grezzi
+      const all = Object.values(window.dettaglioData);
+      const total = all.length;
 
-      const subHtmlCurr = buildSub(`Dettaglio ${category} – ${periodType==='mese' ? formatMonthYear(periodCurr) : periodCurr}`, transCurr);
-      const subHtmlPrev = buildSub(`Dettaglio ${category} – ${periodType==='mese' ? formatMonthYear(periodPrev) : periodPrev}`, transPrev);
-
-      const detailHtml = `<div style="display:flex;flex-direction:column;gap:10px;">${subHtmlCurr}${subHtmlPrev}</div>`;
-      const newRow = document.createElement('tr');
-      newRow.className = 'detail-row';
-      const newCell = document.createElement('td');
-      newCell.setAttribute('colspan', row.children.length);
-      newCell.innerHTML = detailHtml;
-      newRow.appendChild(newCell);
-      row.parentNode.insertBefore(newRow, row.nextSibling);
-    }
-
-    // --- Avvio ---
-    (function init(){
-      if (tipoDiff.startsWith("mese")){
-        const meseCorrente = localStorage.getItem('meseDiff');      // "YYYY-MM"
-        const meseConfronto = localStorage.getItem('meseDiffPrev'); // "YYYY-MM"
-        let personFilter = null;
-        if (tipoDiff === "meseGiulia") personFilter = "Giulia";
-        else if (tipoDiff === "meseAlessio") personFilter = "Alessio";
-        document.title = `Dettaglio Mese: ${formatMonthYear(meseCorrente)} ${personFilter ? " - " + personFilter : "(Totale)"}`;
-        costruisciTabellaMese(meseCorrente, meseConfronto, personFilter);
+      let listCurr=[], listPrev=[], info="";
+      if(tipoDiff.startsWith("mese")){
+        document.getElementById('periodoInfo').innerHTML =
+          `<h2>Mese: ${formatMonthYear(meseCorrente)} vs ${formatMonthYear(meseConfronto)}</h2>`;
+        listCurr = all.filter(t=>parseDateKey(t.data).ym===meseCorrente && (!personFilter || t.persona===personFilter));
+        listPrev = all.filter(t=>parseDateKey(t.data).ym===meseConfronto && (!personFilter || t.persona===personFilter));
+        info = `tipoDiff=${tipoDiff}, meseCurr=${meseCorrente}, mesePrev=${meseConfronto}, persona=${personFilter||'tutti'}`;
+        buildTable(
+          listCurr, listPrev,
+          {
+            eCurr:`Entrate (${formatMonthYear(meseCorrente)})`,
+            ePrev:`Entrate (${formatMonthYear(meseConfronto)})`,
+            uCurr:`Uscite (${formatMonthYear(meseCorrente)})`,
+            uPrev:`Uscite (${formatMonthYear(meseConfronto)})`,
+            sCurr:formatMonthYear(meseCorrente),
+            sPrev:formatMonthYear(meseConfronto)
+          },
+          personFilter,
+          {kind:'mese', curr:meseCorrente, prev:meseConfronto}
+        );
       } else if (tipoDiff.startsWith("anno")){
-        const annoCorrente = localStorage.getItem('annoDiff');
-        const annoPrecedente = localStorage.getItem('annoDiffPrev');
-        let personFilter = null;
-        if (tipoDiff === "annoGiulia") personFilter = "Giulia";
-        else if (tipoDiff === "annoAlessio") personFilter = "Alessio";
-        document.title = `Dettaglio Anno: ${annoCorrente} ${personFilter ? " - " + personFilter : "(Totale)"}`;
-        costruisciTabellaAnno(annoCorrente, annoPrecedente, personFilter);
+        document.getElementById('periodoInfo').innerHTML =
+          `<h2>Anno: ${annoCorrente} vs ${annoPrecedente}</h2>`;
+        listCurr = all.filter(t=>parseDateKey(t.data).y===annoCorrente && (!personFilter || t.persona===personFilter));
+        listPrev = all.filter(t=>parseDateKey(t.data).y===annoPrecedente && (!personFilter || t.persona===personFilter));
+        info = `tipoDiff=${tipoDiff}, annoCurr=${annoCorrente}, annoPrev=${annoPrecedente}, persona=${personFilter||'tutti'}`;
+        buildTable(
+          listCurr, listPrev,
+          {
+            eCurr:`Entrate (${annoCorrente})`,
+            ePrev:`Entrate (${annoPrecedente})`,
+            uCurr:`Uscite (${annoCorrente})`,
+            uPrev:`Uscite (${annoPrecedente})`,
+            sCurr:String(annoCorrente),
+            sPrev:String(annoPrecedente)
+          },
+          personFilter,
+          {kind:'anno', curr:annoCorrente, prev:annoPrecedente}
+        );
       } else {
-        document.getElementById('dettagliContainer').innerText = "Nessun dettaglio disponibile per questo tipo.";
+        document.getElementById('dettagliContainer').innerText="Nessun dettaglio disponibile per questo tipo.";
       }
-    })();
 
-    function tornaIndietro(){ window.location.href = "index.html"; }
+      // Mostra diagnosi in pagina
+      diag({
+        OrigineDati: origin,
+        RecordTotali: total,
+        RecordPeriodoCorrente: listCurr.length,
+        RecordPeriodoConfronto: listPrev.length,
+        InfoFiltro: info
+      });
+
+      if(total===0){
+        showNoData("Nessun dato trovato (né su Firebase né in localStorage).");
+      }
+    }
+
+    loadAndRender();
+
+    function tornaIndietro(){ location.href="index.html"; }
   </script>
 </body>
 </html>
