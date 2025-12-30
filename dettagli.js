@@ -42,6 +42,88 @@ function getAnnoSelezionato() {
     return meseFiltro.slice(0, 4);
 }
 
+// Funzione per aggiornare le statistiche in alto
+function aggiornaStatistiche(totale, numeroCategorie, numeroTransazioni) {
+    const totaleEl = document.getElementById('totaleGenerale');
+    const numCategorieEl = document.getElementById('numeroCategorie');
+    const numTransazioniEl = document.getElementById('numeroTransazioni');
+
+    if (totaleEl) totaleEl.textContent = `€${totale.toFixed(2)}`;
+    if (numCategorieEl) numCategorieEl.textContent = numeroCategorie;
+    if (numTransazioniEl) numTransazioniEl.textContent = numeroTransazioni;
+}
+
+// Funzione per creare una card categoria espandibile
+function creaCardCategoria(categoria, totaleCategoria, transazioni) {
+    const card = document.createElement('div');
+    card.className = 'category-card';
+    
+    // Header della card (cliccabile)
+    const header = document.createElement('div');
+    header.className = 'category-header';
+    header.innerHTML = `
+        <div class="category-info">
+            <div>
+                <span class="category-name">${categoria}</span>
+                <span class="category-count">${transazioni.length} transazioni</span>
+            </div>
+            <div class="category-total">€${totaleCategoria.toFixed(2)}</div>
+        </div>
+        <div class="expand-icon">▼</div>
+    `;
+
+    // Contenuto della card (dettagli transazioni)
+    const content = document.createElement('div');
+    content.className = 'category-content';
+    
+    const transactionsList = document.createElement('div');
+    transactionsList.className = 'transactions-list';
+    
+    // Ordina le transazioni per data (più recenti prima)
+    const transazioniOrdinate = transazioni.sort((a, b) => 
+        new Date(b.data) - new Date(a.data)
+    );
+    
+    // Crea gli item delle transazioni
+    transazioniOrdinate.forEach(t => {
+        const item = document.createElement('div');
+        item.className = 'transaction-item';
+        item.innerHTML = `
+            <div class="transaction-row">
+                <span class="transaction-label">Descrizione:</span>
+                <span class="transaction-value transaction-description">
+                    ${t.descrizione || 'Nessuna descrizione'}
+                </span>
+            </div>
+            <div class="transaction-row">
+                <span class="transaction-label">Importo:</span>
+                <span class="transaction-value transaction-amount">
+                    €${parseFloat(t.importo).toFixed(2)}
+                </span>
+            </div>
+            <div class="transaction-row">
+                <span class="transaction-label">Data:</span>
+                <span class="transaction-value transaction-date">
+                    ${formattaData(t.data)}
+                </span>
+            </div>
+        `;
+        transactionsList.appendChild(item);
+    });
+    
+    content.appendChild(transactionsList);
+    
+    // Event listener per espandere/comprimere
+    header.addEventListener('click', () => {
+        card.classList.toggle('expanded');
+    });
+    
+    card.appendChild(header);
+    card.appendChild(content);
+    
+    return card;
+}
+
 // Funzione principale per mostrare le entrate o uscite
 function mostraDettagli() {
     if (tipo.trim().toLowerCase() === 'entrate') {
@@ -53,8 +135,8 @@ function mostraDettagli() {
 
 // Funzione per mostrare le entrate
 function mostraEntrate() {
-    const tabellaDettagli = document.getElementById('tabellaDettagli');
-    tabellaDettagli.innerHTML = '';
+    const listaCategorie = document.getElementById('listaCategorie');
+    listaCategorie.innerHTML = '';
 
     const annoSelezionato = getAnnoSelezionato();
 
@@ -67,38 +149,53 @@ function mostraEntrate() {
         );
 
     if (entrateFiltrate.length === 0) {
-        tabellaDettagli.innerHTML = `<tr><td colspan="2" style="text-align: center; color: red;">Nessuna entrata trovata.</td></tr>`;
+        listaCategorie.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">💰</div>
+                <div class="empty-state-text">Nessuna entrata trovata</div>
+                <div class="empty-state-hint">Aggiungi delle entrate nella home per vederle qui</div>
+            </div>
+        `;
+        aggiornaStatistiche(0, 0, 0);
         return;
     }
 
-    let totaleEntrate = 0;
-
-    entrateFiltrate.forEach(transazione => {
-        totaleEntrate += parseFloat(transazione.importo);
-        tabellaDettagli.innerHTML += `
-            <tr>
-                <td>${transazione.categoria || 'Senza Categoria'}</td>
-                <td>€${parseFloat(transazione.importo).toFixed(2)} - ${formattaData(transazione.data)}</td>
-            </tr>
-        `;
+    // Raggruppa per categoria
+    const categorieMap = {};
+    entrateFiltrate.forEach(t => {
+        const cat = t.categoria || 'Senza Categoria';
+        if (!categorieMap[cat]) categorieMap[cat] = [];
+        categorieMap[cat].push(t);
     });
 
-    tabellaDettagli.innerHTML += `
-        <tr style="font-weight: bold; background-color: #f0f0f0;">
-            <td style="text-align: right;">Totale</td>
-            <td>€${totaleEntrate.toFixed(2)}</td>
-        </tr>
-    `;
+    // Calcola totali e ordina
+    const categorieOrdinate = Object.entries(categorieMap)
+        .map(([categoria, trans]) => ({
+            categoria,
+            totale: trans.reduce((sum, t) => sum + parseFloat(t.importo), 0),
+            transazioni: trans
+        }))
+        .sort((a, b) => b.totale - a.totale);
+
+    const totaleGenerale = categorieOrdinate.reduce((sum, cat) => sum + cat.totale, 0);
+
+    // Aggiorna statistiche
+    aggiornaStatistiche(totaleGenerale, categorieOrdinate.length, entrateFiltrate.length);
+
+    // Crea le card
+    categorieOrdinate.forEach(({ categoria, totale, transazioni }) => {
+        const card = creaCardCategoria(categoria, totale, transazioni);
+        listaCategorie.appendChild(card);
+    });
 }
 
-// Funzione per mostrare le uscite con espansione dei dettagli
+// Funzione per mostrare le uscite
 function mostraUscite() {
-    const tabellaDettagli = document.getElementById('tabellaDettagli');
-    tabellaDettagli.innerHTML = ''; // Svuota la tabella
+    const listaCategorie = document.getElementById('listaCategorie');
+    listaCategorie.innerHTML = '';
 
     const annoSelezionato = getAnnoSelezionato();
 
-    // Filtra le transazioni
     const usciteFiltrate = Object.entries(transazioni)
         .map(([id, transazione]) => ({ id, ...transazione }))
         .filter(transazione =>
@@ -108,75 +205,44 @@ function mostraUscite() {
         );
 
     if (usciteFiltrate.length === 0) {
-        tabellaDettagli.innerHTML = `<tr><td colspan="2" style="text-align: center; color: red;">Nessuna uscita trovata.</td></tr>`;
+        listaCategorie.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">💸</div>
+                <div class="empty-state-text">Nessuna uscita trovata</div>
+                <div class="empty-state-hint">Aggiungi delle uscite nella home per vederle qui</div>
+            </div>
+        `;
+        aggiornaStatistiche(0, 0, 0);
         return;
     }
 
-    const categorieTotali = {};
-
-    // Raggruppa transazioni per categoria
-    usciteFiltrate.forEach(transazione => {
-        const categoria = transazione.categoria || 'Senza Categoria';
-        if (!categorieTotali[categoria]) categorieTotali[categoria] = [];
-        categorieTotali[categoria].push(transazione);
+    // Raggruppa per categoria
+    const categorieMap = {};
+    usciteFiltrate.forEach(t => {
+        const cat = t.categoria || 'Senza Categoria';
+        if (!categorieMap[cat]) categorieMap[cat] = [];
+        categorieMap[cat].push(t);
     });
 
-    // Calcola il totale per ogni categoria e ordina dal più grande al più piccolo
-    const categorieOrdinate = Object.entries(categorieTotali)
-        .map(([categoria, transazioni]) => {
-            const totaleCategoria = transazioni.reduce((sum, t) => sum + parseFloat(t.importo), 0);
-            return { categoria, totaleCategoria, transazioni };
-        })
-        .sort((a, b) => b.totaleCategoria - a.totaleCategoria); // Ordina dal più grande al più piccolo
+    // Calcola totali e ordina
+    const categorieOrdinate = Object.entries(categorieMap)
+        .map(([categoria, trans]) => ({
+            categoria,
+            totale: trans.reduce((sum, t) => sum + parseFloat(t.importo), 0),
+            transazioni: trans
+        }))
+        .sort((a, b) => b.totale - a.totale);
 
-    let totaleUscite = 0; // Totale complessivo delle transazioni
+    const totaleGenerale = categorieOrdinate.reduce((sum, cat) => sum + cat.totale, 0);
 
-    // Per ogni categoria ordinata, aggiungi una riga e i dettagli
-    categorieOrdinate.forEach(({ categoria, totaleCategoria, transazioni }) => {
-        totaleUscite += totaleCategoria; // Aggiorna il totale complessivo
+    // Aggiorna statistiche
+    aggiornaStatistiche(totaleGenerale, categorieOrdinate.length, usciteFiltrate.length);
 
-        // Riga categoria
-        const categoriaRow = document.createElement('tr');
-        categoriaRow.classList.add('categoria-row');
-        categoriaRow.innerHTML = `
-            <td colspan="2">${categoria}: €${totaleCategoria.toFixed(2)}</td>
-        `;
-
-        // Riga dettagli nascosta
-        const dettagliRow = document.createElement('tr');
-        dettagliRow.classList.add('dettagli-row');
-        dettagliRow.style.display = 'none';
-        dettagliRow.innerHTML = `
-            <td colspan="2">
-                ${transazioni.map(t => `
-                    <div>
-                        <strong>Descrizione:</strong> ${t.descrizione || 'Nessuna descrizione'}<br>
-                        <strong>Importo:</strong> €${parseFloat(t.importo).toFixed(2)}<br>
-                        <strong>Data:</strong> ${formattaData(t.data)}
-                    </div>
-                `).join('<hr>')}
-            </td>
-        `;
-
-        // Associa l'evento di clic
-        categoriaRow.addEventListener('click', () => {
-            dettagliRow.style.display = dettagliRow.style.display === 'none' ? 'table-row' : 'none';
-        });
-
-        // Aggiungi le righe alla tabella
-        tabellaDettagli.appendChild(categoriaRow);
-        tabellaDettagli.appendChild(dettagliRow);
+    // Crea le card
+    categorieOrdinate.forEach(({ categoria, totale, transazioni }) => {
+        const card = creaCardCategoria(categoria, totale, transazioni);
+        listaCategorie.appendChild(card);
     });
-
-    // Aggiungi riga per il totale complessivo
-    const totaleRow = document.createElement('tr');
-    totaleRow.style.fontWeight = 'bold';
-    totaleRow.style.backgroundColor = '#f0f0f0';
-    totaleRow.innerHTML = `
-        <td style="text-align: right;">Totale</td>
-        <td>€${totaleUscite.toFixed(2)}</td>
-    `;
-    tabellaDettagli.appendChild(totaleRow);
 }
 
 // Recupera le transazioni dal database
@@ -184,7 +250,6 @@ onValue(ref(db, 'transazioni'), snapshot => {
     transazioni = snapshot.val() || {};
     mostraDettagli();
 });
-
 
 // Funzione per tornare alla home
 window.tornaIndietro = () => window.location.href = 'index.html';

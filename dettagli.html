@@ -3,27 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dettagli</title>
+    <title>Dettagli Uscite</title>
     <link rel="stylesheet" href="dettagli.css">
+    <link rel="stylesheet" href="dettagli_improved.css">
 </head>
 <body>
-    <div class="container">
-        <h1 id="titoloDettagli">Dettagli</h1>
-        <div class="button-container">
-        <button onclick="tornaIndietro()">Torna alla Home</button>
+    <!-- HEADER -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1 id="titoloDettagli">Uscite di Alessio</h1>
+            <button onclick="tornaIndietro()" class="btn-back">
+                ← Torna alla Home
+            </button>
+        </div>
     </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Categoria</th>
-                    <th>Totale (€)</th>
-                </tr>
-            </thead>
-            <tbody id="tabellaDettagli">
-                <!-- Dati riempiti dinamicamente -->
-            </tbody>
-        </table>
+
+    <!-- MAIN CONTAINER -->
+    <div class="main-container">
+        
+        <!-- CARD RIEPILOGO TOTALE -->
+        <div class="summary-card-top">
+            <div class="summary-icon">💰</div>
+            <div class="summary-info">
+                <div class="summary-label">Totale Speso</div>
+                <div class="summary-value" id="totaleGenerale">€0.00</div>
+            </div>
+            <div class="summary-details">
+                <div class="summary-detail-item">
+                    <span class="detail-label">Categorie:</span>
+                    <span class="detail-value" id="numeroCategorie">0</span>
+                </div>
+                <div class="summary-detail-item">
+                    <span class="detail-label">Transazioni:</span>
+                    <span class="detail-value" id="numeroTransazioni">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- LISTA CATEGORIE ESPANDIBILI -->
+        <div id="listaCategorie" class="categories-list">
+            <!-- Le card delle categorie verranno inserite qui dinamicamente -->
+        </div>
+
     </div>
+
     <script src="dettagli.js" type="module"></script>
 </body>
 </html>
