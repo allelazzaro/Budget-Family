@@ -50,14 +50,6 @@ function calcolaDifferenze() {
     saldo: totaliMeseCorrenteAlessio.saldo - totaliMesePrecedenteAlessio.saldo
   };
 
-  const totaliMeseCorrenteGiulia = calcolaTotali(meseFiltro, 'month', 'Giulia');
-  const totaliMesePrecedenteGiulia = calcolaTotali(meseConfronto, 'month', 'Giulia');
-  const diffMeseGiulia = {
-    entrate: totaliMeseCorrenteGiulia.entrate - totaliMesePrecedenteGiulia.entrate,
-    uscite: totaliMeseCorrenteGiulia.uscite - totaliMesePrecedenteGiulia.uscite,
-    saldo: totaliMeseCorrenteGiulia.saldo - totaliMesePrecedenteGiulia.saldo
-  };
-
   const htmlMese = `
     <div onclick="apriDettaglioDiff('meseTotal')" style="cursor:pointer;">
       <h3>Mese Totale: ${meseFiltro} vs ${meseConfronto}</h3>
@@ -72,13 +64,6 @@ function calcolaDifferenze() {
       <p>Uscite: €${totaliMeseCorrenteAlessio.uscite.toFixed(2)} → €${totaliMesePrecedenteAlessio.uscite.toFixed(2)}</p>
       <p>Saldo: €${totaliMeseCorrenteAlessio.saldo.toFixed(2)} → €${totaliMesePrecedenteAlessio.saldo.toFixed(2)}<br>
          <span class="${diffMeseAlessio.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseAlessio.saldo.toFixed(2)}</span></p>
-    </div>
-    <div onclick="apriDettaglioDiff('meseGiulia')" style="cursor:pointer;">
-      <h4>Giulia (Mese)</h4>
-      <p>Entrate: €${totaliMeseCorrenteGiulia.entrate.toFixed(2)} → €${totaliMesePrecedenteGiulia.entrate.toFixed(2)}</p>
-      <p>Uscite: €${totaliMeseCorrenteGiulia.uscite.toFixed(2)} → €${totaliMesePrecedenteGiulia.uscite.toFixed(2)}</p>
-      <p>Saldo: €${totaliMeseCorrenteGiulia.saldo.toFixed(2)} → €${totaliMesePrecedenteGiulia.saldo.toFixed(2)}<br>
-         <span class="${diffMeseGiulia.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseGiulia.saldo.toFixed(2)}</span></p>
     </div>
   `;
 
@@ -101,14 +86,6 @@ function calcolaDifferenze() {
     saldo: totaliAnnoCorrenteAlessio.saldo - totaliAnnoPrecedenteAlessio.saldo
   };
 
-  const totaliAnnoCorrenteGiulia = calcolaTotali(annoCorrente, 'year', 'Giulia');
-  const totaliAnnoPrecedenteGiulia = calcolaTotali(annoPrecedente, 'year', 'Giulia');
-  const diffAnnoGiulia = {
-    entrate: totaliAnnoCorrenteGiulia.entrate - totaliAnnoPrecedenteGiulia.entrate,
-    uscite: totaliAnnoCorrenteGiulia.uscite - totaliAnnoPrecedenteGiulia.uscite,
-    saldo: totaliAnnoCorrenteGiulia.saldo - totaliAnnoPrecedenteGiulia.saldo
-  };
-
   const htmlAnno = `
     <div onclick="apriDettaglioDiff('annoTotal')" style="cursor:pointer;">
       <h3>Anno Totale: ${annoCorrente} vs ${annoPrecedente}</h3>
@@ -126,15 +103,6 @@ function calcolaDifferenze() {
       <p>Saldo: €${totaliAnnoCorrenteAlessio.saldo.toFixed(2)} → €${totaliAnnoPrecedenteAlessio.saldo.toFixed(2)}<br>
          <span class="${diffAnnoAlessio.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">
            Diff: €${diffAnnoAlessio.saldo.toFixed(2)}
-         </span></p>
-    </div>
-    <div onclick="apriDettaglioDiff('annoGiulia')" style="cursor:pointer;">
-      <h4>Giulia (Anno)</h4>
-      <p>Entrate: €${totaliAnnoCorrenteGiulia.entrate.toFixed(2)} → €${totaliAnnoPrecedenteGiulia.entrate.toFixed(2)}</p>
-      <p>Uscite: €${totaliAnnoCorrenteGiulia.uscite.toFixed(2)} → €${totaliAnnoPrecedenteGiulia.uscite.toFixed(2)}</p>
-      <p>Saldo: €${totaliAnnoCorrenteGiulia.saldo.toFixed(2)} → €${totaliAnnoPrecedenteGiulia.saldo.toFixed(2)}<br>
-         <span class="${diffAnnoGiulia.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">
-           Diff: €${diffAnnoGiulia.saldo.toFixed(2)}
          </span></p>
     </div>
   `;
@@ -165,365 +133,294 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
 const auth = getAuth(app);
-const transazioniRef = ref(db, 'transazioni');
+const db = getDatabase(app);
 
-let utenteCorrente = null;
+let utente = null;
 let transazioni = [];
-let graficoTorta;
 
-// Gestione autenticazione
-onAuthStateChanged(auth, (utente) => {
-  if (utente) {
-    utenteCorrente = utente;
-    console.log("Utente autenticato:", utente);
-    document.getElementById("loginContainer").style.display = "none";
-    document.getElementById("appContainer").style.display = "block";
-    aggiornaListaTransazioni(document.getElementById('meseFiltro').value);
-  } else {
-    utenteCorrente = null;
-    console.log("Nessun utente autenticato.");
-    document.getElementById("loginContainer").style.display = "block";
-    document.getElementById("appContainer").style.display = "none";
-  }
-});
-
-// FUNZIONI DI AUTENTICAZIONE
 window.registrati = function () {
-  const email = document.getElementById('emailRegistrazione').value.trim();
-  const password = document.getElementById('passwordRegistrazione').value.trim();
-  if (!email || !password) {
-    alert("Per favore, inserisci un'email e una password valide.");
-    return;
-  }
+  const email = document.getElementById('emailRegistrazione').value;
+  const password = document.getElementById('passwordRegistrazione').value;
   createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => { alert("Registrazione completata!"); })
-    .catch((error) => {
-      console.error("Errore durante la registrazione:", error);
-      alert("Errore durante la registrazione: " + error.message);
-    });
+    .then(() => {
+      alert("Registrazione completata con successo! Ora accedi.");
+    })
+    .catch(error => alert("Errore durante la registrazione: " + error.message));
 };
 
 window.accedi = function () {
-  const email = document.getElementById('emailLogin').value.trim();
-  const password = document.getElementById('passwordLogin').value.trim();
-  if (!email || !password) {
-    alert("Per favore, inserisci un'email e una password valide.");
-    return;
-  }
+  const email = document.getElementById('emailLogin').value;
+  const password = document.getElementById('passwordLogin').value;
   signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => { alert("Accesso effettuato con successo!"); })
-    .catch((error) => {
-      console.error("Errore durante l'accesso:", error);
-      alert("Errore durante l'accesso: " + error.message);
-    });
+    .then(() => {
+      document.getElementById('loginContainer').style.display = 'none';
+      document.getElementById('appContainer').style.display = 'block';
+    })
+    .catch(error => alert("Errore durante l'accesso: " + error.message));
 };
 
 window.esci = function () {
   signOut(auth)
-    .then(() => { alert("Logout effettuato con successo!"); })
-    .catch((error) => { console.error("Errore durante il logout:", error); });
+    .then(() => {
+      document.getElementById('loginContainer').style.display = 'block';
+      document.getElementById('appContainer').style.display = 'none';
+      localStorage.removeItem('nomeUtente');
+    })
+    .catch(error => alert("Errore durante il logout: " + error.message));
 };
 
-function salvaFiltroMese() {
-  const meseFiltroElement = document.getElementById('meseFiltro');
-  if (meseFiltroElement) {
-    const meseFiltro = meseFiltroElement.value;
-    localStorage.setItem('meseFiltro', meseFiltro);
-    filtraPerMese();
+onAuthStateChanged(auth, user => {
+  if (user) {
+    utente = user;
+    document.getElementById('loginContainer').style.display = 'none';
+    document.getElementById('appContainer').style.display = 'block';
+    caricaTransazioni();
   } else {
-    console.error("Elemento 'meseFiltro' non trovato.");
+    document.getElementById('loginContainer').style.display = 'block';
+    document.getElementById('appContainer').style.display = 'none';
   }
-}
-document.getElementById('meseFiltro').addEventListener('change', salvaFiltroMese);
-
-function getDataCorrente() {
-  const oggi = new Date();
-  const anno = oggi.getFullYear();
-  const mese = String(oggi.getMonth() + 1).padStart(2, '0');
-  const giorno = String(oggi.getDate()).padStart(2, '0');
-  return `${anno}-${mese}-${giorno}`;
-}
-function impostaDataCorrente() {
-  const dataCorrente = getDataCorrente();
-  document.getElementById('dataEntrata').value = dataCorrente;
-  document.getElementById('dataUscita').value = dataCorrente;
-  document.getElementById('meseFiltro').value = dataCorrente.slice(0, 7);
-}
-
-onValue(transazioniRef, (snapshot) => {
-  transazioni = snapshot.val() ? Object.entries(snapshot.val()) : [];
-  aggiornaListaTransazioni(document.getElementById('meseFiltro').value);
-  aggiornaRiepiloghi();
-  aggiornaRiepilogoMensile();
-  aggiornaGraficoSpesePerCategoria();
-  calcolaDifferenze();
 });
 
-function aggiungiTransazione(persona, tipo, categoria, descrizione, importo, data) {
-  const nuovaTransazione = {
-    persona,
-    tipo,
-    categoria: categoria || '',
-    descrizione: descrizione || '',
-    importo: parseFloat(importo),
-    data
-  };
-  const nuovaTransazioneRef = push(transazioniRef);
-  set(nuovaTransazioneRef, nuovaTransazione).catch((error) => {
-    console.error("Errore nel salvataggio della transazione:", error);
-  });
+function impostaDataCorrente() {
+  const oggi = new Date().toISOString().split('T')[0];
+  const entrataData = document.getElementById('dataEntrata');
+  const uscitaData = document.getElementById('dataUscita');
+  const meseFiltro = document.getElementById('meseFiltro');
+  if (entrataData) entrataData.value = oggi;
+  if (uscitaData) uscitaData.value = oggi;
+  if (meseFiltro && !meseFiltro.value) meseFiltro.value = oggi.slice(0, 7);
 }
 
-function formattaData(data) {
-  const [anno, mese, giorno] = data.split("-");
-  return `${giorno}/${mese}`;
+function aggiornaNomeUtente(nome) {
+  const personaEntrata = document.getElementById('personaEntrata');
+  const personaUscita = document.getElementById('personaUscita');
+  if (personaEntrata) personaEntrata.value = nome;
+  if (personaUscita) personaUscita.value = nome;
 }
 
-function aggiornaListaTransazioni(meseFiltro = null) {
-  const listaTransazioniElement = document.getElementById('listaTransazioni');
-  if (!listaTransazioniElement) {
-    console.error("Elemento 'listaTransazioni' non trovato.");
+window.aggiungiEntrata = function () {
+  const persona = document.getElementById('personaEntrata').value;
+  const tipo = document.getElementById('tipoEntrata').value;
+  const importo = document.getElementById('importoEntrata').value;
+  const data = document.getElementById('dataEntrata').value;
+  if (!importo || !data) {
+    alert("Compila tutti i campi!");
     return;
   }
-  listaTransazioniElement.innerHTML = '';
-  transazioni.forEach(([id, t]) => {
-    const transazioneMese = t.data.slice(0, 7);
-    if (!meseFiltro || transazioneMese === meseFiltro) {
-      const dataFormattata = formattaData(t.data);
-      const classeTransazione = t.tipo === 'Uscita' ? 'uscita' : 'entrata';
-      const nuovaRiga = `
-        <tr>
-          <td>${t.persona}</td>
-          <td>${t.categoria || ''}</td>
-          <td>${t.descrizione || ''}</td>
-          <td>${dataFormattata}</td>
-          <td class="${classeTransazione}">€${parseFloat(t.importo).toFixed(2)}</td>
-          <td>
-            <button class="btn-azione" onclick="modificaTransazione('${id}')">Modifica</button>
-            <button class="btn-azione" onclick="cancellaTransazione('${id}')">Cancella</button>
-          </td>
-        </tr>
-      `;
-      listaTransazioniElement.insertAdjacentHTML('beforeend', nuovaRiga);
-    }
+  const nuovaTransazione = {
+    tipo: "Entrata",
+    persona: persona,
+    categoria: tipo,
+    importo: parseFloat(importo),
+    data: data
+  };
+  push(ref(db, 'transazioni'), nuovaTransazione);
+  document.getElementById('importoEntrata').value = '';
+};
+
+window.aggiungiUscita = function () {
+  const persona = document.getElementById('personaUscita').value;
+  const categoria = document.getElementById('categoriaUscita').value;
+  const descrizione = document.getElementById('descrizioneUscita').value;
+  const importo = document.getElementById('importoUscita').value;
+  const data = document.getElementById('dataUscita').value;
+  if (!importo || !data) {
+    alert("Compila tutti i campi obbligatori!");
+    return;
+  }
+  const nuovaTransazione = {
+    tipo: "Uscita",
+    persona: persona,
+    categoria: categoria,
+    descrizione: descrizione,
+    importo: parseFloat(importo),
+    data: data
+  };
+  push(ref(db, 'transazioni'), nuovaTransazione);
+  document.getElementById('descrizioneUscita').value = '';
+  document.getElementById('importoUscita').value = '';
+};
+
+function caricaTransazioni() {
+  onValue(ref(db, 'transazioni'), snapshot => {
+    const dati = snapshot.val();
+    transazioni = dati ? Object.entries(dati) : [];
+    aggiornaTabella();
+    aggiornaRiepiloghi();
+    aggiornaGrafico();
+    if (document.getElementById('meseFiltro').value) calcolaDifferenze();
   });
 }
+
+function aggiornaTabella() {
+  const tbody = document.getElementById('listaTransazioni');
+  tbody.innerHTML = '';
+  transazioni
+    .sort((a, b) => new Date(b[1].data) - new Date(a[1].data))
+    .forEach(([id, t]) => {
+      const row = tbody.insertRow();
+      row.insertCell(0).innerText = t.persona || '';
+      row.insertCell(1).innerText = t.categoria || '';
+      row.insertCell(2).innerText = t.descrizione || '';
+      row.insertCell(3).innerText = t.data || '';
+      row.insertCell(4).innerText = `€${parseFloat(t.importo).toFixed(2)}`;
+      const cellAzioni = row.insertCell(5);
+      const btnElimina = document.createElement('button');
+      btnElimina.innerText = 'Elimina';
+      btnElimina.className = 'btn-azione';
+      btnElimina.onclick = () => eliminaTransazione(id);
+      cellAzioni.appendChild(btnElimina);
+      const btnModifica = document.createElement('button');
+      btnModifica.innerText = 'Modifica';
+      btnModifica.className = 'btn-azione';
+      btnModifica.onclick = () => modificaTransazione(id, t);
+      cellAzioni.appendChild(btnModifica);
+    });
+}
+
+window.eliminaTransazione = function (id) {
+  if (confirm('Sei sicuro di voler eliminare questa transazione?')) {
+    remove(ref(db, 'transazioni/' + id));
+  }
+};
+
+window.modificaTransazione = function (id, transazione) {
+  const nuovoImporto = prompt("Nuovo importo:", transazione.importo);
+  const nuovaDescrizione = prompt("Nuova descrizione:", transazione.descrizione || "");
+  if (nuovoImporto !== null) {
+    update(ref(db, 'transazioni/' + id), {
+      importo: parseFloat(nuovoImporto),
+      descrizione: nuovaDescrizione || transazione.descrizione
+    });
+  }
+};
 
 function aggiornaRiepiloghi() {
   const meseFiltro = document.getElementById('meseFiltro').value;
   const annoSelezionato = meseFiltro ? meseFiltro.slice(0, 4) : new Date().getFullYear().toString();
-  let totaleEntrate = 0, totaleUscite = 0;
-  let totaleGiuliaEntrate = 0, totaleGiuliaUscite = 0;
-  let totaleAlessioEntrate = 0, totaleAlessioUscite = 0;
+
+  let entrateAnno = 0, usciteAnno = 0;
+  let entrateMese = 0, usciteMese = 0;
+  let entrateAlessio = 0, usciteAlessio = 0;
+
   transazioni.forEach(([id, t]) => {
-    const annoTransazione = t.data.slice(0, 4);
-    if (annoTransazione === annoSelezionato) {
-      if (t.tipo === 'Entrata') {
-        totaleEntrate += t.importo;
-        if (t.persona === 'Giulia') totaleGiuliaEntrate += t.importo;
-        else if (t.persona === 'Alessio') totaleAlessioEntrate += t.importo;
-      } else if (t.tipo === 'Uscita') {
-        totaleUscite += t.importo;
-        if (t.persona === 'Giulia') totaleGiuliaUscite += t.importo;
-        else if (t.persona === 'Alessio') totaleAlessioUscite += t.importo;
-      }
+    const importo = parseFloat(t.importo);
+    const anno = t.data.slice(0, 4);
+    const mese = t.data.slice(0, 7);
+
+    if (anno === annoSelezionato) {
+      if (t.tipo === 'Entrata') entrateAnno += importo;
+      if (t.tipo === 'Uscita') usciteAnno += importo;
+    }
+
+    if (mese === meseFiltro) {
+      if (t.tipo === 'Entrata') entrateMese += importo;
+      if (t.tipo === 'Uscita') usciteMese += importo;
+    }
+
+    if (anno === annoSelezionato && t.persona === 'Alessio') {
+      if (t.tipo === 'Entrata') entrateAlessio += importo;
+      if (t.tipo === 'Uscita') usciteAlessio += importo;
     }
   });
-  const saldoTotale = totaleEntrate - totaleUscite;
-  const saldoGiulia = totaleGiuliaEntrate - totaleGiuliaUscite;
-  const saldoAlessio = totaleAlessioEntrate - totaleAlessioUscite;
-  document.getElementById('riepilogoEntrate').innerText = `Totale Entrate: €${totaleEntrate.toFixed(2)}`;
-  document.getElementById('riepilogoUscite').innerText = `Totale Uscite: €${totaleUscite.toFixed(2)}`;
-  document.getElementById('riepilogoSaldo').innerText = `Saldo Totale: €${saldoTotale.toFixed(2)}`;
-  document.getElementById('riepilogoGiuliaEntrate').innerText = `Entrate Giulia: €${totaleGiuliaEntrate.toFixed(2)}`;
-  document.getElementById('riepilogoGiuliaUscite').innerText = `Uscite Giulia: €${totaleGiuliaUscite.toFixed(2)}`;
-  document.getElementById('riepilogoGiuliaSaldo').innerText = `Saldo Giulia: €${saldoGiulia.toFixed(2)}`;
-  document.getElementById('riepilogoAlessioEntrate').innerText = `Entrate Alessio: €${totaleAlessioEntrate.toFixed(2)}`;
-  document.getElementById('riepilogoAlessioUscite').innerText = `Uscite Alessio: €${totaleAlessioUscite.toFixed(2)}`;
+
+  const saldoAnno = entrateAnno - usciteAnno;
+  const saldoMese = entrateMese - usciteMese;
+  const saldoAlessio = entrateAlessio - usciteAlessio;
+
+  document.getElementById('riepilogoEntrate').innerText = `Totale Entrate: €${entrateAnno.toFixed(2)}`;
+  document.getElementById('riepilogoUscite').innerText = `Totale Uscite: €${usciteAnno.toFixed(2)}`;
+  document.getElementById('riepilogoSaldo').innerText = `Saldo Totale: €${saldoAnno.toFixed(2)}`;
+
+  document.getElementById('riepilogoMese').innerHTML = `
+    <p><strong>Entrate Mese:</strong> €${entrateMese.toFixed(2)}</p>
+    <p><strong>Uscite Mese:</strong> €${usciteMese.toFixed(2)}</p>
+    <p><strong>Saldo Mese:</strong> €${saldoMese.toFixed(2)}</p>
+  `;
+
+  document.getElementById('riepilogoAlessioEntrate').innerText = `Entrate Alessio: €${entrateAlessio.toFixed(2)}`;
+  document.getElementById('riepilogoAlessioUscite').innerText = `Uscite Alessio: €${usciteAlessio.toFixed(2)}`;
   document.getElementById('riepilogoAlessioSaldo').innerText = `Saldo Alessio: €${saldoAlessio.toFixed(2)}`;
 }
 
-function aggiornaRiepilogoMensile() {
-  const meseSelezionato = document.getElementById('meseFiltro').value;
-  let totaleEntrateMese = 0, totaleUsciteMese = 0;
-  transazioni.forEach(([id, t]) => {
-    if (t.data.slice(0, 7) === meseSelezionato) {
-      if (t.tipo === 'Entrata') totaleEntrateMese += t.importo;
-      else if (t.tipo === 'Uscita') totaleUsciteMese += t.importo;
-    }
-  });
-  const saldoMese = totaleEntrateMese - totaleUsciteMese;
-  document.getElementById('riepilogoMese').innerHTML = `
-    <div>Entrate: €${totaleEntrateMese.toFixed(2)}</div>
-    <div>Uscite: €${totaleUsciteMese.toFixed(2)}</div>
-    <div>Saldo: €${saldoMese.toFixed(2)}</div>
-  `;
+function aggiornaListaTransazioni(meseFiltro) {
+  const tbody = document.getElementById('listaTransazioni');
+  tbody.innerHTML = '';
+  transazioni
+    .filter(([id, t]) => !meseFiltro || t.data.slice(0, 7) === meseFiltro)
+    .sort((a, b) => new Date(b[1].data) - new Date(a[1].data))
+    .forEach(([id, t]) => {
+      const row = tbody.insertRow();
+      row.insertCell(0).innerText = t.persona || '';
+      row.insertCell(1).innerText = t.categoria || '';
+      row.insertCell(2).innerText = t.descrizione || '';
+      row.insertCell(3).innerText = t.data || '';
+      row.insertCell(4).innerText = `€${parseFloat(t.importo).toFixed(2)}`;
+      const cellAzioni = row.insertCell(5);
+      const btnElimina = document.createElement('button');
+      btnElimina.innerText = 'Elimina';
+      btnElimina.className = 'btn-azione';
+      btnElimina.onclick = () => eliminaTransazione(id);
+      cellAzioni.appendChild(btnElimina);
+      const btnModifica = document.createElement('button');
+      btnModifica.innerText = 'Modifica';
+      btnModifica.className = 'btn-azione';
+      btnModifica.onclick = () => modificaTransazione(id, t);
+      cellAzioni.appendChild(btnModifica);
+    });
 }
 
-window.filtraPerMese = function () {
-  const meseSelezionato = document.getElementById('meseFiltro').value;
-  aggiornaListaTransazioni(meseSelezionato);
-  aggiornaRiepilogoMensile();
-  aggiornaRiepiloghi();
-  aggiornaGraficoSpesePerCategoria();
-  calcolaDifferenze();
-};
-
-window.aggiungiEntrata = function () {
-  const persona = document.getElementById("personaEntrata").value;
-  const tipo = document.getElementById("tipoEntrata").value;
-  const importo = document.getElementById("importoEntrata").value;
-  const data = document.getElementById("dataEntrata").value;
-  if (importo && !isNaN(importo)) {
-    aggiungiTransazione(persona, 'Entrata', tipo, '', importo, data);
-    document.getElementById("importoEntrata").value = '';
-  } else {
-    alert("Inserisci un importo valido per l'entrata.");
-  }
-};
-
-window.aggiungiUscita = function () {
-  const persona = document.getElementById("personaUscita").value;
-  const categoria = document.getElementById("categoriaUscita").value;
-  const descrizione = document.getElementById("descrizioneUscita").value;
-  const importo = document.getElementById("importoUscita").value;
-  const data = document.getElementById("dataUscita").value;
-  if (!importo || isNaN(importo) || parseFloat(importo) <= 0) {
-    alert("Inserisci un importo valido per l'uscita.");
-    return;
-  }
-  aggiungiTransazione(persona, 'Uscita', categoria, descrizione, importo, data);
-  document.getElementById("descrizioneUscita").value = '';
-  document.getElementById("importoUscita").value = '';
-};
-
-window.cancellaTransazione = function (id) {
-  remove(ref(db, `transazioni/${id}`))
-    .then(() => {
-      console.log("Transazione cancellata con successo");
-      aggiornaRiepiloghi();
-      aggiornaRiepilogoMensile();
-      aggiornaListaTransazioni(document.getElementById('meseFiltro').value);
-    })
-    .catch((error) => {
-      console.error("Errore nella cancellazione della transazione:", error);
-    });
-};
-
-window.modificaTransazione = function (id) {
-  const nuovoImporto = prompt("Inserisci il nuovo importo:");
-  if (nuovoImporto !== null && !isNaN(nuovoImporto) && nuovoImporto > 0) {
-    const transazioneRef = ref(db, `transazioni/${id}`);
-    update(transazioneRef, { importo: parseFloat(nuovoImporto) })
-      .catch((error) => {
-        console.error("Errore nella modifica della transazione:", error);
-      });
-  }
-};
-
-function aggiornaGraficoSpesePerCategoria() {
+function aggiornaGrafico() {
   const meseFiltro = document.getElementById('meseFiltro').value;
   const annoSelezionato = meseFiltro ? meseFiltro.slice(0, 4) : new Date().getFullYear().toString();
-  const spesePerCategoria = {};
-  transazioni.forEach(([id, t]) => {
-    const annoTransazione = t.data.slice(0, 4);
-    if (t.tipo === 'Uscita' && annoTransazione === annoSelezionato) {
-      spesePerCategoria[t.categoria] = (spesePerCategoria[t.categoria] || 0) + t.importo;
-    }
-  });
-  const categorie = Object.keys(spesePerCategoria);
-  const importi = Object.values(spesePerCategoria);
-  if (graficoTorta) {
-    graficoTorta.destroy();
-  }
+
+  const categorie = {};
+  transazioni
+    .filter(([_, t]) => t.tipo === "Uscita" && t.data.slice(0, 4) === annoSelezionato)
+    .forEach(([_, t]) => {
+      categorie[t.categoria] = (categorie[t.categoria] || 0) + parseFloat(t.importo);
+    });
+
   const ctx = document.getElementById('graficoTortaSpese').getContext('2d');
-  graficoTorta = new Chart(ctx, {
+  if (window.graficoTorta) window.graficoTorta.destroy();
+  window.graficoTorta = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: categorie,
+      labels: Object.keys(categorie),
       datasets: [{
-        label: 'Spese per Categoria',
-        data: importi,
-        backgroundColor: [
-          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-          '#FF9F40', '#FF6384', '#FFB6C1', '#87CEFA', '#FFD700',
-          '#20B2AA', '#9370DB', '#FFA07A', '#708090'
-        ],
-        borderColor: '#ffffff',
-        borderWidth: 2,
-      }],
+        data: Object.values(categorie),
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#FF6384', '#36A2EB']
+      }]
     },
     options: {
       responsive: true,
       plugins: {
-        legend: {
-          display: true,
-          position: 'bottom',
-          labels: { boxWidth: 15, padding: 15 },
-        },
+        legend: { position: 'top' },
         tooltip: {
           callbacks: {
-            label: function (tooltipItem) {
-              const valore = tooltipItem.raw;
-              const totale = importi.reduce((a, b) => a + b, 0);
-              const percentuale = ((valore / totale) * 100).toFixed(2);
-              return `${tooltipItem.label}: €${valore.toFixed(2)} (${percentuale}%)`;
-            },
-          },
-        },
-        title: {
-          display: true,
-          text: `Distribuzione Spese per Categoria (${annoSelezionato})`,
-          font: { size: 18 },
-        },
-      },
-    },
+            label: function (context) {
+              const label = context.label || '';
+              const value = context.parsed || 0;
+              return `${label}: €${value.toFixed(2)}`;
+            }
+          }
+        }
+      }
+    }
   });
 }
 
-window.salvaNomeUtente = function () {
-  const nomeUtente = document.getElementById('userName').value.trim();
-  if (nomeUtente) {
-    localStorage.setItem('nomeUtente', nomeUtente);
-    document.getElementById('personaEntrata').value = nomeUtente;
-    document.getElementById('personaUscita').value = nomeUtente;
-    document.getElementById('welcomeMessage').innerText = `Ciao, ${nomeUtente}!`;
-    document.getElementById('loginContainer').style.display = 'none';
-    document.getElementById('appContainer').style.display = 'block';
-  } else {
-    alert("Inserisci un nome valido.");
+document.getElementById('meseFiltro').addEventListener('change', function () {
+  const mese = this.value;
+  localStorage.setItem('meseFiltro', mese);
+  aggiornaRiepiloghi();
+  calcolaDifferenze();
+  aggiornaGrafico();
+  if (transazioniVisibili) {
+    aggiornaListaTransazioni(mese);
   }
-};
-
-function aggiornaNomeUtente(nomeUtente) {
-  document.getElementById('personaEntrata').value = nomeUtente;
-  document.getElementById('personaUscita').value = nomeUtente;
-  document.getElementById('loginContainer').style.display = 'none';
-}
-
-window.vaiAllaPaginaDettagli = function (persona, tipo) {
-  const url = `dettagli.html?persona=${encodeURIComponent(persona)}&tipo=${encodeURIComponent(tipo)}`;
-  console.log("Navigazione verso:", url);
-  window.location.href = url;
-};
-
-window.apriDettaglioDiff = function (tipoDiff) {
-  // Salva in localStorage il tipo di dettaglio (es. "meseGiulia", "annoAlessio", ecc.)
-  localStorage.setItem('tipoDiff', tipoDiff);
-  const meseFiltro = document.getElementById('meseFiltro').value;
-  if (tipoDiff.startsWith("anno")) {
-    const annoCorrente = meseFiltro.slice(0, 4);
-    localStorage.setItem('annoDiff', annoCorrente);
-    localStorage.setItem('annoDiffPrev', (parseInt(annoCorrente) - 1).toString());
-  } else if (tipoDiff.startsWith("mese")) {
-    localStorage.setItem('meseDiff', meseFiltro);
-    localStorage.setItem('meseDiffPrev', getStessoMeseAnnoPrecedente(meseFiltro));
-  }
-  console.log("TipoDiff salvato:", tipoDiff);
-  window.location.href = "dettagliDifferenze.html";
-};
+});
 
 let transazioniVisibili = false;
 window.toggleTransazioniVisibili = function () {
@@ -551,7 +448,7 @@ window.esportaInExcel = async function () {
       const { persona, categoria, importo, data } = t;
       const mese = new Date(data).toLocaleString("it-IT", { month: "long" });
       if (!datiRiepilogo[mese]) datiRiepilogo[mese] = {};
-      if (!datiRiepilogo[mese][categoria]) datiRiepilogo[mese][categoria] = { Alessio: 0, Giulia: 0 };
+      if (!datiRiepilogo[mese][categoria]) datiRiepilogo[mese][categoria] = { Alessio: 0 };
       datiRiepilogo[mese][categoria][persona] += parseFloat(importo) || 0;
     });
   const categorieTotali = [];
@@ -570,26 +467,23 @@ window.esportaInExcel = async function () {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet(`Riepilogo ${annoSelezionato}`);
   const mesi = Object.keys(datiRiepilogo);
-  const headerRow = ["Categoria", ...mesi.flatMap(mese => [`${mese} Alessio`, `${mese} Giulia`]), "Totale Categoria"];
+  const headerRow = ["Categoria", ...mesi.map(mese => `${mese} Alessio`), "Totale Categoria"];
   worksheet.addRow(headerRow);
   worksheet.getRow(1).eachCell((cell, colNumber) => {
     cell.font = { bold: true, color: { argb: "FFFFFF" } };
     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "007BFF" } };
     cell.alignment = { horizontal: "center" };
   });
-  const totalColumns = new Array(mesi.length * 2).fill(0);
+  const totalColumns = new Array(mesi.length).fill(0);
   let totaleGenerale = 0;
   categorieTotali.forEach(({ categoria }) => {
     const row = [categoria];
     let totaleRiga = 0;
     mesi.forEach((mese, idx) => {
       const alessioValue = datiRiepilogo[mese][categoria]?.Alessio || 0;
-      const giuliaValue = datiRiepilogo[mese][categoria]?.Giulia || 0;
       row.push(alessioValue);
-      row.push(giuliaValue);
-      totalColumns[idx * 2] += alessioValue;
-      totalColumns[idx * 2 + 1] += giuliaValue;
-      totaleRiga += alessioValue + giuliaValue;
+      totalColumns[idx] += alessioValue;
+      totaleRiga += alessioValue;
     });
     row.push(totaleRiga);
     totaleGenerale += totaleRiga;
@@ -605,16 +499,10 @@ window.esportaInExcel = async function () {
     cell.alignment = { horizontal: "center" };
   });
   mesi.forEach((mese, idx) => {
-    const colAlessio = 2 + idx * 2;
-    const colGiulia = colAlessio + 1;
+    const colAlessio = 2 + idx;
     worksheet.getColumn(colAlessio).eachCell((cell, rowNumber) => {
       if (rowNumber > 1 && rowNumber !== totaleRowRef.number) {
         cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "ADD8E6" } };
-      }
-    });
-    worksheet.getColumn(colGiulia).eachCell((cell, rowNumber) => {
-      if (rowNumber > 1 && rowNumber !== totaleRowRef.number) {
-        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFB6C1" } };
       }
     });
   });
@@ -669,20 +557,16 @@ window.onload = function () {
     document.getElementById('loginContainer').style.display = 'block';
   }
 };
-// alla fine di script.js
+
+// Funzioni globali per il window
 window.registrati       = registrati;
 window.accedi           = accedi;
 window.salvaNomeUtente  = salvaNomeUtente;
-// ==============================
-// AUTO‑LOAD DIFFERENZE SU MOBILE
-// ==============================
+
+// AUTO-LOAD DIFFERENZE SU MOBILE
 document.addEventListener('DOMContentLoaded', () => {
   const filtro = document.getElementById('meseFiltro');
-
-  // se il campo mese ha già un valore salvato, calcola subito
   if (filtro && filtro.value) calcolaDifferenze();
-
-  // ogni volta che tocchi il titolo/sezione differenze, ricalcola
   const diffSection = document.getElementById('differenze');
   diffSection.addEventListener('click', calcolaDifferenze);
 });

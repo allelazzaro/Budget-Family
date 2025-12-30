@@ -27,13 +27,13 @@ onAuthStateChanged(auth, (utente) => {
     }
 });
 
-// Funzione per mostrare la suddivisione delle uscite tra Alessio e Giulia
+// Funzione per mostrare la suddivisione delle uscite per Alessio
 function mostraDettaglioUscitePerCategoria() {
     const meseFiltro = localStorage.getItem('meseFiltro') || new Date().toISOString().slice(0, 7);
     const annoSelezionato = meseFiltro.slice(0, 4);
 
     let spesePerCategoria = {};
-    let totaleGenerale = { totale: 0, Alessio: 0, Giulia: 0 };
+    let totaleGenerale = { totale: 0, Alessio: 0 };
 
     const transazioniRef = ref(db, 'transazioni');
 
@@ -51,7 +51,7 @@ function mostraDettaglioUscitePerCategoria() {
                     let pagatoDa = transazione.persona?.trim().toLowerCase();
 
                     if (!spesePerCategoria[categoria]) {
-                        spesePerCategoria[categoria] = { totale: 0, Alessio: 0, Giulia: 0 };
+                        spesePerCategoria[categoria] = { totale: 0, Alessio: 0 };
                     }
 
                     spesePerCategoria[categoria].totale += importo;
@@ -60,9 +60,6 @@ function mostraDettaglioUscitePerCategoria() {
                     if (pagatoDa === "alessio") {
                         spesePerCategoria[categoria].Alessio += importo;
                         totaleGenerale.Alessio += importo;
-                    } else if (pagatoDa === "giulia") {
-                        spesePerCategoria[categoria].Giulia += importo;
-                        totaleGenerale.Giulia += importo;
                     }
                 }
             }
@@ -81,7 +78,6 @@ function mostraDettaglioUscitePerCategoria() {
                                 <th>Categoria</th>
                                 <th>Totale (€)</th>
                                 <th>Alessio (€)</th>
-                                <th>Giulia (€)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -90,7 +86,6 @@ function mostraDettaglioUscitePerCategoria() {
                                     <td>${categoria}</td>
                                     <td><strong>€${spese.totale.toFixed(2)}</strong></td>
                                     <td>€${spese.Alessio.toFixed(2)}</td>
-                                    <td>€${spese.Giulia.toFixed(2)}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -99,7 +94,6 @@ function mostraDettaglioUscitePerCategoria() {
                                 <td><strong>Totale</strong></td>
                                 <td><strong>€${totaleGenerale.totale.toFixed(2)}</strong></td>
                                 <td><strong>€${totaleGenerale.Alessio.toFixed(2)}</strong></td>
-                                <td><strong>€${totaleGenerale.Giulia.toFixed(2)}</strong></td>
                             </tr>
                         </tfoot>
                     </table>

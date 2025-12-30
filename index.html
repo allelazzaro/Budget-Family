@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <!-- Viewport per dispositivi mobili -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestione Budget Familiare</title>
+  <title>Gestione Budget Personale</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="styles_theme.css">
   <link rel="manifest" href="manifest.json">
@@ -36,15 +36,14 @@
   <!-- APP PRINCIPALE -->
   <div id="appContainer" style="display: none;">
     <div class="container">
-      <h1>Gestione Budget A&G</h1>
+      <h1>Gestione Budget Personale</h1>
 
       <!-- Entrate -->
       <section id="entrate">
         <h2>Entrate</h2>
         <div>
-          <label for="personaEntrata">Seleziona Persona:</label>
+          <label for="personaEntrata">Persona:</label>
           <select id="personaEntrata">
-            <option value="Giulia">Giulia</option>
             <option value="Alessio">Alessio</option>
           </select>
         </div>
@@ -70,9 +69,8 @@
       <section id="uscite">
         <h2>Uscite</h2>
         <div>
-          <label for="personaUscita">Chi ha inserito la spesa:</label>
+          <label for="personaUscita">Persona:</label>
           <select id="personaUscita">
-            <option value="Giulia">Giulia</option>
             <option value="Alessio">Alessio</option>
           </select>
         </div>
@@ -164,15 +162,6 @@
 
       <!-- Riepilogo per Persona -->
       <section id="riepiloghiPersone">
-        <h2>Riepilogo Giulia</h2>
-        <div onclick="vaiAllaPaginaDettagli('Giulia', 'Entrate')" style="cursor: pointer; color: #2980b9;">
-          <span id="riepilogoGiuliaEntrate">0</span>
-        </div>
-        <div onclick="vaiAllaPaginaDettagli('Giulia', 'Uscite')" style="cursor: pointer; color: #e74c3c;">
-          <span id="riepilogoGiuliaUscite">0</span>
-        </div>
-        <div id="riepilogoGiuliaSaldo">Saldo Giulia: €0</div>
-
         <h2>Riepilogo Alessio</h2>
         <div onclick="vaiAllaPaginaDettagli('Alessio', 'Entrate')" style="cursor: pointer; color: #2980b9;">
           <span id="riepilogoAlessioEntrate">0</span>
@@ -207,7 +196,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const mf = document.getElementById('meseFiltro');
   if (mf && !mf.value) {
-    mf.value = new Date().toISOString().slice(0, 7); // "YYYY‑MM"
+    mf.value = new Date().toISOString().slice(0, 7); // "YYYY-MM"
   }
   // lancia subito la catena di aggiornamenti
   if (typeof filtraPerMese === 'function') filtraPerMese();
@@ -227,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <button onclick="esci()">Esci</button>
     </div>
     <footer style="text-align: center; padding: 10px; margin-top: 20px; font-size: 0.85em; color: #666;">
-      Gestione Budget Familiare - Creato con ❤️ da Alessio
+      Gestione Budget Personale - Creato con ❤️ da Alessio
     </footer>
   </div>
 
