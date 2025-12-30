@@ -23,7 +23,7 @@ onAuthStateChanged(auth, (utente) => {
     if (utente) {
         mostraDettaglioUscitePerCategoria();
     } else {
-        window.location.href = "index.html"; // Reindirizza se non autenticato
+        window.location.href = "index.html";
     }
 });
 
@@ -31,6 +31,12 @@ onAuthStateChanged(auth, (utente) => {
 function mostraDettaglioUscitePerCategoria() {
     const meseFiltro = localStorage.getItem('meseFiltro') || new Date().toISOString().slice(0, 7);
     const annoSelezionato = meseFiltro.slice(0, 4);
+
+    // Aggiorna l'indicatore del periodo
+    const periodoEl = document.getElementById('periodoVisualizzato');
+    if (periodoEl) {
+        periodoEl.textContent = `Anno ${annoSelezionato}`;
+    }
 
     let spesePerCategoria = {};
     let totaleGenerale = { totale: 0, Alessio: 0 };
@@ -64,14 +70,29 @@ function mostraDettaglioUscitePerCategoria() {
                 }
             }
 
+            // Ordina le categorie dal totale più alto al più basso
             let categorieOrdinate = Object.entries(spesePerCategoria).sort((a, b) => {
                 return b[1].totale - a[1].totale;
             });
 
+            // Aggiorna le card di riepilogo
+            aggiornaCardRiepilogo(totaleGenerale, categorieOrdinate.length);
+
+            // Aggiorna le statistiche
+            aggiornaStatistiche(categorieOrdinate, totaleGenerale);
+
+            // Genera la tabella
             const suddivisioneDiv = document.getElementById('suddivisioneSpese');
-            suddivisioneDiv.innerHTML = `
-                <h2>Suddivisione Uscite</h2>
-                <div class="tabella-container">
+            if (categorieOrdinate.length === 0) {
+                suddivisioneDiv.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <div class="empty-state-text">Nessuna uscita trovata</div>
+                        <div class="empty-state-hint">Aggiungi delle uscite per vedere il dettaglio per categoria</div>
+                    </div>
+                `;
+            } else {
+                suddivisioneDiv.innerHTML = `
                     <table class="tabella-spese">
                         <thead>
                             <tr>
@@ -84,27 +105,74 @@ function mostraDettaglioUscitePerCategoria() {
                             ${categorieOrdinate.map(([categoria, spese]) => `
                                 <tr>
                                     <td>${categoria}</td>
-                                    <td><strong>€${spese.totale.toFixed(2)}</strong></td>
+                                    <td>€${spese.totale.toFixed(2)}</td>
                                     <td>€${spese.Alessio.toFixed(2)}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
                         <tfoot>
-                            <tr class="totale-riga">
+                            <tr>
                                 <td><strong>Totale</strong></td>
                                 <td><strong>€${totaleGenerale.totale.toFixed(2)}</strong></td>
                                 <td><strong>€${totaleGenerale.Alessio.toFixed(2)}</strong></td>
                             </tr>
                         </tfoot>
                     </table>
+                `;
+            }
+        } else {
+            // Nessuna transazione trovata
+            document.getElementById('suddivisioneSpese').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <div class="empty-state-text">Nessuna transazione trovata</div>
+                    <div class="empty-state-hint">Inizia ad aggiungere delle uscite nella home</div>
                 </div>
-
-                <button id="btn-home" onclick="window.location.href='index.html'">
-                    🔙 Torna alla Pagina Principale
-                </button>
             `;
         }
     }, (error) => {
         console.error("Errore nel caricamento dei dati:", error);
     });
+}
+
+// Funzione per aggiornare le card di riepilogo
+function aggiornaCardRiepilogo(totaleGenerale, numeroCategorie) {
+    const totaleGeneraleEl = document.getElementById('totaleGeneraleSpeso');
+    const totaleAlessioEl = document.getElementById('totaleAlessio');
+    const numeroCategorieEl = document.getElementById('numeroCategorie');
+
+    if (totaleGeneraleEl) {
+        totaleGeneraleEl.textContent = `€${totaleGenerale.totale.toFixed(2)}`;
+    }
+
+    if (totaleAlessioEl) {
+        totaleAlessioEl.textContent = `€${totaleGenerale.Alessio.toFixed(2)}`;
+    }
+
+    if (numeroCategorieEl) {
+        numeroCategorieEl.textContent = numeroCategorie;
+    }
+}
+
+// Funzione per aggiornare le statistiche
+function aggiornaStatistiche(categorieOrdinate, totaleGenerale) {
+    const categoriaTopEl = document.getElementById('categoriaTop');
+    const spesaMediaEl = document.getElementById('spesaMedia');
+
+    if (categorieOrdinate.length > 0) {
+        // Categoria con spesa più alta
+        const [categoriaTop, speseTop] = categorieOrdinate[0];
+        if (categoriaTopEl) {
+            categoriaTopEl.textContent = `${categoriaTop} (€${speseTop.totale.toFixed(2)})`;
+        }
+
+        // Spesa media per categoria
+        const spesaMedia = totaleGenerale.totale / categorieOrdinate.length;
+        if (spesaMediaEl) {
+            spesaMediaEl.textContent = `€${spesaMedia.toFixed(2)}`;
+        }
+    } else {
+        if (categoriaTopEl) categoriaTopEl.textContent = '-';
+        if (spesaMediaEl) spesaMediaEl.textContent = '€0.00';
+    }
 }

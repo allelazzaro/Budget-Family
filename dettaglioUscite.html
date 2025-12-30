@@ -5,20 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dettaglio Uscite per Categoria</title>
     <link rel="stylesheet" href="dettaglioUscite.css">
+    <link rel="stylesheet" href="dettaglioUscite_improved.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Dettaglio Uscite per Categoria</h1>
-        <div id="riepilogoUscitePerCategoria" class="riepilogo">
-	<div id="suddivisioneSpese" class="container"></div>
-
-            <!-- I dettagli delle uscite per categoria saranno mostrati qui -->
-        
+    <!-- HEADER -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1>📊 Dettaglio Uscite per Categoria</h1>
+            <button onclick="window.location.href='index.html'" class="btn-back">
+                ← Torna alla Home
+            </button>
         </div>
     </div>
 
-    <!-- Importa Firebase in modalità compatibile -->
-<script type="module" src="dettaglioUscite.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- MAIN CONTAINER -->
+    <div class="main-container">
+        
+        <!-- CARDS RIEPILOGO TOTALI -->
+        <div class="summary-cards">
+            <div class="summary-card total-card">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                    <div class="card-label">Totale Speso</div>
+                    <div class="card-value" id="totaleGeneraleSpeso">€0.00</div>
+                </div>
+            </div>
+            
+            <div class="summary-card alessio-card">
+                <div class="card-icon">👤</div>
+                <div class="card-content">
+                    <div class="card-label">Alessio</div>
+                    <div class="card-value" id="totaleAlessio">€0.00</div>
+                </div>
+            </div>
+            
+            <div class="summary-card categories-card">
+                <div class="card-icon">📋</div>
+                <div class="card-content">
+                    <div class="card-label">Categorie</div>
+                    <div class="card-value" id="numeroCategorie">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABELLA USCITE -->
+        <div class="table-section card">
+            <div class="table-header">
+                <h2>📈 Suddivisione per Categoria</h2>
+                <div class="table-info">
+                    <span id="periodoVisualizzato">Anno corrente</span>
+                </div>
+            </div>
+            
+            <div id="suddivisioneSpese" class="table-container">
+                <!-- La tabella verrà inserita dinamicamente qui -->
+            </div>
+        </div>
+
+        <!-- GRAFICI/STATISTICHE (opzionale - per future implementazioni) -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-content">
+                    <div class="stat-label">Categoria Top</div>
+                    <div class="stat-value" id="categoriaTop">-</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">💸</div>
+                <div class="stat-content">
+                    <div class="stat-label">Spesa Media</div>
+                    <div class="stat-value" id="spesaMedia">€0.00</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module" src="dettaglioUscite.js"></script>
 </body>
 </html>

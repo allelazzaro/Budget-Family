@@ -8,12 +8,9 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
 }
 
 .app-header h1 {
@@ -23,22 +20,11 @@
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   border: none;
   padding: 0;
+  text-align: center;
 }
 
 .btn-logout {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 2px solid white;
-  padding: 10px 25px;
-  border-radius: 25px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-logout:hover {
-  background: white;
-  color: #667eea;
+  display: none; /* Nascosto perché ora è in fondo */
 }
 
 /* ===== CONTAINER PRINCIPALE ===== */
@@ -102,6 +88,7 @@
   border: 2px solid #667eea;
   border-radius: 8px;
   background: white;
+  box-sizing: border-box;
 }
 
 .btn-export {
@@ -114,6 +101,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .btn-export:hover {
@@ -524,6 +512,31 @@
 }
 
 /* ===== FOOTER ===== */
+.logout-section {
+  max-width: 1400px;
+  margin: 40px auto 20px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.btn-logout-bottom {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.btn-logout-bottom:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+}
+
 .app-footer {
   text-align: center;
   padding: 20px;
@@ -536,9 +549,7 @@
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .app-header {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
+    padding: 20px 15px;
   }
 
   .app-header h1 {
@@ -553,13 +564,19 @@
     grid-template-columns: 1fr;
   }
 
+  .filter-section {
+    padding: 20px 15px;
+  }
+
   .filter-content {
     flex-direction: column;
+    gap: 12px;
   }
 
   .filter-content input[type="month"],
   .btn-export {
     width: 100%;
+    min-width: auto;
   }
 
   .form-grid {
@@ -588,6 +605,11 @@
   .login-box {
     padding: 30px 20px;
   }
+
+  .btn-logout-bottom {
+    width: 90%;
+    max-width: 400px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -604,9 +626,24 @@
     font-size: 1.2em;
   }
 
+  .filter-section {
+    padding: 15px 12px;
+  }
+
+  .filter-content input[type="month"] {
+    font-size: 16px; /* Previene lo zoom automatico su iOS */
+    padding: 10px;
+  }
+
+  .btn-export {
+    padding: 10px;
+    font-size: 0.95em;
+  }
+
   .form-group input,
   .form-group select {
     padding: 10px;
+    font-size: 16px; /* Previene lo zoom automatico su iOS */
   }
 
   .btn-submit {
@@ -618,6 +655,19 @@
     display: block;
     overflow-x: auto;
     white-space: nowrap;
+  }
+
+  .app-header h1 {
+    font-size: 1.3em;
+  }
+
+  .btn-logout-bottom {
+    width: 100%;
+    padding: 12px 30px;
+  }
+
+  .card-value {
+    font-size: 1.5em;
   }
 }
 
