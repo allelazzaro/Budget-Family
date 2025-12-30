@@ -26,8 +26,21 @@ function calcolaTotali(period, filterType = 'month', person = null) {
   return { entrate, uscite, saldo: entrate - uscite };
 }
 
-// Calcola e mostra le differenze nei box per il confronto mensile e annuale.
-// Ogni box è cliccabile e al click viene chiamata la funzione apriDettaglioDiff() con il parametro specifico.
+// Funzioni helper per il formatting delle differenze
+function getDifferenzaClass(valore) {
+  if (valore > 0) return 'differenza-positiva';
+  if (valore < 0) return 'differenza-negativa';
+  return 'differenza-neutra';
+}
+
+function formatDifferenza(valore) {
+  const assoluto = Math.abs(valore);
+  return `€${assoluto.toFixed(2)}`;
+}
+
+// ==============================
+// FUNZIONE MIGLIORATA PER LE DIFFERENZE
+// ==============================
 function calcolaDifferenze() {
   const meseFiltro = document.getElementById('meseFiltro').value;
   if (!meseFiltro) return;
@@ -36,6 +49,7 @@ function calcolaDifferenze() {
   const meseConfronto = getStessoMeseAnnoPrecedente(meseFiltro);
   const totaliMeseCorrente = calcolaTotali(meseFiltro, 'month');
   const totaliMesePrecedente = calcolaTotali(meseConfronto, 'month');
+  
   const diffMeseTotale = {
     entrate: totaliMeseCorrente.entrate - totaliMesePrecedente.entrate,
     uscite: totaliMeseCorrente.uscite - totaliMesePrecedente.uscite,
@@ -44,42 +58,129 @@ function calcolaDifferenze() {
   
   const totaliMeseCorrenteAlessio = calcolaTotali(meseFiltro, 'month', 'Alessio');
   const totaliMesePrecedenteAlessio = calcolaTotali(meseConfronto, 'month', 'Alessio');
+  
   const diffMeseAlessio = {
     entrate: totaliMeseCorrenteAlessio.entrate - totaliMesePrecedenteAlessio.entrate,
     uscite: totaliMeseCorrenteAlessio.uscite - totaliMesePrecedenteAlessio.uscite,
     saldo: totaliMeseCorrenteAlessio.saldo - totaliMesePrecedenteAlessio.saldo
   };
 
+  // Formatta le date per il confronto
+  const [annoCorrente, meseNumCorrente] = meseFiltro.split('-');
+  const [annoPrecedente, meseNumPrecedente] = meseConfronto.split('-');
+  const nomiMesi = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+  const meseNomeCorrente = nomiMesi[parseInt(meseNumCorrente) - 1];
+  const meseNomePrecedente = nomiMesi[parseInt(meseNumPrecedente) - 1];
+
   const htmlMese = `
     <div onclick="apriDettaglioDiff('meseTotal')" style="cursor:pointer;">
-      <h3>Mese Totale: ${meseFiltro} vs ${meseConfronto}</h3>
-      <p>Entrate: €${totaliMeseCorrente.entrate.toFixed(2)} → €${totaliMesePrecedente.entrate.toFixed(2)}</p>
-      <p>Uscite: €${totaliMeseCorrente.uscite.toFixed(2)} → €${totaliMesePrecedente.uscite.toFixed(2)}</p>
-      <p>Saldo: €${totaliMeseCorrente.saldo.toFixed(2)} → €${totaliMesePrecedente.saldo.toFixed(2)}<br>
-         <span class="${diffMeseTotale.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseTotale.saldo.toFixed(2)}</span></p>
+      <h3>📅 Confronto Mensile Totale</h3>
+      
+      <div class="metric-container">
+        <div class="metric-row">
+          <span class="metric-label">💰 Entrate</span>
+          <div class="metric-values">
+            <span class="metric-current">€${totaliMeseCorrente.entrate.toFixed(2)}</span>
+            <span class="metric-arrow">←</span>
+            <span class="metric-previous">€${totaliMesePrecedente.entrate.toFixed(2)}</span>
+            <span class="metric-diff ${getDifferenzaClass(diffMeseTotale.entrate)}">
+              ${formatDifferenza(diffMeseTotale.entrate)}
+            </span>
+          </div>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">💸 Uscite</span>
+          <div class="metric-values">
+            <span class="metric-current">€${totaliMeseCorrente.uscite.toFixed(2)}</span>
+            <span class="metric-arrow">←</span>
+            <span class="metric-previous">€${totaliMesePrecedente.uscite.toFixed(2)}</span>
+            <span class="metric-diff ${getDifferenzaClass(-diffMeseTotale.uscite)}">
+              ${formatDifferenza(diffMeseTotale.uscite)}
+            </span>
+          </div>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">📊 Saldo</span>
+          <div class="metric-values">
+            <span class="metric-current">€${totaliMeseCorrente.saldo.toFixed(2)}</span>
+            <span class="metric-arrow">←</span>
+            <span class="metric-previous">€${totaliMesePrecedente.saldo.toFixed(2)}</span>
+            <span class="metric-diff ${getDifferenzaClass(diffMeseTotale.saldo)}">
+              ${formatDifferenza(diffMeseTotale.saldo)}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="periodo-confronto">
+        Confronto: ${meseNomeCorrente} ${annoCorrente} vs ${meseNomePrecedente} ${annoPrecedente}
+      </div>
     </div>
+    
     <div onclick="apriDettaglioDiff('meseAlessio')" style="cursor:pointer;">
-      <h4>Alessio (Mese)</h4>
-      <p>Entrate: €${totaliMeseCorrenteAlessio.entrate.toFixed(2)} → €${totaliMesePrecedenteAlessio.entrate.toFixed(2)}</p>
-      <p>Uscite: €${totaliMeseCorrenteAlessio.uscite.toFixed(2)} → €${totaliMesePrecedenteAlessio.uscite.toFixed(2)}</p>
-      <p>Saldo: €${totaliMeseCorrenteAlessio.saldo.toFixed(2)} → €${totaliMesePrecedenteAlessio.saldo.toFixed(2)}<br>
-         <span class="${diffMeseAlessio.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">Diff: €${diffMeseAlessio.saldo.toFixed(2)}</span></p>
+      <h4>👤 Alessio (Mese)</h4>
+      
+      <div class="metric-container">
+        <div class="metric-row">
+          <span class="metric-label">💰 Entrate</span>
+          <div class="metric-values">
+            <span class="metric-current">€${totaliMeseCorrenteAlessio.entrate.toFixed(2)}</span>
+            <span class="metric-arrow">←</span>
+            <span class="metric-previous">€${totaliMesePrecedenteAlessio.entrate.toFixed(2)}</span>
+            <span class="metric-diff ${getDifferenzaClass(diffMeseAlessio.entrate)}">
+              ${formatDifferenza(diffMeseAlessio.entrate)}
+            </span>
+          </div>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">💸 Uscite</span>
+          <div class="metric-values">
+            <span class="metric-current">€${totaliMeseCorrenteAlessio.uscite.toFixed(2)}</span>
+            <span class="metric-arrow">←</span>
+            <span class="metric-previous">€${totaliMesePrecedenteAlessio.uscite.toFixed(2)}</span>
+            <span class="metric-diff ${getDifferenzaClass(-diffMeseAlessio.uscite)}">
+              ${formatDifferenza(diffMeseAlessio.uscite)}
+            </span>
+          </div>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">📊 Saldo</span>
+          <div class="metric-values">
+            <span class="metric-current">€${totaliMeseCorrenteAlessio.saldo.toFixed(2)}</span>
+            <span class="metric-arrow">←</span>
+            <span class="metric-previous">€${totaliMesePrecedenteAlessio.saldo.toFixed(2)}</span>
+            <span class="metric-diff ${getDifferenzaClass(diffMeseAlessio.saldo)}">
+              ${formatDifferenza(diffMeseAlessio.saldo)}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="periodo-confronto">
+        Confronto: ${meseNomeCorrente} ${annoCorrente} vs ${meseNomePrecedente} ${annoPrecedente}
+      </div>
     </div>
   `;
 
   // --- Confronto Annuale ---
-  const annoCorrente = meseFiltro.slice(0, 4);
-  const annoPrecedente = (parseInt(annoCorrente) - 1).toString();
-  const totaliAnnoCorrente = calcolaTotali(annoCorrente, 'year');
-  const totaliAnnoPrecedente = calcolaTotali(annoPrecedente, 'year');
+  const annoSelezionato = meseFiltro.slice(0, 4);
+  const annoConfronto = (parseInt(annoSelezionato) - 1).toString();
+  const totaliAnnoCorrente = calcolaTotali(annoSelezionato, 'year');
+  const totaliAnnoPrecedente = calcolaTotali(annoConfronto, 'year');
+  
   const diffAnnoTotale = {
     entrate: totaliAnnoCorrente.entrate - totaliAnnoPrecedente.entrate,
     uscite: totaliAnnoCorrente.uscite - totaliAnnoPrecedente.uscite,
     saldo: totaliAnnoCorrente.saldo - totaliAnnoPrecedente.saldo
   };
 
-  const totaliAnnoCorrenteAlessio = calcolaTotali(annoCorrente, 'year', 'Alessio');
-  const totaliAnnoPrecedenteAlessio = calcolaTotali(annoPrecedente, 'year', 'Alessio');
+  const totaliAnnoCorrenteAlessio = calcolaTotali(annoSelezionato, 'year', 'Alessio');
+  const totaliAnnoPrecedenteAlessio = calcolaTotali(annoConfronto, 'year', 'Alessio');
+  
   const diffAnnoAlessio = {
     entrate: totaliAnnoCorrenteAlessio.entrate - totaliAnnoPrecedenteAlessio.entrate,
     uscite: totaliAnnoCorrenteAlessio.uscite - totaliAnnoPrecedenteAlessio.uscite,
@@ -88,22 +189,95 @@ function calcolaDifferenze() {
 
   const htmlAnno = `
     <div onclick="apriDettaglioDiff('annoTotal')" style="cursor:pointer;">
-      <h3>Anno Totale: ${annoCorrente} vs ${annoPrecedente}</h3>
-      <p>Entrate: €${totaliAnnoCorrente.entrate.toFixed(2)} → €${totaliAnnoPrecedente.entrate.toFixed(2)}</p>
-      <p>Uscite: €${totaliAnnoCorrente.uscite.toFixed(2)} → €${totaliAnnoPrecedente.uscite.toFixed(2)}</p>
-      <p>Saldo: €${totaliAnnoCorrente.saldo.toFixed(2)} → €${totaliAnnoPrecedente.saldo.toFixed(2)}<br>
-         <span class="${diffAnnoTotale.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">
-           Diff: €${diffAnnoTotale.saldo.toFixed(2)}
-         </span></p>
+      <h3>📆 Confronto Annuale Totale</h3>
+      
+      <div class="metric-container">
+        <div class="metric-row">
+          <span class="metric-label">💰 Entrate</span>
+          <div class="metric-values">
+            <span class="metric-current">€${totaliAnnoCorrente.entrate.toFixed(2)}</span>
+            <span class="metric-arrow">←</span>
+            <span class="metric-previous">€${totaliAnnoPrecedente.entrate.toFixed(2)}</span>
+            <span class="metric-diff ${getDifferenzaClass(diffAnnoTotale.entrate)}">
+              ${formatDifferenza(diffAnnoTotale.entrate)}
+            </span>
+          </div>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">💸 Uscite</span>
+          <div class="metric-values">
+            <span class="metric-current">€${totaliAnnoCorrente.uscite.toFixed(2)}</span>
+            <span class="metric-arrow">←</span>
+            <span class="metric-previous">€${totaliAnnoPrecedente.uscite.toFixed(2)}</span>
+            <span class="metric-diff ${getDifferenzaClass(-diffAnnoTotale.uscite)}">
+              ${formatDifferenza(diffAnnoTotale.uscite)}
+            </span>
+          </div>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">📊 Saldo</span>
+          <div class="metric-values">
+            <span class="metric-current">€${totaliAnnoCorrente.saldo.toFixed(2)}</span>
+            <span class="metric-arrow">←</span>
+            <span class="metric-previous">€${totaliAnnoPrecedente.saldo.toFixed(2)}</span>
+            <span class="metric-diff ${getDifferenzaClass(diffAnnoTotale.saldo)}">
+              ${formatDifferenza(diffAnnoTotale.saldo)}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="periodo-confronto">
+        Confronto: Anno ${annoSelezionato} vs Anno ${annoConfronto}
+      </div>
     </div>
+    
     <div onclick="apriDettaglioDiff('annoAlessio')" style="cursor:pointer;">
-      <h4>Alessio (Anno)</h4>
-      <p>Entrate: €${totaliAnnoCorrenteAlessio.entrate.toFixed(2)} → €${totaliAnnoPrecedenteAlessio.entrate.toFixed(2)}</p>
-      <p>Uscite: €${totaliAnnoCorrenteAlessio.uscite.toFixed(2)} → €${totaliAnnoPrecedenteAlessio.uscite.toFixed(2)}</p>
-      <p>Saldo: €${totaliAnnoCorrenteAlessio.saldo.toFixed(2)} → €${totaliAnnoPrecedenteAlessio.saldo.toFixed(2)}<br>
-         <span class="${diffAnnoAlessio.saldo >= 0 ? 'differenza-positiva' : 'differenza-negativa'}">
-           Diff: €${diffAnnoAlessio.saldo.toFixed(2)}
-         </span></p>
+      <h4>👤 Alessio (Anno)</h4>
+      
+      <div class="metric-container">
+        <div class="metric-row">
+          <span class="metric-label">💰 Entrate</span>
+          <div class="metric-values">
+            <span class="metric-current">€${totaliAnnoCorrenteAlessio.entrate.toFixed(2)}</span>
+            <span class="metric-arrow">←</span>
+            <span class="metric-previous">€${totaliAnnoPrecedenteAlessio.entrate.toFixed(2)}</span>
+            <span class="metric-diff ${getDifferenzaClass(diffAnnoAlessio.entrate)}">
+              ${formatDifferenza(diffAnnoAlessio.entrate)}
+            </span>
+          </div>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">💸 Uscite</span>
+          <div class="metric-values">
+            <span class="metric-current">€${totaliAnnoCorrenteAlessio.uscite.toFixed(2)}</span>
+            <span class="metric-arrow">←</span>
+            <span class="metric-previous">€${totaliAnnoPrecedenteAlessio.uscite.toFixed(2)}</span>
+            <span class="metric-diff ${getDifferenzaClass(-diffAnnoAlessio.uscite)}">
+              ${formatDifferenza(diffAnnoAlessio.uscite)}
+            </span>
+          </div>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">📊 Saldo</span>
+          <div class="metric-values">
+            <span class="metric-current">€${totaliAnnoCorrenteAlessio.saldo.toFixed(2)}</span>
+            <span class="metric-arrow">←</span>
+            <span class="metric-previous">€${totaliAnnoPrecedenteAlessio.saldo.toFixed(2)}</span>
+            <span class="metric-diff ${getDifferenzaClass(diffAnnoAlessio.saldo)}">
+              ${formatDifferenza(diffAnnoAlessio.saldo)}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="periodo-confronto">
+        Confronto: Anno ${annoSelezionato} vs Anno ${annoConfronto}
+      </div>
     </div>
   `;
 
@@ -248,7 +422,6 @@ function caricaTransazioni() {
     transazioni = dati ? Object.entries(dati) : [];
     aggiornaTabella();
     aggiornaRiepiloghi();
-    aggiornaGrafico();
     if (document.getElementById('meseFiltro').value) calcolaDifferenze();
   });
 }
@@ -329,19 +502,28 @@ function aggiornaRiepiloghi() {
   const saldoMese = entrateMese - usciteMese;
   const saldoAlessio = entrateAlessio - usciteAlessio;
 
-  document.getElementById('riepilogoEntrate').innerText = `Totale Entrate: €${entrateAnno.toFixed(2)}`;
-  document.getElementById('riepilogoUscite').innerText = `Totale Uscite: €${usciteAnno.toFixed(2)}`;
-  document.getElementById('riepilogoSaldo').innerText = `Saldo Totale: €${saldoAnno.toFixed(2)}`;
+  document.getElementById('riepilogoEntrate').innerText = `€${entrateAnno.toFixed(2)}`;
+  document.getElementById('riepilogoUscite').innerText = `€${usciteAnno.toFixed(2)}`;
+  document.getElementById('riepilogoSaldo').innerText = `€${saldoAnno.toFixed(2)}`;
 
   document.getElementById('riepilogoMese').innerHTML = `
-    <p><strong>Entrate Mese:</strong> €${entrateMese.toFixed(2)}</p>
-    <p><strong>Uscite Mese:</strong> €${usciteMese.toFixed(2)}</p>
-    <p><strong>Saldo Mese:</strong> €${saldoMese.toFixed(2)}</p>
+    <div class="summary-item">
+      <span class="summary-label">Entrate:</span>
+      <span class="summary-value income">€${entrateMese.toFixed(2)}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Uscite:</span>
+      <span class="summary-value expense">€${usciteMese.toFixed(2)}</span>
+    </div>
+    <div class="summary-item total">
+      <span class="summary-label">Saldo:</span>
+      <span class="summary-value">€${saldoMese.toFixed(2)}</span>
+    </div>
   `;
 
-  document.getElementById('riepilogoAlessioEntrate').innerText = `Entrate Alessio: €${entrateAlessio.toFixed(2)}`;
-  document.getElementById('riepilogoAlessioUscite').innerText = `Uscite Alessio: €${usciteAlessio.toFixed(2)}`;
-  document.getElementById('riepilogoAlessioSaldo').innerText = `Saldo Alessio: €${saldoAlessio.toFixed(2)}`;
+  document.getElementById('riepilogoAlessioEntrate').innerText = `€${entrateAlessio.toFixed(2)}`;
+  document.getElementById('riepilogoAlessioUscite').innerText = `€${usciteAlessio.toFixed(2)}`;
+  document.getElementById('riepilogoAlessioSaldo').innerText = `€${saldoAlessio.toFixed(2)}`;
 }
 
 function aggiornaListaTransazioni(meseFiltro) {
@@ -371,52 +553,12 @@ function aggiornaListaTransazioni(meseFiltro) {
     });
 }
 
-function aggiornaGrafico() {
-  const meseFiltro = document.getElementById('meseFiltro').value;
-  const annoSelezionato = meseFiltro ? meseFiltro.slice(0, 4) : new Date().getFullYear().toString();
-
-  const categorie = {};
-  transazioni
-    .filter(([_, t]) => t.tipo === "Uscita" && t.data.slice(0, 4) === annoSelezionato)
-    .forEach(([_, t]) => {
-      categorie[t.categoria] = (categorie[t.categoria] || 0) + parseFloat(t.importo);
-    });
-
-  const ctx = document.getElementById('graficoTortaSpese').getContext('2d');
-  if (window.graficoTorta) window.graficoTorta.destroy();
-  window.graficoTorta = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: Object.keys(categorie),
-      datasets: [{
-        data: Object.values(categorie),
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#FF6384', '#36A2EB']
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'top' },
-        tooltip: {
-          callbacks: {
-            label: function (context) {
-              const label = context.label || '';
-              const value = context.parsed || 0;
-              return `${label}: €${value.toFixed(2)}`;
-            }
-          }
-        }
-      }
-    }
-  });
-}
 
 document.getElementById('meseFiltro').addEventListener('change', function () {
   const mese = this.value;
   localStorage.setItem('meseFiltro', mese);
   aggiornaRiepiloghi();
   calcolaDifferenze();
-  aggiornaGrafico();
   if (transazioniVisibili) {
     aggiornaListaTransazioni(mese);
   }
@@ -559,14 +701,14 @@ window.onload = function () {
 };
 
 // Funzioni globali per il window
-window.registrati       = registrati;
-window.accedi           = accedi;
-window.salvaNomeUtente  = salvaNomeUtente;
+window.registrati = registrati;
+window.accedi = accedi;
+window.salvaNomeUtente = salvaNomeUtente;
 
 // AUTO-LOAD DIFFERENZE SU MOBILE
 document.addEventListener('DOMContentLoaded', () => {
   const filtro = document.getElementById('meseFiltro');
   if (filtro && filtro.value) calcolaDifferenze();
   const diffSection = document.getElementById('differenze');
-  diffSection.addEventListener('click', calcolaDifferenze);
+  if (diffSection) diffSection.addEventListener('click', calcolaDifferenze);
 });

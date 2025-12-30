@@ -2,225 +2,285 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <!-- Viewport per dispositivi mobili -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestione Budget Personale</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="styles_theme.css">
+  <link rel="stylesheet" href="differenze_improved.css">
+  <link rel="stylesheet" href="layout_improved.css">
   <link rel="manifest" href="manifest.json">
-  <!-- Librerie per grafici ed Excel -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Librerie per Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  
 </head>
 <body>
   <!-- LOGIN -->
   <div id="loginContainer">
-    <h2>Registrati</h2>
-    <input type="email" id="emailRegistrazione" placeholder="Email" />
-    <input type="password" id="passwordRegistrazione" placeholder="Password" />
-    <button onclick="registrati()">Registrati</button>
+    <div class="login-box">
+      <h1>🏦 Budget Personale</h1>
+      
+      <div class="login-section">
+        <h2>Accedi</h2>
+        <input type="email" id="emailLogin" placeholder="Email" />
+        <input type="password" id="passwordLogin" placeholder="Password" />
+        <button onclick="accedi()" class="btn-primary">Accedi</button>
+      </div>
 
-    <h2>Accedi</h2>
-    <input type="email" id="emailLogin" placeholder="Email" />
-    <input type="password" id="passwordLogin" placeholder="Password" />
-    <button onclick="accedi()">Accedi</button>
-    
-    <!-- Nome Utente -->
-    <input type="text" id="userName" placeholder="Inserisci il tuo nome" />
-    <button onclick="salvaNomeUtente()">Salva Nome</button>
-    <div id="welcomeMessage"></div>
+      <div class="divider">oppure</div>
+
+      <div class="login-section">
+        <h2>Registrati</h2>
+        <input type="email" id="emailRegistrazione" placeholder="Email" />
+        <input type="password" id="passwordRegistrazione" placeholder="Password" />
+        <button onclick="registrati()" class="btn-secondary">Registrati</button>
+      </div>
+      
+      <div class="login-section">
+        <h3>Nome Utente</h3>
+        <input type="text" id="userName" placeholder="Inserisci il tuo nome" />
+        <button onclick="salvaNomeUtente()" class="btn-secondary">Salva Nome</button>
+        <div id="welcomeMessage"></div>
+      </div>
+    </div>
   </div>
 
   <!-- APP PRINCIPALE -->
   <div id="appContainer" style="display: none;">
-    <div class="container">
-      <h1>Gestione Budget Personale</h1>
+    <div class="app-header">
+      <h1>💰 Gestione Budget Personale</h1>
+      <button onclick="esci()" class="btn-logout">Esci</button>
+    </div>
 
-      <!-- Entrate -->
-      <section id="entrate">
-        <h2>Entrate</h2>
-        <div>
-          <label for="personaEntrata">Persona:</label>
-          <select id="personaEntrata">
-            <option value="Alessio">Alessio</option>
-          </select>
+    <div class="main-container">
+      
+      <!-- FILTRO MESE - IN ALTO PER IMPORTANZA -->
+      <section class="filter-section card">
+        <div class="filter-header">
+          <h2>📅 Seleziona Periodo</h2>
         </div>
-        <div>
-          <label for="tipoEntrata">Tipo di Entrata:</label>
-          <select id="tipoEntrata">
-            <option value="stipendio">Stipendio</option>
-            <option value="extra">Extra</option>
-          </select>
+        <div class="filter-content">
+          <input type="month" id="meseFiltro">
+          <button onclick="esportaInExcel()" class="btn-export">📊 Esporta Excel</button>
         </div>
-        <div>
-          <label for="importoEntrata">Importo:</label>
-          <input type="number" id="importoEntrata" placeholder="Inserisci l'importo">
-        </div>
-        <div>
-          <label for="dataEntrata">Data:</label>
-          <input type="date" id="dataEntrata">
-        </div>
-        <button onclick="aggiungiEntrata()">Aggiungi Entrata</button>
       </section>
 
-      <!-- Uscite -->
-      <section id="uscite">
-        <h2>Uscite</h2>
-        <div>
-          <label for="personaUscita">Persona:</label>
-          <select id="personaUscita">
-            <option value="Alessio">Alessio</option>
-          </select>
-        </div>
-        <div>
-          <label for="categoriaUscita">Seleziona Categoria:</label>
-          <select id="categoriaUscita">
-            <option value="CONDOMINIO">CONDOMINIO</option>
-            <option value="ALIMENTARI">ALIMENTARI</option>
-            <option value="COSE DI CASA">COSE DI CASA</option>
-            <option value="ANIMALI">ANIMALI</option>
-            <option value="LUCE E IMPOSTE">LUCE E IMPOSTE</option>
-            <option value="INTERNET + CELLULARE">INTERNET + CELLULARE</option>
-            <option value="VARIE">VARIE</option>
-            <option value="SPORT">SPORT</option>
-            <option value="CULTURA">CULTURA</option>
-            <option value="SALUTE">SALUTE</option>
-            <option value="BELLEZZA">BELLEZZA</option>
-            <option value="ABBIGLIAMENTO">ABBIGLIAMENTO</option>
-            <option value="RATA AUTO">RATA AUTO</option>
-            <option value="CONSUMI">CONSUMI</option>
-            <option value="MANUTENZIONE">MANUTENZIONE</option>
-            <option value="AUTOSTRADA/PARCHEGGI/MULTE">AUTOSTRADA/PARCHEGGI/MULTE</option>
-            <option value="ASSICURAZIONE">ASSICURAZIONE</option>
-            <option value="BOLLI TAGLIANDI">BOLLI TAGLIANDI</option>
-            <option value="COLAZIONI">COLAZIONI</option>
-            <option value="PRANZI">PRANZI</option>
-            <option value="MERENDE">MERENDE</option>
-            <option value="APE DOPO CENA">APE DOPO CENA</option>
-            <option value="CENE INSIEME">CENE INSIEME</option>
-            <option value="SERATE CON AMICI">SERATE CON AMICI</option>
-            <option value="VACANZE">VACANZE</option>
-            <option value="REGALI">REGALI</option>
-	    <option value="ELETTRONICA">ELETTRONICA</option>
-          </select>
-        </div>
-        <div>
-          <label for="descrizioneUscita">Descrizione:</label>
-          <input type="text" id="descrizioneUscita" placeholder="Descrizione della spesa">
-        </div>
-        <div>
-          <label for="importoUscita">Importo:</label>
-          <input type="number" id="importoUscita" placeholder="Inserisci importo">
-        </div>
-        <div>
-          <label for="dataUscita">Data:</label>
-          <input type="date" id="dataUscita">
-        </div>
-        <button onclick="aggiungiUscita()">Aggiungi Uscita</button>
-      </section>
+      <!-- SEZIONE INSERIMENTO DATI -->
+      <div class="data-entry-grid">
+        
+        <!-- ENTRATE -->
+        <section class="card entry-card">
+          <h2 class="card-title income">💰 Aggiungi Entrata</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="personaEntrata">Persona</label>
+              <select id="personaEntrata">
+                <option value="Alessio">Alessio</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="tipoEntrata">Tipo</label>
+              <select id="tipoEntrata">
+                <option value="stipendio">Stipendio</option>
+                <option value="extra">Extra</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="importoEntrata">Importo (€)</label>
+              <input type="number" id="importoEntrata" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+              <label for="dataEntrata">Data</label>
+              <input type="date" id="dataEntrata">
+            </div>
+          </div>
+          <button onclick="aggiungiEntrata()" class="btn-submit income">Aggiungi Entrata</button>
+        </section>
 
-      <!-- Filtro per il mese -->
-      <section id="filtroMese">
-        <h2>Filtra per Mese</h2>
-        <input type="month" id="meseFiltro">
-      </section>
-
-      <!-- Lista Transazioni -->
-      <button id="toggleButton" onclick="toggleTransazioniVisibili()">Mostra Transazioni</button>
-      <div class="table-container" id="listaTransazioniContainer">
-        <h2>Transazioni</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Persona</th>
-              <th>Categoria</th>
-              <th>Descrizione</th>
-              <th>Data</th>
-              <th>Importo (€)</th>
-              <th>Azioni</th>
-            </tr>
-          </thead>
-          <tbody id="listaTransazioni"></tbody>
-        </table>
+        <!-- USCITE -->
+        <section class="card entry-card">
+          <h2 class="card-title expense">💸 Aggiungi Uscita</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="personaUscita">Persona</label>
+              <select id="personaUscita">
+                <option value="Alessio">Alessio</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="categoriaUscita">Categoria</label>
+              <select id="categoriaUscita">
+                <option value="CONDOMINIO">Condominio</option>
+                <option value="ALIMENTARI">Alimentari</option>
+                <option value="COSE DI CASA">Cose di Casa</option>
+                <option value="ANIMALI">Animali</option>
+                <option value="LUCE E IMPOSTE">Luce e Imposte</option>
+                <option value="INTERNET + CELLULARE">Internet + Cellulare</option>
+                <option value="VARIE">Varie</option>
+                <option value="SPORT">Sport</option>
+                <option value="CULTURA">Cultura</option>
+                <option value="SALUTE">Salute</option>
+                <option value="BELLEZZA">Bellezza</option>
+                <option value="ABBIGLIAMENTO">Abbigliamento</option>
+                <option value="RATA AUTO">Rata Auto</option>
+                <option value="CONSUMI">Consumi</option>
+                <option value="MANUTENZIONE">Manutenzione</option>
+                <option value="AUTOSTRADA/PARCHEGGI/MULTE">Autostrada/Parcheggi/Multe</option>
+                <option value="ASSICURAZIONE">Assicurazione</option>
+                <option value="BOLLI TAGLIANDI">Bolli Tagliandi</option>
+                <option value="COLAZIONI">Colazioni</option>
+                <option value="PRANZI">Pranzi</option>
+                <option value="MERENDE">Merende</option>
+                <option value="APE DOPO CENA">Aperitivo dopo Cena</option>
+                <option value="CENE INSIEME">Cene Insieme</option>
+                <option value="SERATE CON AMICI">Serate con Amici</option>
+                <option value="VACANZE">Vacanze</option>
+                <option value="REGALI">Regali</option>
+                <option value="ELETTRONICA">Elettronica</option>
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label for="descrizioneUscita">Descrizione</label>
+              <input type="text" id="descrizioneUscita" placeholder="Descrizione della spesa">
+            </div>
+            <div class="form-group">
+              <label for="importoUscita">Importo (€)</label>
+              <input type="number" id="importoUscita" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+              <label for="dataUscita">Data</label>
+              <input type="date" id="dataUscita">
+            </div>
+          </div>
+          <button onclick="aggiungiUscita()" class="btn-submit expense">Aggiungi Uscita</button>
+        </section>
       </div>
 
-      <!-- Riepilogo Mensile -->
-      <section id="riepilogoPerMese">
-        <h2>Riepilogo Mese</h2>
-        <div id="riepilogoMese"></div>
-      </section>
+      <!-- RIEPILOGHI -->
+      <div class="summary-grid">
+        
+        <!-- RIEPILOGO MESE -->
+        <section class="card summary-card">
+          <h2 class="card-title">📊 Riepilogo Mese</h2>
+          <div id="riepilogoMese" class="summary-content">
+            <div class="summary-item">
+              <span class="summary-label">Entrate:</span>
+              <span class="summary-value income">€0.00</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Uscite:</span>
+              <span class="summary-value expense">€0.00</span>
+            </div>
+            <div class="summary-item total">
+              <span class="summary-label">Saldo:</span>
+              <span class="summary-value">€0.00</span>
+            </div>
+          </div>
+        </section>
 
-      <!-- Riepilogo Anno Totale -->
-      <section id="riepiloghi">
-        <h2>Riepilogo Anno</h2>
-        <div id="riepilogoEntrate">Totale Entrate: €0</div>
-        <div id="riepilogoUscite">Totale Uscite: €0</div>
-        <div id="riepilogoSaldo">Saldo Totale: €0</div>
-      </section>
+        <!-- RIEPILOGO ANNO -->
+        <section class="card summary-card">
+          <h2 class="card-title">📅 Riepilogo Anno</h2>
+          <div class="summary-content">
+            <div class="summary-item">
+              <span class="summary-label">Entrate:</span>
+              <span class="summary-value income" id="riepilogoEntrate">€0.00</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Uscite:</span>
+              <span class="summary-value expense" id="riepilogoUscite">€0.00</span>
+            </div>
+            <div class="summary-item total">
+              <span class="summary-label">Saldo:</span>
+              <span class="summary-value" id="riepilogoSaldo">€0.00</span>
+            </div>
+          </div>
+        </section>
 
-      <!-- Riepilogo per Persona -->
-      <section id="riepiloghiPersone">
-        <h2>Riepilogo Alessio</h2>
-        <div onclick="vaiAllaPaginaDettagli('Alessio', 'Entrate')" style="cursor: pointer; color: #2980b9;">
-          <span id="riepilogoAlessioEntrate">0</span>
-        </div>
-        <div onclick="vaiAllaPaginaDettagli('Alessio', 'Uscite')" style="cursor: pointer; color: #e74c3c;">
-          <span id="riepilogoAlessioUscite">0</span>
-        </div>
-        <div id="riepilogoAlessioSaldo">Saldo Alessio: €0</div>
-      </section>
+        <!-- RIEPILOGO PERSONALE -->
+        <section class="card summary-card">
+          <h2 class="card-title">👤 Riepilogo Alessio</h2>
+          <div class="summary-content">
+            <div class="summary-item clickable" onclick="vaiAllaPaginaDettagli('Alessio', 'Entrate')">
+              <span class="summary-label">Entrate:</span>
+              <span class="summary-value income" id="riepilogoAlessioEntrate">€0.00</span>
+            </div>
+            <div class="summary-item clickable" onclick="vaiAllaPaginaDettagli('Alessio', 'Uscite')">
+              <span class="summary-label">Uscite:</span>
+              <span class="summary-value expense" id="riepilogoAlessioUscite">€0.00</span>
+            </div>
+            <div class="summary-item total">
+              <span class="summary-label">Saldo:</span>
+              <span class="summary-value" id="riepilogoAlessioSaldo">€0.00</span>
+            </div>
+          </div>
+        </section>
+      </div>
 
-      <!-- Confronti: Box per Differenze Mensili e Annuali -->
-      <section id="differenze">
-        <h2>Differenze Rispetto al Periodo Precedente</h2>
+      <!-- DIFFERENZE RISPETTO AL PERIODO PRECEDENTE -->
+      <section id="differenze" class="card">
+        <h2 class="card-title">📈 Confronto con Periodo Precedente</h2>
         <div class="differenze-container">
-          <!-- Box Differenze Mensili -->
           <div class="differenze-box" id="differenzeMese"></div>
-          <!-- Box Differenze Annuali -->
           <div class="differenze-box" id="differenzeAnno"></div>
         </div>
       </section>
 
-      <!-- Bottone per visualizzare i dettagli delle uscite per categoria -->
-      <button onclick="apriPaginaDettaglio()">Visualizza Dettaglio Uscite per Categoria</button>
-      <script>
-        function apriPaginaDettaglio() {
-          const filtroAnno = document.getElementById('meseFiltro').value.slice(0, 4);
-          localStorage.setItem('filtroAnno', filtroAnno);
-          window.location.href = "dettaglioUscite.html";
-        }
-      </script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const mf = document.getElementById('meseFiltro');
-  if (mf && !mf.value) {
-    mf.value = new Date().toISOString().slice(0, 7); // "YYYY-MM"
-  }
-  // lancia subito la catena di aggiornamenti
-  if (typeof filtraPerMese === 'function') filtraPerMese();
-});
-</script>
-
-      <!-- Grafico a torta -->
-      <section id="graficoSpeseCategoria">
-        <h2>Distribuzione Spese per Categoria</h2>
-        <canvas id="graficoTortaSpese"></canvas>
+      <!-- DETTAGLIO USCITE PER CATEGORIA -->
+      <section class="card action-card">
+        <button onclick="apriPaginaDettaglio()" class="btn-action">
+          📋 Visualizza Dettaglio Uscite per Categoria
+        </button>
       </section>
 
-      <!-- Esporta in Excel -->
-      <button id="exportExcel" onclick="esportaInExcel()">Esporta Riepilogo in Excel</button>
+      <!-- LISTA TRANSAZIONI -->
+      <section class="card">
+        <div class="transactions-header">
+          <h2 class="card-title">📝 Transazioni</h2>
+          <button id="toggleButton" onclick="toggleTransazioniVisibili()" class="btn-toggle">
+            Mostra Transazioni
+          </button>
+        </div>
+        <div class="table-container" id="listaTransazioniContainer" style="display: none;">
+          <table class="transactions-table">
+            <thead>
+              <tr>
+                <th>Persona</th>
+                <th>Categoria</th>
+                <th>Descrizione</th>
+                <th>Data</th>
+                <th>Importo</th>
+                <th>Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="listaTransazioni"></tbody>
+          </table>
+        </div>
+      </section>
 
-      <!-- Logout -->
-      <button onclick="esci()">Esci</button>
     </div>
-    <footer style="text-align: center; padding: 10px; margin-top: 20px; font-size: 0.85em; color: #666;">
+
+    <footer class="app-footer">
       Gestione Budget Personale - Creato con ❤️ da Alessio
     </footer>
+
+    <script>
+      function apriPaginaDettaglio() {
+        const filtroAnno = document.getElementById('meseFiltro').value.slice(0, 4);
+        localStorage.setItem('filtroAnno', filtroAnno);
+        window.location.href = "dettaglioUscite.html";
+      }
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const mf = document.getElementById('meseFiltro');
+        if (mf && !mf.value) {
+          mf.value = new Date().toISOString().slice(0, 7);
+        }
+        if (typeof filtraPerMese === 'function') filtraPerMese();
+      });
+    </script>
   </div>
 
-  <!-- Includi lo script principale -->
   <script src="script.js" type="module"></script>
 </body>
 </html>
