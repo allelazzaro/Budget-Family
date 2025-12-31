@@ -1,0 +1,77 @@
+/* =====================================================
+   FIX SCROLL - Pagina Dettagli Entrate/Uscite
+   Risolve il problema dello scroll bloccato
+   ===================================================== */
+
+/* Assicura che body e html permettano lo scroll completo */
+html, body {
+  height: auto !important;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+}
+
+/* Fix per il main container - deve permettere lo scroll */
+.main-container {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: auto;
+}
+
+/* Fix per le card categoria - rimuove il limite di altezza */
+.category-content {
+  overflow: visible !important;
+}
+
+.category-card.expanded .category-content {
+  max-height: none !important; /* Rimuove il limite di 2000px */
+  overflow: visible !important;
+}
+
+/* Assicura che la lista transazioni sia completamente visibile */
+.transactions-list {
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+/* Fix per il contenitore delle categorie */
+.categories-list {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+/* Fix per le singole transazioni */
+.transaction-item {
+  overflow: visible !important;
+}
+
+/* Assicura che il summary card non blocchi nulla */
+.summary-card-top {
+  overflow: visible !important;
+}
+
+/* Fix per dispositivi mobile - assicura lo scroll touch */
+@media (max-width: 768px) {
+  html, body {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+  
+  .main-container {
+    padding-bottom: 50px; /* Spazio extra in fondo per scroll completo */
+  }
+  
+  .categories-list {
+    padding-bottom: 30px;
+  }
+}
+
+/* Fix specifico per iOS che a volte blocca lo scroll */
+@supports (-webkit-touch-callout: none) {
+  body {
+    position: relative;
+    height: auto;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+}
