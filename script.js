@@ -312,6 +312,16 @@ const db = getDatabase(app);
 
 let utente = null;
 let transazioni = [];
+let categorie = []; // Array delle categorie caricate da Firebase
+
+// Categorie fisse (non eliminabili, solo modificabili)
+const categorieDefault = [
+  "CONDOMINIO", "ALIMENTARI", "COSE DI CASA", "ANIMALI", "LUCE E IMPOSTE",
+  "INTERNET + CELLULARE", "VARIE", "SPORT", "CULTURA", "SALUTE", "BELLEZZA",
+  "ABBIGLIAMENTO", "RATA AUTO", "CONSUMI", "MANUTENZIONE", "AUTOSTRADA/PARCHEGGI/MULTE",
+  "ASSICURAZIONE", "BOLLI TAGLIANDI", "COLAZIONI", "PRANZI", "MERENDE",
+  "APE DOPO CENA", "CENE INSIEME", "SERATE CON AMICI", "VACANZE", "REGALI", "ELETTRONICA"
+];
 
 window.registrati = function () {
   const email = document.getElementById('emailRegistrazione').value;
@@ -349,6 +359,7 @@ onAuthStateChanged(auth, user => {
     utente = user;
     document.getElementById('loginContainer').style.display = 'none';
     document.getElementById('appContainer').style.display = 'block';
+    caricaCategorie(); // Carica prima le categorie
     caricaTransazioni();
   } else {
     document.getElementById('loginContainer').style.display = 'block';
@@ -686,6 +697,216 @@ window.vaiAllaPaginaDettagli = function (persona, tipo) {
   const url = `dettagli.html?persona=${encodeURIComponent(persona)}&tipo=${encodeURIComponent(tipo)}`;
   console.log("Navigazione verso:", url);
   window.location.href = url;
+};
+
+// ==============================
+// GESTIONE CATEGORIE
+// ==============================
+
+// Carica le categorie da Firebase
+function caricaCategorie() {
+  // Prima popola subito con le categorie di default (fallback immediato)
+  if (categorie.length === 0) {
+    categorie = categorieDefault.map((nome, index) => ({
+      id: `default_${index}`,
+      nome: nome,
+      fissa: true
+    }));
+    popolaSelectCategorie();
+  }
+  
+  const categorieRef = ref(db, 'categorie');
+  onValue(categorieRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      // Converte l'oggetto in array e ordina alfabeticamente
+      categorie = Object.entries(data).map(([id, cat]) => ({
+        id,
+        nome: cat.nome,
+        fissa: cat.fissa || false // Flag per categorie fisse
+      })).sort((a, b) => a.nome.localeCompare(b.nome));
+      popolaSelectCategorie();
+      aggiornaListaCategorie();
+    } else {
+      // Se non ci sono categorie su Firebase, inizializza con quelle di default
+      inizializzaCategorieDefault();
+    }
+  }, (error) => {
+    console.error("Errore caricamento categorie:", error);
+    // In caso di errore, usa le categorie di default locali
+    if (categorie.length === 0) {
+      categorie = categorieDefault.map((nome, index) => ({
+        id: `default_${index}`,
+        nome: nome,
+        fissa: true
+      }));
+      popolaSelectCategorie();
+    }
+  });
+}
+
+// Inizializza le categorie di default su Firebase (come fisse)
+function inizializzaCategorieDefault() {
+  categorieDefault.forEach(cat => {
+    const nuovaRef = push(ref(db, 'categorie'));
+    set(nuovaRef, { nome: cat, fissa: true }); // fissa: true per le categorie di default
+  });
+}
+
+// Popola il select delle categorie dinamicamente
+function popolaSelectCategorie() {
+  const select = document.getElementById('categoriaUscita');
+  if (!select) return;
+  
+  // Salva la selezione corrente
+  const selezioneCorrente = select.value;
+  
+  // Svuota il select
+  select.innerHTML = '';
+  
+  // Aggiungi le categorie ordinate
+  categorie.forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat.nome;
+    option.textContent = cat.nome;
+    select.appendChild(option);
+  });
+  
+  // Ripristina la selezione se esiste ancora
+  if (selezioneCorrente && categorie.find(c => c.nome === selezioneCorrente)) {
+    select.value = selezioneCorrente;
+  }
+}
+
+// Aggiorna la lista delle categorie nella modale
+function aggiornaListaCategorie() {
+  const lista = document.getElementById('listaCategorieModal');
+  const contatore = document.getElementById('contatoreCat');
+  if (!lista) return;
+  
+  // Conta categorie fisse e personalizzate
+  const numFisse = categorie.filter(c => c.fissa).length;
+  const numPersonalizzate = categorie.filter(c => !c.fissa).length;
+  
+  // Aggiorna contatore
+  if (contatore) {
+    contatore.textContent = `${categorie.length} totali (${numFisse} fisse, ${numPersonalizzate} personalizzate)`;
+  }
+  
+  if (categorie.length === 0) {
+    lista.innerHTML = '<div class="empty-categorie">Nessuna categoria presente</div>';
+    return;
+  }
+  
+  lista.innerHTML = categorie.map(cat => `
+    <div class="categoria-item ${cat.fissa ? 'categoria-fissa' : 'categoria-personalizzata'}" data-id="${cat.id}">
+      <span class="categoria-nome">
+        ${cat.fissa ? '🔒' : '🏷️'} ${cat.nome}
+      </span>
+      <div class="categoria-actions">
+        <button onclick="modificaCategoria('${cat.id}', '${cat.nome}')" class="btn-edit" title="Modifica">✏️</button>
+        ${cat.fissa ? '' : `<button onclick="eliminaCategoria('${cat.id}', '${cat.nome}')" class="btn-delete" title="Elimina">🗑️</button>`}
+      </div>
+    </div>
+  `).join('');
+}
+
+// Apri modale gestione categorie
+window.apriGestioneCategorie = function() {
+  const modal = document.getElementById('modalCategorie');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.getElementById('nuovaCategoria').value = '';
+    document.getElementById('btnAggiungiCategoria').textContent = 'Aggiungi';
+    document.getElementById('btnAggiungiCategoria').onclick = aggiungiCategoria;
+    delete document.getElementById('btnAggiungiCategoria').dataset.editId;
+  }
+};
+
+// Chiudi modale gestione categorie
+window.chiudiGestioneCategorie = function() {
+  const modal = document.getElementById('modalCategorie');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+};
+
+// Aggiungi nuova categoria (sempre come personalizzata)
+window.aggiungiCategoria = function() {
+  const input = document.getElementById('nuovaCategoria');
+  const nome = input.value.trim().toUpperCase();
+  const btn = document.getElementById('btnAggiungiCategoria');
+  const editId = btn.dataset.editId;
+  
+  if (!nome) {
+    alert('Inserisci un nome per la categoria');
+    return;
+  }
+  
+  // Controlla se esiste già (escludendo quella in modifica)
+  const esistente = categorie.find(c => c.nome === nome && c.id !== editId);
+  if (esistente) {
+    alert('Questa categoria esiste già');
+    return;
+  }
+  
+  if (editId) {
+    // Modalità modifica - mantiene il flag fissa originale
+    const categoriaOriginale = categorie.find(c => c.id === editId);
+    const categoriaRef = ref(db, `categorie/${editId}`);
+    update(categoriaRef, { nome: nome })
+      .then(() => {
+        input.value = '';
+        btn.textContent = 'Aggiungi';
+        delete btn.dataset.editId;
+      })
+      .catch(err => alert('Errore durante la modifica: ' + err.message));
+  } else {
+    // Modalità aggiunta - sempre come personalizzata (fissa: false)
+    const nuovaRef = push(ref(db, 'categorie'));
+    set(nuovaRef, { nome: nome, fissa: false })
+      .then(() => {
+        input.value = '';
+      })
+      .catch(err => alert('Errore durante il salvataggio: ' + err.message));
+  }
+};
+
+// Modifica categoria esistente
+window.modificaCategoria = function(id, nomeAttuale) {
+  const input = document.getElementById('nuovaCategoria');
+  const btn = document.getElementById('btnAggiungiCategoria');
+  
+  input.value = nomeAttuale;
+  input.focus();
+  btn.textContent = 'Salva Modifica';
+  btn.dataset.editId = id;
+};
+
+// Elimina categoria (solo per quelle personalizzate)
+window.eliminaCategoria = function(id, nome) {
+  // Verifica che non sia una categoria fissa
+  const categoria = categorie.find(c => c.id === id);
+  if (categoria && categoria.fissa) {
+    alert('Le categorie fisse non possono essere eliminate, solo modificate.');
+    return;
+  }
+  
+  if (!confirm(`Sei sicuro di voler eliminare la categoria "${nome}"?\n\nNota: Le transazioni già registrate con questa categoria non verranno modificate.`)) {
+    return;
+  }
+  
+  const categoriaRef = ref(db, `categorie/${id}`);
+  remove(categoriaRef)
+    .catch(err => alert('Errore durante l\'eliminazione: ' + err.message));
+};
+
+// Chiudi modale cliccando fuori
+window.onclick = function(event) {
+  const modal = document.getElementById('modalCategorie');
+  if (event.target === modal) {
+    modal.style.display = 'none';
+  }
 };
 
 window.onload = function () {

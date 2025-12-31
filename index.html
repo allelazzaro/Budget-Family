@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="differenze_improved.css">
   <link rel="stylesheet" href="layout_improved.css">
   <link rel="stylesheet" href="fix_filtro_mobile.css">
+  <link rel="stylesheet" href="gestione_categorie.css">
   <link rel="manifest" href="manifest.json">
   <!-- Librerie per Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
@@ -107,35 +108,12 @@
               </select>
             </div>
             <div class="form-group">
-              <label for="categoriaUscita">Categoria</label>
+              <label for="categoriaUscita">
+                Categoria
+                <button type="button" onclick="apriGestioneCategorie()" class="btn-gestisci-cat" title="Gestisci Categorie">⚙️</button>
+              </label>
               <select id="categoriaUscita">
-                <option value="CONDOMINIO">Condominio</option>
-                <option value="ALIMENTARI">Alimentari</option>
-                <option value="COSE DI CASA">Cose di Casa</option>
-                <option value="ANIMALI">Animali</option>
-                <option value="LUCE E IMPOSTE">Luce e Imposte</option>
-                <option value="INTERNET + CELLULARE">Internet + Cellulare</option>
-                <option value="VARIE">Varie</option>
-                <option value="SPORT">Sport</option>
-                <option value="CULTURA">Cultura</option>
-                <option value="SALUTE">Salute</option>
-                <option value="BELLEZZA">Bellezza</option>
-                <option value="ABBIGLIAMENTO">Abbigliamento</option>
-                <option value="RATA AUTO">Rata Auto</option>
-                <option value="CONSUMI">Consumi</option>
-                <option value="MANUTENZIONE">Manutenzione</option>
-                <option value="AUTOSTRADA/PARCHEGGI/MULTE">Autostrada/Parcheggi/Multe</option>
-                <option value="ASSICURAZIONE">Assicurazione</option>
-                <option value="BOLLI TAGLIANDI">Bolli Tagliandi</option>
-                <option value="COLAZIONI">Colazioni</option>
-                <option value="PRANZI">Pranzi</option>
-                <option value="MERENDE">Merende</option>
-                <option value="APE DOPO CENA">Aperitivo dopo Cena</option>
-                <option value="CENE INSIEME">Cene Insieme</option>
-                <option value="SERATE CON AMICI">Serate con Amici</option>
-                <option value="VACANZE">Vacanze</option>
-                <option value="REGALI">Regali</option>
-                <option value="ELETTRONICA">Elettronica</option>
+                <!-- Le categorie vengono caricate dinamicamente da Firebase -->
               </select>
             </div>
             <div class="form-group full-width">
@@ -287,5 +265,42 @@
   </div>
 
   <script src="script.js" type="module"></script>
+
+  <!-- MODALE GESTIONE CATEGORIE -->
+  <div id="modalCategorie" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>⚙️ Gestione Categorie</h2>
+        <button onclick="chiudiGestioneCategorie()" class="modal-close">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Form per aggiungere/modificare -->
+        <div class="form-categoria">
+          <input type="text" id="nuovaCategoria" placeholder="Nome nuova categoria" maxlength="50">
+          <button id="btnAggiungiCategoria" onclick="aggiungiCategoria()" class="btn-add-cat">Aggiungi</button>
+        </div>
+        
+        <!-- Legenda -->
+        <div class="legenda-categorie">
+          <span class="legenda-item"><span class="legenda-icon fissa">🔒</span> Fissa (modificabile)</span>
+          <span class="legenda-item"><span class="legenda-icon personalizzata">🏷️</span> Personalizzata (eliminabile)</span>
+        </div>
+        
+        <!-- Lista categorie esistenti -->
+        <div class="lista-categorie-header">
+          <span>Categorie esistenti</span>
+          <span class="cat-count" id="contatoreCat"></span>
+        </div>
+        <div id="listaCategorieModal" class="lista-categorie">
+          <!-- Le categorie vengono caricate dinamicamente -->
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button onclick="chiudiGestioneCategorie()" class="btn-chiudi">Chiudi</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

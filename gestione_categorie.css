@@ -1,0 +1,322 @@
+/* =====================================================
+   GESTIONE CATEGORIE - Modale e Stili
+   ===================================================== */
+
+/* Pulsante ingranaggio accanto al label */
+.btn-gestisci-cat {
+  background: none;
+  border: none;
+  font-size: 1.1em;
+  cursor: pointer;
+  padding: 2px 6px;
+  margin-left: 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+
+.btn-gestisci-cat:hover {
+  background: rgba(102, 126, 234, 0.15);
+  transform: rotate(45deg);
+}
+
+/* ===== MODALE OVERLAY ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* ===== CONTENUTO MODALE ===== */
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== HEADER MODALE ===== */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 2px solid #f0f0f0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px 16px 0 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: white;
+  font-size: 1.4em;
+  background: none;
+  -webkit-text-fill-color: white;
+}
+
+.modal-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.8em;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
+  padding: 0;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* ===== BODY MODALE ===== */
+.modal-body {
+  padding: 25px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Form per aggiungere categoria */
+.form-categoria {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.form-categoria input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1em;
+  transition: border-color 0.3s ease;
+}
+
+.form-categoria input:focus {
+  border-color: #667eea;
+  outline: none;
+}
+
+.btn-add-cat {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-add-cat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+}
+
+/* Header lista categorie */
+.lista-categorie-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.lista-categorie-header span:first-child {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1.1em;
+}
+
+.cat-count {
+  background: #667eea;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+/* Lista categorie */
+.lista-categorie {
+  max-height: 350px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.categoria-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s ease;
+}
+
+.categoria-item:last-child {
+  border-bottom: none;
+}
+
+.categoria-item:hover {
+  background: #f8f9fa;
+}
+
+.categoria-nome {
+  font-weight: 500;
+  color: #2c3e50;
+  flex: 1;
+}
+
+.categoria-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.categoria-actions button {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-edit:hover {
+  background: rgba(52, 152, 219, 0.15);
+}
+
+.btn-delete:hover {
+  background: rgba(231, 76, 60, 0.15);
+}
+
+/* Stato vuoto */
+.empty-categorie {
+  text-align: center;
+  padding: 40px 20px;
+  color: #95a5a6;
+  font-style: italic;
+}
+
+/* ===== FOOTER MODALE ===== */
+.modal-footer {
+  padding: 15px 25px;
+  border-top: 2px solid #f0f0f0;
+  text-align: right;
+}
+
+.btn-chiudi {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-chiudi:hover {
+  background: #7f8c8d;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 10px;
+    align-items: flex-end;
+  }
+  
+  .modal-content {
+    max-height: 90vh;
+    border-radius: 16px 16px 0 0;
+  }
+  
+  .modal-header {
+    padding: 15px 20px;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.2em;
+  }
+  
+  .modal-body {
+    padding: 20px 15px;
+  }
+  
+  .form-categoria {
+    flex-direction: column;
+  }
+  
+  .form-categoria input,
+  .btn-add-cat {
+    width: 100%;
+  }
+  
+  .lista-categorie {
+    max-height: 280px;
+  }
+  
+  .categoria-item {
+    padding: 10px 12px;
+  }
+  
+  .categoria-nome {
+    font-size: 0.95em;
+  }
+}
+
+/* Scrollbar personalizzata per la lista */
+.lista-categorie::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lista-categorie::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 3px;
+}
+
+.lista-categorie::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 3px;
+}
+
+.lista-categorie::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
