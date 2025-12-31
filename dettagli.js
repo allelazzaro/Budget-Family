@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 // Configurazione Firebase
@@ -14,6 +15,7 @@ const firebaseConfig = {
 
 // Inizializza Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getDatabase(app);
 
 // Recupera i parametri dalla query string
@@ -245,10 +247,20 @@ function mostraUscite() {
     });
 }
 
-// Recupera le transazioni dal database
-onValue(ref(db, 'transazioni'), snapshot => {
-    transazioni = snapshot.val() || {};
-    mostraDettagli();
+// Verifica autenticazione e recupera le transazioni
+onAuthStateChanged(auth, (utente) => {
+    if (utente) {
+        // Utente autenticato, carica le transazioni
+        onValue(ref(db, 'transazioni'), snapshot => {
+            transazioni = snapshot.val() || {};
+            mostraDettagli();
+        }, (error) => {
+            console.error("Errore caricamento transazioni:", error);
+        });
+    } else {
+        // Utente non autenticato, torna alla home
+        window.location.href = "index.html";
+    }
 });
 
 // Funzione per tornare alla home
