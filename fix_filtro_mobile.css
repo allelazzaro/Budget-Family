@@ -1,0 +1,95 @@
+/* =====================================================
+   FIX SEZIONE FILTRO - Mobile / iPhone
+   Risolve problemi di centratura e input tagliato
+   ===================================================== */
+
+/* Fix per schermi piccoli (iPhone e simili) */
+@media (max-width: 480px) {
+  
+  /* Sezione filtro - layout verticale centrato */
+  .filter-section {
+    padding: 20px 15px;
+    text-align: center;
+  }
+  
+  .filter-header {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  .filter-header h2 {
+    font-size: 1.2em;
+    margin: 0;
+    justify-content: center;
+  }
+  
+  /* Contenuto filtro - layout verticale */
+  .filter-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+  
+  /* Input mese - larghezza piena e non tagliato */
+  .filter-content input[type="month"] {
+    width: 100%;
+    max-width: 280px;
+    min-width: unset; /* Rimuove il min-width che causa il taglio */
+    padding: 12px 15px;
+    font-size: 16px; /* Previene zoom su iOS */
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    background: white;
+    box-sizing: border-box;
+    text-align: center;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  /* Pulsante Esporta Excel - centrato */
+  .btn-export {
+    width: 100%;
+    max-width: 280px;
+    padding: 12px 20px;
+    font-size: 1em;
+    text-align: center;
+    margin: 0 auto;
+  }
+}
+
+/* Fix per iPhone SE e schermi molto piccoli */
+@media (max-width: 375px) {
+  
+  .filter-section {
+    padding: 15px 10px;
+  }
+  
+  .filter-content input[type="month"] {
+    max-width: 250px;
+    padding: 10px 12px;
+    font-size: 15px;
+  }
+  
+  .btn-export {
+    max-width: 250px;
+    padding: 10px 15px;
+    font-size: 0.95em;
+  }
+  
+  .filter-header h2 {
+    font-size: 1.1em;
+  }
+}
+
+/* Fix specifico per iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  .filter-content input[type="month"] {
+    min-height: 44px; /* Altezza minima per touch target iOS */
+  }
+  
+  .btn-export {
+    min-height: 44px;
+  }
+}

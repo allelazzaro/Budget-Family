@@ -40,6 +40,7 @@ function mostraDettaglioUscitePerCategoria() {
 
     let spesePerCategoria = {};
     let totaleGenerale = { totale: 0, Alessio: 0 };
+    let mesiConSpese = new Set(); // Traccia i mesi con almeno una spesa
 
     const transazioniRef = ref(db, 'transazioni');
 
@@ -53,6 +54,10 @@ function mostraDettaglioUscitePerCategoria() {
                 if (transazione.tipo === 'Uscita' && annoTransazione === annoSelezionato) {
                     const importo = parseFloat(transazione.importo);
                     const categoria = transazione.categoria;
+                    const meseTransazione = transazione.data.slice(0, 7); // YYYY-MM
+
+                    // Aggiungi il mese al set dei mesi con spese
+                    mesiConSpese.add(meseTransazione);
 
                     let pagatoDa = transazione.persona?.trim().toLowerCase();
 
@@ -79,7 +84,7 @@ function mostraDettaglioUscitePerCategoria() {
             aggiornaCardRiepilogo(totaleGenerale, categorieOrdinate.length);
 
             // Aggiorna le statistiche
-            aggiornaStatistiche(categorieOrdinate, totaleGenerale);
+            aggiornaStatistiche(categorieOrdinate, totaleGenerale, mesiConSpese.size);
 
             // Genera la tabella
             const suddivisioneDiv = document.getElementById('suddivisioneSpese');
@@ -155,7 +160,7 @@ function aggiornaCardRiepilogo(totaleGenerale, numeroCategorie) {
 }
 
 // Funzione per aggiornare le statistiche
-function aggiornaStatistiche(categorieOrdinate, totaleGenerale) {
+function aggiornaStatistiche(categorieOrdinate, totaleGenerale, numeroMesi) {
     const categoriaTopEl = document.getElementById('categoriaTop');
     const spesaMediaEl = document.getElementById('spesaMedia');
 
@@ -166,8 +171,8 @@ function aggiornaStatistiche(categorieOrdinate, totaleGenerale) {
             categoriaTopEl.textContent = `${categoriaTop} (€${speseTop.totale.toFixed(2)})`;
         }
 
-        // Spesa media per categoria
-        const spesaMedia = totaleGenerale.totale / categorieOrdinate.length;
+        // Spesa media mensile (totale / numero di mesi con spese)
+        const spesaMedia = numeroMesi > 0 ? totaleGenerale.totale / numeroMesi : 0;
         if (spesaMediaEl) {
             spesaMediaEl.textContent = `€${spesaMedia.toFixed(2)}`;
         }
