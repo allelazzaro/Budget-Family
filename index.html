@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="fix_filtro_mobile.css">
   <link rel="stylesheet" href="gestione_categorie.css">
   <link rel="stylesheet" href="ultima_spesa.css">
+  <link rel="stylesheet" href="funzionalita_avanzate.css">
   <link rel="manifest" href="manifest.json">
   <!-- Librerie per Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
@@ -137,6 +138,7 @@
             <div class="ultima-spesa-header">
               <span class="ultima-spesa-icon">🔖</span>
               <span>Ultima Spesa Inserita</span>
+              <button onclick="cancellaUltimaSpesa()" class="btn-cancella-ultima-spesa" title="Cancella">✕</button>
             </div>
             
             <div class="ultima-spesa-content" id="ultimaSpesaContent">
@@ -231,6 +233,103 @@
         </button>
       </section>
 
+      <!-- GESTISCI SPESE RICORRENTI -->
+      <section class="card action-card">
+        <button onclick="apriModalRicorrenti()" class="btn-ricorrenti">
+          <span class="icon">🔄</span>
+          <span>Gestisci Spese Ricorrenti</span>
+        </button>
+      </section>
+
+      <!-- RICERCA AVANZATA -->
+      <section class="card search-section collapsed" id="searchSection">
+        <div class="search-header" onclick="toggleSearchFilters()">
+          <h3>
+            <span>🔍</span>
+            <span>Ricerca Avanzata</span>
+          </h3>
+          <span class="search-toggle-icon">▼</span>
+        </div>
+        
+        <div class="search-filters" id="searchFilters" style="display: none;">
+          
+          <!-- Ricerca Testo -->
+          <div class="search-filter">
+            <label for="searchText">🔎 Cerca Testo</label>
+            <input type="text" id="searchText" placeholder="Descrizione o categoria">
+          </div>
+          
+          <!-- Importo Minimo -->
+          <div class="search-filter">
+            <label for="searchImportoMin">💰 Importo Min (€)</label>
+            <input type="number" id="searchImportoMin" placeholder="0.00" step="0.01">
+          </div>
+          
+          <!-- Importo Massimo -->
+          <div class="search-filter">
+            <label for="searchImportoMax">💰 Importo Max (€)</label>
+            <input type="number" id="searchImportoMax" placeholder="1000.00" step="0.01">
+          </div>
+          
+          <!-- Data Da -->
+          <div class="search-filter">
+            <label for="searchDataDa">📅 Data Da</label>
+            <input type="date" id="searchDataDa">
+          </div>
+          
+          <!-- Data A -->
+          <div class="search-filter">
+            <label for="searchDataA">📅 Data A</label>
+            <input type="date" id="searchDataA">
+          </div>
+          
+          <!-- Tipo Transazione -->
+          <div class="search-filter">
+            <label for="searchTipo">📊 Tipo</label>
+            <select id="searchTipo">
+              <option value="">Tutte</option>
+              <option value="Entrata">Entrate</option>
+              <option value="Uscita">Uscite</option>
+            </select>
+          </div>
+          
+          <!-- Categoria -->
+          <div class="search-filter">
+            <label for="searchCategoria">📁 Categoria</label>
+            <select id="searchCategoria">
+              <option value="">Tutte</option>
+              <!-- Popolato dinamicamente -->
+            </select>
+          </div>
+          
+          <!-- Persona -->
+          <div class="search-filter">
+            <label for="searchPersona">👤 Persona</label>
+            <select id="searchPersona">
+              <option value="">Tutte</option>
+              <option value="Alessio">Alessio</option>
+            </select>
+          </div>
+          
+        </div>
+        
+        <!-- Azioni -->
+        <div class="search-actions" id="searchActions" style="display: none;">
+          <button onclick="applicaFiltri()" class="btn-search">
+            🔍 Cerca
+          </button>
+          <button onclick="resetFiltri()" class="btn-reset-search">
+            🔄 Reset
+          </button>
+        </div>
+        
+        <!-- Info Risultati -->
+        <div id="searchResultsInfo" class="search-results-info" style="display: none;">
+          Trovate <span class="search-results-count" id="searchResultsCount">0</span> transazioni
+        </div>
+        
+      </section>
+
       <!-- LISTA TRANSAZIONI -->
       <section class="card">
         <div class="transactions-header">
@@ -323,5 +422,84 @@
       </div>
     </div>
   </div>
+
+  <!-- MODALE SPESE RICORRENTI -->
+  <div id="modalRicorrenti" class="modal-ricorrenti">
+    <div class="modal-ricorrenti-content">
+      
+      <!-- Header -->
+      <div class="modal-ricorrenti-header">
+        <h2>🔄 Gestione Spese Ricorrenti</h2>
+        <button onclick="chiudiModalRicorrenti()" class="modal-ricorrenti-close">&times;</button>
+      </div>
+      
+      <!-- Body -->
+      <div class="modal-ricorrenti-body">
+        
+        <!-- Form Nuova Ricorrenza -->
+        <div class="form-ricorrenza">
+          <h3>➕ Nuova Spesa Ricorrente</h3>
+          
+          <div class="form-ricorrenza-grid">
+            <div class="full-width">
+              <label for="nomeRicorrenza">Nome Spesa *</label>
+              <input type="text" id="nomeRicorrenza" placeholder="es. Affitto, Netflix, Palestra" required>
+            </div>
+            
+            <div>
+              <label for="categoriaRicorrenza">Categoria *</label>
+              <select id="categoriaRicorrenza">
+                <!-- Popolato dinamicamente dalle categorie esistenti -->
+              </select>
+            </div>
+            
+            <div>
+              <label for="importoRicorrenza">Importo (€) *</label>
+              <input type="number" id="importoRicorrenza" placeholder="0.00" step="0.01" required>
+            </div>
+            
+            <div>
+              <label for="giornoRicorrenza">Giorno del Mese *</label>
+              <input type="number" id="giornoRicorrenza" min="1" max="31" placeholder="1-31" required>
+            </div>
+            
+            <div>
+              <label for="personaRicorrenza">Persona</label>
+              <select id="personaRicorrenza">
+                <option value="Alessio">Alessio</option>
+              </select>
+            </div>
+            
+            <div class="full-width">
+              <label for="descrizioneRicorrenza">Descrizione (opzionale)</label>
+              <input type="text" id="descrizioneRicorrenza" placeholder="Note aggiuntive">
+            </div>
+          </div>
+          
+          <button onclick="aggiungiRicorrenza()" id="btnAggiungiRicorrenza" class="btn-aggiungi-ricorrenza">
+            ➕ Aggiungi Spesa Ricorrente
+          </button>
+        </div>
+        
+        <!-- Lista Ricorrenze Esistenti -->
+        <div class="lista-ricorrenze-header">
+          <h3>📋 Spese Ricorrenti Salvate</h3>
+          <span class="ricorrenze-count" id="contatoreRicorrenze">0</span>
+        </div>
+        
+        <div id="listaRicorrenze" class="lista-ricorrenze">
+          <!-- Popolato dinamicamente -->
+        </div>
+        
+        <!-- Pulsante Genera Spese del Mese -->
+        <button onclick="generaSpeseDelMese()" class="btn-genera-spese">
+          ⚡ Genera Spese Ricorrenti del Mese Corrente
+        </button>
+        
+      </div>
+      
+    </div>
+  </div>
+
 </body>
 </html>

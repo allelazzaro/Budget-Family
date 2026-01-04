@@ -40,6 +40,7 @@
 .ultima-spesa-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   margin-bottom: 12px;
   font-size: 0.9em;
@@ -51,6 +52,30 @@
 
 .ultima-spesa-icon {
   font-size: 1.2em;
+}
+
+.btn-cancella-ultima-spesa {
+  background: rgba(231, 76, 60, 0.15);
+  border: none;
+  color: #e74c3c;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 1.2em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  line-height: 1;
+  margin-left: auto;
+}
+
+.btn-cancella-ultima-spesa:hover {
+  background: #e74c3c;
+  color: white;
+  transform: scale(1.1);
 }
 
 /* Contenuto principale */

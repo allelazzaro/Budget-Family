@@ -1,0 +1,547 @@
+/* =====================================================
+   SPESE RICORRENTI + RICERCA AVANZATA
+   ===================================================== */
+
+/* ===== PULSANTE GESTISCI RICORRENTI ===== */
+.btn-ricorrenti {
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.1em;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.btn-ricorrenti:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(155, 89, 182, 0.4);
+}
+
+.btn-ricorrenti .icon {
+  font-size: 1.3em;
+}
+
+/* ===== MODALE SPESE RICORRENTI ===== */
+.modal-ricorrenti {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.modal-ricorrenti-content {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: slideInModal 0.3s ease;
+}
+
+@keyframes slideInModal {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-ricorrenti-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  border-bottom: 2px solid #f0f0f0;
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+  border-radius: 20px 20px 0 0;
+}
+
+.modal-ricorrenti-header h2 {
+  margin: 0;
+  color: white;
+  font-size: 1.6em;
+}
+
+.modal-ricorrenti-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 2em;
+  cursor: pointer;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modal-ricorrenti-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.modal-ricorrenti-body {
+  padding: 30px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Form nuova ricorrenza */
+.form-ricorrenza {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  border: 2px solid #9b59b6;
+}
+
+.form-ricorrenza h3 {
+  margin: 0 0 20px 0;
+  color: #9b59b6;
+  font-size: 1.3em;
+}
+
+.form-ricorrenza-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-ricorrenza-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+.form-ricorrenza label {
+  display: block;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+  font-size: 0.95em;
+}
+
+.form-ricorrenza input,
+.form-ricorrenza select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1em;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-ricorrenza input:focus,
+.form-ricorrenza select:focus {
+  border-color: #9b59b6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
+}
+
+.btn-aggiungi-ricorrenza {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+  border: none;
+  padding: 14px 25px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  font-size: 1.05em;
+}
+
+.btn-aggiungi-ricorrenza:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+}
+
+/* Lista ricorrenze */
+.lista-ricorrenze-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.lista-ricorrenze-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.3em;
+}
+
+.ricorrenze-count {
+  background: #9b59b6;
+  color: white;
+  padding: 6px 15px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.lista-ricorrenze {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 5px;
+}
+
+.ricorrenza-item {
+  background: white;
+  padding: 18px 20px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  border-left: 5px solid #9b59b6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ricorrenza-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.ricorrenza-item.inattiva {
+  opacity: 0.5;
+  border-left-color: #95a5a6;
+}
+
+.ricorrenza-info {
+  flex: 1;
+}
+
+.ricorrenza-nome {
+  font-weight: 700;
+  color: #2c3e50;
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+
+.ricorrenza-dettagli {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  font-size: 0.9em;
+  color: #7f8c8d;
+}
+
+.ricorrenza-dettagli span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ricorrenza-importo {
+  color: #e74c3c;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  font-size: 1.05em;
+}
+
+.ricorrenza-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ricorrenza-actions button {
+  background: none;
+  border: none;
+  font-size: 1.3em;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.ricorrenza-actions .btn-toggle {
+  font-size: 1.5em;
+}
+
+.ricorrenza-actions .btn-edit:hover {
+  background: rgba(52, 152, 219, 0.15);
+}
+
+.ricorrenza-actions .btn-delete:hover {
+  background: rgba(231, 76, 60, 0.15);
+}
+
+/* Pulsante genera spese */
+.btn-genera-spese {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: none;
+  padding: 16px 30px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  font-size: 1.1em;
+  margin-top: 20px;
+}
+
+.btn-genera-spese:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+}
+
+/* Empty state */
+.empty-ricorrenze {
+  text-align: center;
+  padding: 60px 20px;
+  color: #95a5a6;
+}
+
+.empty-ricorrenze-icon {
+  font-size: 4em;
+  margin-bottom: 15px;
+  opacity: 0.3;
+}
+
+.empty-ricorrenze-text {
+  font-size: 1.1em;
+  margin-bottom: 8px;
+}
+
+.empty-ricorrenze-hint {
+  font-size: 0.9em;
+  font-style: italic;
+}
+
+/* ===== RICERCA AVANZATA ===== */
+.search-section {
+  background: linear-gradient(135deg, #fff5f0 0%, #ffe8e0 100%);
+  border: 2px solid #e67e22;
+  padding: 25px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.search-header h3 {
+  margin: 0;
+  color: #e67e22;
+  font-size: 1.3em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-toggle-icon {
+  color: #e67e22;
+  font-size: 1.5em;
+  transition: transform 0.3s ease;
+}
+
+.search-section.collapsed .search-toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.search-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.search-filters.collapsed {
+  display: none;
+}
+
+.search-filter {
+  display: flex;
+  flex-direction: column;
+}
+
+.search-filter label {
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+}
+
+.search-filter input,
+.search-filter select {
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95em;
+  transition: border-color 0.3s ease;
+}
+
+.search-filter input:focus,
+.search-filter select:focus {
+  border-color: #e67e22;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
+}
+
+.search-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.btn-search {
+  flex: 1;
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-search:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(230, 126, 34, 0.3);
+}
+
+.btn-reset-search {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-reset-search:hover {
+  background: #7f8c8d;
+}
+
+.search-results-info {
+  background: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  margin-top: 15px;
+  border-left: 4px solid #e67e22;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.search-results-count {
+  color: #e67e22;
+  font-size: 1.1em;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .modal-ricorrenti-content {
+    max-width: 95%;
+  }
+
+  .modal-ricorrenti-header {
+    padding: 20px;
+  }
+
+  .modal-ricorrenti-body {
+    padding: 20px;
+  }
+
+  .form-ricorrenza-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ricorrenza-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .ricorrenza-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .search-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .search-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-ricorrenti-header h2 {
+    font-size: 1.3em;
+  }
+
+  .form-ricorrenza {
+    padding: 20px;
+  }
+
+  .ricorrenza-dettagli {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-ricorrenti {
+    font-size: 1em;
+    padding: 12px 20px;
+  }
+}
+
+/* Scrollbar personalizzata */
+.lista-ricorrenze::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lista-ricorrenze::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.lista-ricorrenze::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 4px;
+}
+
+.lista-ricorrenze::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}

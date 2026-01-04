@@ -136,6 +136,30 @@ function caricaUltimaSpesaLocalStorage() {
   }
 }
 
+/**
+ * Cancella l'ultima spesa dal localStorage e nasconde il box
+ */
+window.cancellaUltimaSpesa = function() {
+  if (confirm('Vuoi cancellare l\'ultima spesa visualizzata?')) {
+    // Rimuove dal localStorage
+    localStorage.removeItem('ultimaSpesaInserita');
+    
+    // Nasconde il box
+    const box = document.getElementById('ultimaSpesaBox');
+    const emptyBox = document.getElementById('ultimaSpesaEmpty');
+    
+    if (box) {
+      box.style.display = 'none';
+    }
+    
+    if (emptyBox) {
+      emptyBox.style.display = 'flex';
+    }
+    
+    console.log('Ultima spesa cancellata dal localStorage');
+  }
+};
+
 
 // ==============================
 // FUNZIONE MIGLIORATA PER LE DIFFERENZE
@@ -1045,4 +1069,524 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // ✅ Carica l'ultima spesa dal localStorage
   caricaUltimaSpesaLocalStorage();
+});/* =====================================================
+   FUNZIONI SPESE RICORRENTI + RICERCA AVANZATA
+   Aggiungi queste funzioni nel tuo script.js
+   ===================================================== */
+
+// ==============================
+// VARIABILI GLOBALI
+// ==============================
+let speseRicorrenti = [];
+let filtriAttivi = false;
+
+// ==============================
+// SPESE RICORRENTI - Gestione Modale
+// ==============================
+
+/**
+ * Apri modale spese ricorrenti
+ */
+window.apriModalRicorrenti = function() {
+  const modal = document.getElementById('modalRicorrenti');
+  if (modal) {
+    modal.style.display = 'flex';
+    caricaSpeseRicorrenti();
+    popolaCategorieRicorrenza();
+  }
+};
+
+/**
+ * Chiudi modale spese ricorrenti
+ */
+window.chiudiModalRicorrenti = function() {
+  const modal = document.getElementById('modalRicorrenti');
+  if (modal) {
+    modal.style.display = 'none';
+    resetFormRicorrenza();
+  }
+};
+
+/**
+ * Reset form ricorrenza
+ */
+function resetFormRicorrenza() {
+  document.getElementById('nomeRicorrenza').value = '';
+  document.getElementById('importoRicorrenza').value = '';
+  document.getElementById('giornoRicorrenza').value = '';
+  document.getElementById('descrizioneRicorrenza').value = '';
+  document.getElementById('btnAggiungiRicorrenza').textContent = '➕ Aggiungi Spesa Ricorrente';
+  delete document.getElementById('btnAggiungiRicorrenza').dataset.editId;
+}
+
+/**
+ * Popola select categorie nel form ricorrenza
+ */
+function popolaCategorieRicorrenza() {
+  const select = document.getElementById('categoriaRicorrenza');
+  if (!select) return;
+  
+  select.innerHTML = '';
+  
+  // Usa le categorie globali già caricate
+  if (typeof categorie !== 'undefined' && categorie.length > 0) {
+    categorie.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat.nome;
+      option.textContent = cat.nome;
+      select.appendChild(option);
+    });
+  }
+}
+
+/**
+ * Carica spese ricorrenti da Firebase
+ */
+function caricaSpeseRicorrenti() {
+  const ricorrentiRef = ref(db, 'speseRicorrenti');
+  
+  onValue(ricorrentiRef, (snapshot) => {
+    const dati = snapshot.val();
+    speseRicorrenti = dati ? Object.entries(dati).map(([id, data]) => ({ id, ...data })) : [];
+    aggiornaListaRicorrenze();
+  }, (error) => {
+    console.error("Errore caricamento ricorrenti:", error);
+  });
+}
+
+/**
+ * Aggiorna lista ricorrenze nella modale
+ */
+function aggiornaListaRicorrenze() {
+  const lista = document.getElementById('listaRicorrenze');
+  const contatore = document.getElementById('contatoreRicorrenze');
+  
+  if (!lista) return;
+  
+  // Aggiorna contatore
+  if (contatore) {
+    const attive = speseRicorrenti.filter(r => r.attiva !== false).length;
+    contatore.textContent = `${attive}/${speseRicorrenti.length}`;
+  }
+  
+  // Mostra empty state se vuoto
+  if (speseRicorrenti.length === 0) {
+    lista.innerHTML = `
+      <div class="empty-ricorrenze">
+        <div class="empty-ricorrenze-icon">🔄</div>
+        <div class="empty-ricorrenze-text">Nessuna spesa ricorrente configurata</div>
+        <div class="empty-ricorrenze-hint">Aggiungi le tue spese fisse mensili</div>
+      </div>
+    `;
+    return;
+  }
+  
+  // Ordina per nome
+  const ricorrenzeOrdinate = [...speseRicorrenti].sort((a, b) => 
+    a.nome.localeCompare(b.nome)
+  );
+  
+  // Genera HTML
+  lista.innerHTML = ricorrenzeOrdinate.map(ric => {
+    const attiva = ric.attiva !== false;
+    const iconaStato = attiva ? '✅' : '⏸️';
+    const titleStato = attiva ? 'Disattiva' : 'Attiva';
+    
+    return `
+      <div class="ricorrenza-item ${attiva ? '' : 'inattiva'}">
+        <div class="ricorrenza-info">
+          <div class="ricorrenza-nome">${ric.nome}</div>
+          <div class="ricorrenza-dettagli">
+            <span class="ricorrenza-importo">€${parseFloat(ric.importo).toFixed(2)}</span>
+            <span>📁 ${ric.categoria}</span>
+            <span>📅 Giorno ${ric.giorno}</span>
+            ${ric.descrizione ? `<span>📝 ${ric.descrizione}</span>` : ''}
+          </div>
+        </div>
+        <div class="ricorrenza-actions">
+          <button class="btn-toggle" onclick="toggleRicorrenza('${ric.id}')" title="${titleStato}">
+            ${iconaStato}
+          </button>
+          <button class="btn-edit" onclick="modificaRicorrenza('${ric.id}')" title="Modifica">✏️</button>
+          <button class="btn-delete" onclick="eliminaRicorrenza('${ric.id}', '${ric.nome}')" title="Elimina">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/**
+ * Aggiungi nuova spesa ricorrente
+ */
+window.aggiungiRicorrenza = function() {
+  const nome = document.getElementById('nomeRicorrenza').value.trim();
+  const categoria = document.getElementById('categoriaRicorrenza').value;
+  const importo = document.getElementById('importoRicorrenza').value;
+  const giorno = document.getElementById('giornoRicorrenza').value;
+  const persona = document.getElementById('personaRicorrenza').value;
+  const descrizione = document.getElementById('descrizioneRicorrenza').value.trim();
+  const btn = document.getElementById('btnAggiungiRicorrenza');
+  const editId = btn.dataset.editId;
+  
+  // Validazione
+  if (!nome || !categoria || !importo || !giorno) {
+    alert('Compila tutti i campi obbligatori (*)');
+    return;
+  }
+  
+  if (giorno < 1 || giorno > 31) {
+    alert('Il giorno deve essere tra 1 e 31');
+    return;
+  }
+  
+  const ricorrenza = {
+    nome: nome,
+    categoria: categoria,
+    importo: parseFloat(importo),
+    giorno: parseInt(giorno),
+    persona: persona,
+    descrizione: descrizione,
+    attiva: true,
+    dataCreazione: Date.now()
+  };
+  
+  if (editId) {
+    // Modalità modifica
+    const ricorrenzaRef = ref(db, `speseRicorrenti/${editId}`);
+    update(ricorrenzaRef, ricorrenza)
+      .then(() => {
+        resetFormRicorrenza();
+        alert('✅ Spesa ricorrente aggiornata!');
+      })
+      .catch(err => {
+        console.error('Errore aggiornamento:', err);
+        alert('❌ Errore durante l\'aggiornamento');
+      });
+  } else {
+    // Modalità aggiunta
+    const nuovaRef = push(ref(db, 'speseRicorrenti'));
+    set(nuovaRef, ricorrenza)
+      .then(() => {
+        resetFormRicorrenza();
+        alert('✅ Spesa ricorrente aggiunta!');
+      })
+      .catch(err => {
+        console.error('Errore salvataggio:', err);
+        alert('❌ Errore durante il salvataggio');
+      });
+  }
+};
+
+/**
+ * Modifica spesa ricorrente
+ */
+window.modificaRicorrenza = function(id) {
+  const ricorrenza = speseRicorrenti.find(r => r.id === id);
+  if (!ricorrenza) return;
+  
+  // Popola il form
+  document.getElementById('nomeRicorrenza').value = ricorrenza.nome;
+  document.getElementById('categoriaRicorrenza').value = ricorrenza.categoria;
+  document.getElementById('importoRicorrenza').value = ricorrenza.importo;
+  document.getElementById('giornoRicorrenza').value = ricorrenza.giorno;
+  document.getElementById('personaRicorrenza').value = ricorrenza.persona;
+  document.getElementById('descrizioneRicorrenza').value = ricorrenza.descrizione || '';
+  
+  // Cambia il pulsante
+  const btn = document.getElementById('btnAggiungiRicorrenza');
+  btn.textContent = '💾 Salva Modifiche';
+  btn.dataset.editId = id;
+  
+  // Scroll to top
+  document.querySelector('.modal-ricorrenti-body').scrollTop = 0;
+};
+
+/**
+ * Elimina spesa ricorrente
+ */
+window.eliminaRicorrenza = function(id, nome) {
+  if (!confirm(`Vuoi eliminare la spesa ricorrente "${nome}"?`)) {
+    return;
+  }
+  
+  const ricorrenzaRef = ref(db, `speseRicorrenti/${id}`);
+  remove(ricorrenzaRef)
+    .then(() => {
+      alert('✅ Spesa ricorrente eliminata!');
+    })
+    .catch(err => {
+      console.error('Errore eliminazione:', err);
+      alert('❌ Errore durante l\'eliminazione');
+    });
+};
+
+/**
+ * Toggle attiva/disattiva ricorrenza
+ */
+window.toggleRicorrenza = function(id) {
+  const ricorrenza = speseRicorrenti.find(r => r.id === id);
+  if (!ricorrenza) return;
+  
+  const nuovoStato = !(ricorrenza.attiva !== false);
+  const ricorrenzaRef = ref(db, `speseRicorrenti/${id}`);
+  
+  update(ricorrenzaRef, { attiva: nuovoStato })
+    .then(() => {
+      const msg = nuovoStato ? 'attivata' : 'disattivata';
+      console.log(`Ricorrenza ${msg}`);
+    })
+    .catch(err => {
+      console.error('Errore toggle:', err);
+    });
+};
+
+/**
+ * Genera spese ricorrenti del mese corrente
+ */
+window.generaSpeseDelMese = function() {
+  const oggi = new Date();
+  const meseCorrente = oggi.toISOString().slice(0, 7); // YYYY-MM
+  const annoCorrente = oggi.getFullYear();
+  const meseNum = oggi.getMonth() + 1; // 1-12
+  
+  // Filtra solo ricorrenze attive
+  const ricorrenteAttive = speseRicorrenti.filter(r => r.attiva !== false);
+  
+  if (ricorrenteAttive.length === 0) {
+    alert('⚠️ Nessuna spesa ricorrente attiva da generare');
+    return;
+  }
+  
+  if (!confirm(`Vuoi generare ${ricorrenteAttive.length} spese ricorrenti per ${meseCorrente}?`)) {
+    return;
+  }
+  
+  let generate = 0;
+  let errori = 0;
+  
+  ricorrenteAttive.forEach(ric => {
+    // Determina la data corretta
+    let giorno = ric.giorno;
+    const ultimoGiorno = new Date(annoCorrente, meseNum, 0).getDate();
+    
+    // Se il giorno supera l'ultimo giorno del mese, usa l'ultimo giorno
+    if (giorno > ultimoGiorno) {
+      giorno = ultimoGiorno;
+    }
+    
+    const data = `${annoCorrente}-${String(meseNum).padStart(2, '0')}-${String(giorno).padStart(2, '0')}`;
+    
+    // Crea la transazione
+    const nuovaTransazione = {
+      tipo: 'Uscita',
+      persona: ric.persona,
+      categoria: ric.categoria,
+      descrizione: ric.descrizione || `${ric.nome} (ricorrente)`,
+      importo: ric.importo,
+      data: data,
+      ricorrente: true,
+      ricorrenteId: ric.id,
+      timestamp: Date.now()
+    };
+    
+    // Salva su Firebase
+    push(ref(db, 'transazioni'), nuovaTransazione)
+      .then(() => {
+        generate++;
+        if (generate + errori === ricorrenteAttive.length) {
+          mostraRisultatoGenerazione(generate, errori);
+        }
+      })
+      .catch(err => {
+        console.error('Errore generazione:', err);
+        errori++;
+        if (generate + errori === ricorrenteAttive.length) {
+          mostraRisultatoGenerazione(generate, errori);
+        }
+      });
+  });
+};
+
+/**
+ * Mostra risultato generazione spese
+ */
+function mostraRisultatoGenerazione(generate, errori) {
+  if (errori === 0) {
+    alert(`✅ Generate ${generate} spese ricorrenti con successo!`);
+    chiudiModalRicorrenti();
+  } else {
+    alert(`⚠️ Generate ${generate} spese, ${errori} errori`);
+  }
+}
+
+// ==============================
+// RICERCA AVANZATA
+// ==============================
+
+/**
+ * Toggle espansione filtri ricerca
+ */
+window.toggleSearchFilters = function() {
+  const section = document.getElementById('searchSection');
+  const filters = document.getElementById('searchFilters');
+  const actions = document.getElementById('searchActions');
+  
+  if (section.classList.contains('collapsed')) {
+    section.classList.remove('collapsed');
+    filters.style.display = 'grid';
+    actions.style.display = 'flex';
+  } else {
+    section.classList.add('collapsed');
+    filters.style.display = 'none';
+    actions.style.display = 'none';
+  }
+};
+
+/**
+ * Popola select categorie nella ricerca
+ */
+function popolaCategorieRicerca() {
+  const select = document.getElementById('searchCategoria');
+  if (!select) return;
+  
+  // Mantieni l'opzione "Tutte"
+  const optionTutte = select.querySelector('option[value=""]');
+  select.innerHTML = '';
+  if (optionTutte) select.appendChild(optionTutte);
+  
+  // Aggiungi categorie
+  if (typeof categorie !== 'undefined' && categorie.length > 0) {
+    categorie.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat.nome;
+      option.textContent = cat.nome;
+      select.appendChild(option);
+    });
+  }
+}
+
+/**
+ * Applica filtri di ricerca
+ */
+window.applicaFiltri = function() {
+  const testo = document.getElementById('searchText').value.toLowerCase().trim();
+  const importoMin = parseFloat(document.getElementById('searchImportoMin').value) || 0;
+  const importoMax = parseFloat(document.getElementById('searchImportoMax').value) || Infinity;
+  const dataDa = document.getElementById('searchDataDa').value;
+  const dataA = document.getElementById('searchDataA').value;
+  const tipo = document.getElementById('searchTipo').value;
+  const categoria = document.getElementById('searchCategoria').value;
+  const persona = document.getElementById('searchPersona').value;
+  
+  // Filtra transazioni
+  const risultati = transazioni.filter(([id, t]) => {
+    // Filtro testo
+    if (testo) {
+      const matchTesto = 
+        (t.descrizione && t.descrizione.toLowerCase().includes(testo)) ||
+        (t.categoria && t.categoria.toLowerCase().includes(testo));
+      if (!matchTesto) return false;
+    }
+    
+    // Filtro importo
+    const importo = parseFloat(t.importo);
+    if (importo < importoMin || importo > importoMax) return false;
+    
+    // Filtro data
+    if (dataDa && t.data < dataDa) return false;
+    if (dataA && t.data > dataA) return false;
+    
+    // Filtro tipo
+    if (tipo && t.tipo !== tipo) return false;
+    
+    // Filtro categoria
+    if (categoria && t.categoria !== categoria) return false;
+    
+    // Filtro persona
+    if (persona && t.persona !== persona) return false;
+    
+    return true;
+  });
+  
+  // Mostra risultati
+  mostraRisultatiFiltrati(risultati);
+  filtriAttivi = true;
+};
+
+/**
+ * Mostra risultati filtrati nella tabella
+ */
+function mostraRisultatiFiltrati(risultati) {
+  const tbody = document.getElementById('listaTransazioni');
+  const infoDiv = document.getElementById('searchResultsInfo');
+  const countSpan = document.getElementById('searchResultsCount');
+  
+  if (!tbody) return;
+  
+  // Aggiorna info risultati
+  if (infoDiv && countSpan) {
+    infoDiv.style.display = 'block';
+    countSpan.textContent = risultati.length;
+  }
+  
+  // Popola tabella
+  tbody.innerHTML = '';
+  risultati
+    .sort((a, b) => new Date(b[1].data) - new Date(a[1].data))
+    .forEach(([id, t]) => {
+      const row = tbody.insertRow();
+      row.insertCell(0).innerText = t.persona || '';
+      row.insertCell(1).innerText = t.categoria || '';
+      row.insertCell(2).innerText = t.descrizione || '';
+      row.insertCell(3).innerText = t.data || '';
+      row.insertCell(4).innerText = `€${parseFloat(t.importo).toFixed(2)}`;
+      
+      const azioniCell = row.insertCell(5);
+      azioniCell.innerHTML = `
+        <button class="btn-azione" onclick="eliminaTransazione('${id}')">Elimina</button>
+      `;
+    });
+}
+
+/**
+ * Reset filtri ricerca
+ */
+window.resetFiltri = function() {
+  // Reset campi
+  document.getElementById('searchText').value = '';
+  document.getElementById('searchImportoMin').value = '';
+  document.getElementById('searchImportoMax').value = '';
+  document.getElementById('searchDataDa').value = '';
+  document.getElementById('searchDataA').value = '';
+  document.getElementById('searchTipo').value = '';
+  document.getElementById('searchCategoria').value = '';
+  document.getElementById('searchPersona').value = '';
+  
+  // Nascondi info risultati
+  const infoDiv = document.getElementById('searchResultsInfo');
+  if (infoDiv) infoDiv.style.display = 'none';
+  
+  // Ricarica tutte le transazioni
+  filtriAttivi = false;
+  aggiornaTabella();
+};
+
+// ==============================
+// INIZIALIZZAZIONE
+// ==============================
+
+// Aggiungi al DOMContentLoaded esistente
+document.addEventListener('DOMContentLoaded', () => {
+  // ... codice esistente ...
+  
+  // Popola categorie nella ricerca quando sono caricate
+  setTimeout(() => {
+    popolaCategorieRicerca();
+  }, 1000);
+  
+  // Inizia con filtri collassati
+  const section = document.getElementById('searchSection');
+  if (section) {
+    section.classList.add('collapsed');
+  }
 });
