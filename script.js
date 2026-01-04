@@ -39,6 +39,105 @@ function formatDifferenza(valore) {
 }
 
 // ==============================
+// FUNZIONI HELPER PER ULTIMA SPESA
+// ==============================
+
+/**
+ * Formatta la data in formato italiano DD/MM/YYYY
+ */
+function formattaDataItaliana(dataISO) {
+  if (!dataISO) return 'N/D';
+  const [anno, mese, giorno] = dataISO.split('-');
+  return `${giorno}/${mese}/${anno}`;
+}
+
+/**
+ * Mostra l'ultima spesa inserita nel box dedicato
+ */
+function mostraUltimaSpesa(spesa) {
+  const boxContainer = document.getElementById('ultimaSpesaBox');
+  const boxEmpty = document.getElementById('ultimaSpesaEmpty');
+  const content = document.getElementById('ultimaSpesaContent');
+  const badge = document.getElementById('badgeNuova');
+  
+  if (!boxContainer || !content) {
+    console.warn('Box ultima spesa non trovato nell\'HTML');
+    return;
+  }
+  
+  // Nascondi stato vuoto e mostra il box
+  if (boxEmpty) boxEmpty.style.display = 'none';
+  boxContainer.style.display = 'block';
+  
+  // Crea il contenuto HTML
+  content.innerHTML = `
+    <div class="spesa-field">
+      <span class="spesa-label">Importo</span>
+      <span class="spesa-value importo">€${parseFloat(spesa.importo).toFixed(2)}</span>
+    </div>
+    
+    <div class="spesa-field">
+      <span class="spesa-label">Categoria</span>
+      <span class="spesa-value categoria">${spesa.categoria || 'N/D'}</span>
+    </div>
+    
+    <div class="spesa-field">
+      <span class="spesa-label">Descrizione</span>
+      <span class="spesa-value descrizione">${spesa.descrizione || 'Nessuna descrizione'}</span>
+    </div>
+    
+    <div class="spesa-field">
+      <span class="spesa-label">Data</span>
+      <span class="spesa-value data">${formattaDataItaliana(spesa.data)}</span>
+    </div>
+  `;
+  
+  // Mostra badge "NUOVA" temporaneamente
+  if (badge) {
+    badge.style.display = 'block';
+    setTimeout(() => {
+      badge.style.display = 'none';
+    }, 3000);
+  }
+  
+  // Aggiungi animazione di aggiornamento
+  boxContainer.classList.add('aggiornata');
+  setTimeout(() => {
+    boxContainer.classList.remove('aggiornata');
+  }, 600);
+  
+  // Salva in localStorage
+  salvUltimaSpesaLocalStorage(spesa);
+}
+
+/**
+ * Salva l'ultima spesa nel localStorage
+ */
+function salvUltimaSpesaLocalStorage(spesa) {
+  try {
+    localStorage.setItem('ultimaSpesaInserita', JSON.stringify(spesa));
+  } catch (e) {
+    console.warn('Impossibile salvare in localStorage:', e);
+  }
+}
+
+/**
+ * Carica l'ultima spesa dal localStorage all'avvio
+ */
+function caricaUltimaSpesaLocalStorage() {
+  try {
+    const spesaSalvata = localStorage.getItem('ultimaSpesaInserita');
+    if (spesaSalvata) {
+      const spesa = JSON.parse(spesaSalvata);
+      mostraUltimaSpesa(spesa);
+    }
+  } catch (e) {
+    console.warn('Impossibile caricare da localStorage:', e);
+  }
+}
+
+
+// ==============================
 // FUNZIONE MIGLIORATA PER LE DIFFERENZE
 // ==============================
 function calcolaDifferenze() {
@@ -410,10 +509,14 @@ window.aggiungiUscita = function () {
   const descrizione = document.getElementById('descrizioneUscita').value;
   const importo = document.getElementById('importoUscita').value;
   const data = document.getElementById('dataUscita').value;
+  
+  // Validazione
   if (!importo || !data) {
     alert("Compila tutti i campi obbligatori!");
     return;
   }
+  
+  // Crea l'oggetto transazione
   const nuovaTransazione = {
     tipo: "Uscita",
     persona: persona,
@@ -422,7 +525,14 @@ window.aggiungiUscita = function () {
     importo: parseFloat(importo),
     data: data
   };
+  
+  // Salva su Firebase
   push(ref(db, 'transazioni'), nuovaTransazione);
+  
+  // ✅ MOSTRA L'ULTIMA SPESA INSERITA
+  mostraUltimaSpesa(nuovaTransazione);
+  
+  // Reset del form
   document.getElementById('descrizioneUscita').value = '';
   document.getElementById('importoUscita').value = '';
 };
@@ -932,4 +1042,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (filtro && filtro.value) calcolaDifferenze();
   const diffSection = document.getElementById('differenze');
   if (diffSection) diffSection.addEventListener('click', calcolaDifferenze);
+  
+  // ✅ Carica l'ultima spesa dal localStorage
+  caricaUltimaSpesaLocalStorage();
 });

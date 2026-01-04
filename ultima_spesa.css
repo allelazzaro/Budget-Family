@@ -1,0 +1,245 @@
+/* =====================================================
+   ULTIMA SPESA INSERITA - Box Informativo
+   ===================================================== */
+
+/* Container ultima spesa */
+.ultima-spesa-container {
+  margin-top: 20px;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #fff5f0 0%, #ffe8e0 100%);
+  border-radius: 12px;
+  border-left: 5px solid #e74c3c;
+  box-shadow: 0 3px 12px rgba(231, 76, 60, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.ultima-spesa-container.aggiornata {
+  animation: pulseUpdate 0.6s ease-out;
+  box-shadow: 0 4px 20px rgba(231, 76, 60, 0.25);
+}
+
+/* Animazione quando viene aggiornata */
+@keyframes pulseUpdate {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 3px 12px rgba(231, 76, 60, 0.1);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 6px 25px rgba(231, 76, 60, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 20px rgba(231, 76, 60, 0.25);
+  }
+}
+
+/* Header del box */
+.ultima-spesa-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 0.9em;
+  color: #7f8c8d;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ultima-spesa-icon {
+  font-size: 1.2em;
+}
+
+/* Contenuto principale */
+.ultima-spesa-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.spesa-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.spesa-label {
+  font-size: 0.75em;
+  color: #7f8c8d;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.spesa-value {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.spesa-value.importo {
+  color: #e74c3c;
+  font-size: 1.4em;
+  font-family: 'Courier New', monospace;
+}
+
+.spesa-value.categoria {
+  color: #667eea;
+}
+
+.spesa-value.descrizione {
+  color: #34495e;
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.spesa-value.data {
+  color: #95a5a6;
+  font-size: 0.95em;
+}
+
+/* Stato vuoto */
+.ultima-spesa-empty {
+  text-align: center;
+  padding: 15px;
+  color: #95a5a6;
+  font-style: italic;
+  font-size: 0.95em;
+}
+
+/* Badge "NUOVA" */
+.badge-nuova {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #e74c3c;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.7em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: fadeInBadge 0.4s ease-out;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+@keyframes fadeInBadge {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Effetto shimmer di caricamento */
+.ultima-spesa-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.ultima-spesa-loading::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ultima-spesa-content {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .spesa-field {
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .spesa-field:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .badge-nuova {
+    top: 5px;
+    right: 5px;
+    font-size: 0.65em;
+    padding: 3px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ultima-spesa-container {
+    padding: 12px 15px;
+  }
+
+  .ultima-spesa-header {
+    font-size: 0.85em;
+  }
+
+  .spesa-value.importo {
+    font-size: 1.3em;
+  }
+
+  .spesa-label {
+    font-size: 0.7em;
+  }
+
+  .spesa-value {
+    font-size: 1em;
+  }
+}
+
+/* Variante compatta (opzionale) */
+.ultima-spesa-container.compatta {
+  padding: 12px 15px;
+}
+
+.ultima-spesa-container.compatta .ultima-spesa-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.ultima-spesa-container.compatta .spesa-field {
+  flex-direction: row;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.ultima-spesa-container.compatta .spesa-label::after {
+  content: ":";
+}
+
+/* Hover effect */
+.ultima-spesa-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 18px rgba(231, 76, 60, 0.2);
+}

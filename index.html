@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="layout_improved.css">
   <link rel="stylesheet" href="fix_filtro_mobile.css">
   <link rel="stylesheet" href="gestione_categorie.css">
+  <link rel="stylesheet" href="ultima_spesa.css">
   <link rel="manifest" href="manifest.json">
   <!-- Librerie per Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
@@ -130,6 +131,26 @@
             </div>
           </div>
           <button onclick="aggiungiUscita()" class="btn-submit expense">Aggiungi Uscita</button>
+          
+          <!-- ULTIMA SPESA INSERITA -->
+          <div class="ultima-spesa-container" id="ultimaSpesaBox" style="display: none;">
+            <div class="ultima-spesa-header">
+              <span class="ultima-spesa-icon">🔖</span>
+              <span>Ultima Spesa Inserita</span>
+            </div>
+            
+            <div class="ultima-spesa-content" id="ultimaSpesaContent">
+              <!-- Contenuto dinamico -->
+            </div>
+            
+            <!-- Badge "NUOVA" -->
+            <span class="badge-nuova" id="badgeNuova" style="display: none;">NUOVA</span>
+          </div>
+          
+          <!-- Stato vuoto -->
+          <div class="ultima-spesa-container ultima-spesa-empty" id="ultimaSpesaEmpty">
+            💡 Le tue spese appariranno qui dopo l'inserimento
+          </div>
         </section>
       </div>
 
