@@ -1,0 +1,537 @@
+/* =====================================================
+   RIEPILOGO GIORNALIERO
+   ===================================================== */
+
+.riepilogo-giornaliero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.riepilogo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.riepilogo-header h2 {
+  margin: 0;
+  font-size: 1.5em;
+  color: white;
+  font-weight: 700;
+}
+
+.riepilogo-data {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.95em;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.riepilogo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.riepilogo-box {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.riepilogo-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.riepilogo-icon {
+  font-size: 2.5em;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.riepilogo-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.riepilogo-label {
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.riepilogo-valore {
+  font-size: 1.8em;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.riepilogo-valore.entrate {
+  color: #4ade80;
+}
+
+.riepilogo-valore.uscite {
+  color: #f87171;
+}
+
+.riepilogo-valore.saldo.positivo {
+  color: #4ade80;
+}
+
+.riepilogo-valore.saldo.negativo {
+  color: #f87171;
+}
+
+.riepilogo-valore.saldo.zero {
+  color: #fbbf24;
+}
+
+.riepilogo-footer {
+  text-align: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-size: 0.9em;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+}
+
+.riepilogo-footer:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.dropdown-icon {
+  font-size: 0.8em;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-icon.open {
+  transform: rotate(180deg);
+}
+
+/* ===== DROPDOWN TRANSAZIONI OGGI ===== */
+.transazioni-oggi-dropdown {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  margin-top: -10px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-header {
+  padding: 12px 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.dropdown-title {
+  font-weight: 700;
+  font-size: 0.95em;
+  letter-spacing: 0.5px;
+}
+
+.dropdown-lista {
+  padding: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.transazione-oggi-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.transazione-oggi-item:last-child {
+  margin-bottom: 0;
+}
+
+.transazione-oggi-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px);
+}
+
+.transazione-icon {
+  font-size: 1.5em;
+  width: 30px;
+  text-align: center;
+}
+
+.transazione-dettagli {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.transazione-descrizione {
+  font-weight: 600;
+  font-size: 0.95em;
+}
+
+.transazione-categoria {
+  font-size: 0.85em;
+  opacity: 0.9;
+}
+
+.transazione-importo {
+  font-weight: 700;
+  font-size: 1.1em;
+  font-family: 'Courier New', monospace;
+  white-space: nowrap;
+}
+
+.transazione-importo.entrata {
+  color: #4ade80;
+}
+
+.transazione-importo.uscita {
+  color: #f87171;
+}
+
+.dropdown-lista-vuota {
+  text-align: center;
+  padding: 30px 20px;
+  opacity: 0.8;
+  font-size: 0.9em;
+}
+
+/* Scrollbar personalizzata */
+.dropdown-lista::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdown-lista::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.dropdown-lista::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.dropdown-lista::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* ===== SEZIONE MEDIE ===== */
+.riepilogo-medie {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.medie-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.medie-icon {
+  font-size: 1.5em;
+}
+
+.medie-title {
+  font-size: 1.1em;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.media-row {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.media-row:last-child {
+  margin-bottom: 0;
+}
+
+.media-row:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(5px);
+}
+
+.media-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.95em;
+  font-weight: 600;
+}
+
+.media-icon {
+  font-size: 1.2em;
+}
+
+.media-periodo {
+  font-size: 0.85em;
+  opacity: 0.8;
+  font-weight: 400;
+  margin-left: 5px;
+}
+
+.media-valori {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  font-size: 0.9em;
+}
+
+.media-valore {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.media-valore.entrate strong {
+  color: #4ade80;
+  font-family: 'Courier New', monospace;
+  font-size: 1.05em;
+}
+
+.media-valore.uscite strong {
+  color: #f87171;
+  font-family: 'Courier New', monospace;
+  font-size: 1.05em;
+}
+
+.media-separator {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 300;
+}
+
+/* Animazione aggiornamento */
+@keyframes pulseUpdate {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.riepilogo-valore.updating {
+  animation: pulseUpdate 0.5s ease;
+}
+
+/* Responsive - Tablet */
+@media (max-width: 768px) {
+  .riepilogo-giornaliero {
+    padding: 20px;
+  }
+
+  .riepilogo-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .riepilogo-box {
+    padding: 15px;
+  }
+
+  .riepilogo-icon {
+    font-size: 2em;
+  }
+
+  .riepilogo-valore {
+    font-size: 1.5em;
+  }
+
+  .riepilogo-header h2 {
+    font-size: 1.3em;
+  }
+
+  .riepilogo-data {
+    font-size: 0.85em;
+    padding: 6px 12px;
+  }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 480px) {
+  .riepilogo-giornaliero {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .riepilogo-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .riepilogo-header h2 {
+    font-size: 1.2em;
+  }
+
+  .riepilogo-data {
+    align-self: stretch;
+    text-align: center;
+  }
+
+  .riepilogo-box {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .riepilogo-icon {
+    font-size: 1.8em;
+  }
+
+  .riepilogo-label {
+    font-size: 0.75em;
+  }
+
+  .riepilogo-valore {
+    font-size: 1.3em;
+  }
+
+  .riepilogo-footer {
+    font-size: 0.85em;
+    padding: 10px;
+  }
+  
+  .riepilogo-medie {
+    padding: 15px;
+  }
+  
+  .medie-header {
+    font-size: 0.9em;
+    margin-bottom: 12px;
+  }
+  
+  .media-row {
+    padding: 12px;
+  }
+  
+  .media-label {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+  
+  .media-periodo {
+    font-size: 0.8em;
+    margin-left: 0;
+  }
+  
+  .media-valori {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  
+  .media-separator {
+    display: none;
+  }
+  
+  .media-valore {
+    font-size: 0.85em;
+  }
+  
+  .transazione-oggi-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .transazione-dettagli {
+    width: 100%;
+  }
+  
+  .transazione-importo {
+    font-size: 1em;
+  }
+}
+
+/* Tema scuro - se implementato in futuro */
+@media (prefers-color-scheme: dark) {
+  .riepilogo-giornaliero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #4c1d95 100%);
+  }
+}
+
+/* Effetto brillante su hover */
+.riepilogo-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.riepilogo-box {
+  position: relative;
+  overflow: hidden;
+}
+
+.riepilogo-box:hover::before {
+  left: 100%;
+}

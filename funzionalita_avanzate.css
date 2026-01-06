@@ -469,6 +469,94 @@
   font-size: 1.1em;
 }
 
+/* ===== TOTALI FILTRATI ===== */
+.search-totals-info {
+  background: linear-gradient(135deg, #fff8f0 0%, #ffe8d6 100%);
+  border: 2px solid #e67e22;
+  border-radius: 15px;
+  padding: 20px;
+  margin-top: 15px;
+}
+
+.totals-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(230, 126, 34, 0.2);
+}
+
+.totals-icon {
+  font-size: 1.5em;
+}
+
+.totals-title {
+  font-size: 1em;
+  font-weight: 700;
+  color: #e67e22;
+  letter-spacing: 1px;
+}
+
+.totals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.total-box {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  border: 2px solid rgba(230, 126, 34, 0.2);
+  transition: all 0.3s ease;
+}
+
+.total-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(230, 126, 34, 0.2);
+}
+
+.total-label {
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #7f8c8d;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.total-value {
+  font-size: 1.6em;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+
+.total-value.entrate {
+  color: #27ae60;
+}
+
+.total-value.uscite {
+  color: #e74c3c;
+}
+
+.total-value.saldo {
+  color: #95a5a6;
+}
+
+.total-value.saldo.positivo {
+  color: #27ae60;
+}
+
+.total-value.saldo.negativo {
+  color: #e74c3c;
+}
+
+.total-value.saldo.zero {
+  color: #f39c12;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .modal-ricorrenti-content {
@@ -504,6 +592,19 @@
 
   .search-actions {
     flex-direction: column;
+  }
+  
+  .totals-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .total-box {
+    padding: 12px;
+  }
+  
+  .total-value {
+    font-size: 1.4em;
   }
 }
 

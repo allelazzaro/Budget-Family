@@ -510,12 +510,16 @@ function aggiornaNomeUtente(nome) {
 window.aggiungiEntrata = function () {
   const persona = document.getElementById('personaEntrata').value;
   const tipo = document.getElementById('tipoEntrata').value;
-  const importo = document.getElementById('importoEntrata').value;
+  let importo = document.getElementById('importoEntrata').value;
   const data = document.getElementById('dataEntrata').value;
   if (!importo || !data) {
     alert("Compila tutti i campi!");
     return;
   }
+  
+  // Converti virgola in punto per supportare formato italiano
+  importo = importo.replace(',', '.');
+  
   const nuovaTransazione = {
     tipo: "Entrata",
     persona: persona,
@@ -531,7 +535,7 @@ window.aggiungiUscita = function () {
   const persona = document.getElementById('personaUscita').value;
   const categoria = document.getElementById('categoriaUscita').value;
   const descrizione = document.getElementById('descrizioneUscita').value;
-  const importo = document.getElementById('importoUscita').value;
+  let importo = document.getElementById('importoUscita').value;
   const data = document.getElementById('dataUscita').value;
   
   // Validazione
@@ -539,6 +543,9 @@ window.aggiungiUscita = function () {
     alert("Compila tutti i campi obbligatori!");
     return;
   }
+  
+  // Converti virgola in punto per supportare formato italiano
+  importo = importo.replace(',', '.');
   
   // Crea l'oggetto transazione
   const nuovaTransazione = {
@@ -595,6 +602,11 @@ function aggiornaTabella() {
       btnModifica.onclick = () => modificaTransazione(id, t);
       cellAzioni.appendChild(btnModifica);
     });
+  
+  // Aggiorna riepilogo giornaliero
+  if (typeof aggiornaRiepilogoGiornaliero === 'function') {
+    aggiornaRiepilogoGiornaliero();
+  }
 }
 
 window.eliminaTransazione = function (id) {
@@ -1069,6 +1081,11 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // ✅ Carica l'ultima spesa dal localStorage
   caricaUltimaSpesaLocalStorage();
+  
+  // ✅ Inizializza riepilogo giornaliero
+  if (typeof inizializzaRiepilogoGiornaliero === 'function') {
+    inizializzaRiepilogoGiornaliero();
+  }
 });/* =====================================================
    FUNZIONI SPESE RICORRENTI + RICERCA AVANZATA
    Aggiungi queste funzioni nel tuo script.js
@@ -1221,7 +1238,7 @@ function aggiornaListaRicorrenze() {
 window.aggiungiRicorrenza = function() {
   const nome = document.getElementById('nomeRicorrenza').value.trim();
   const categoria = document.getElementById('categoriaRicorrenza').value;
-  const importo = document.getElementById('importoRicorrenza').value;
+  let importo = document.getElementById('importoRicorrenza').value;
   const giorno = document.getElementById('giornoRicorrenza').value;
   const persona = document.getElementById('personaRicorrenza').value;
   const descrizione = document.getElementById('descrizioneRicorrenza').value.trim();
@@ -1238,6 +1255,9 @@ window.aggiungiRicorrenza = function() {
     alert('Il giorno deve essere tra 1 e 31');
     return;
   }
+  
+  // Converti virgola in punto per supportare formato italiano
+  importo = importo.replace(',', '.');
   
   const ricorrenza = {
     nome: nome,
@@ -1470,8 +1490,16 @@ function popolaCategorieRicerca() {
  */
 window.applicaFiltri = function() {
   const testo = document.getElementById('searchText').value.toLowerCase().trim();
-  const importoMin = parseFloat(document.getElementById('searchImportoMin').value) || 0;
-  const importoMax = parseFloat(document.getElementById('searchImportoMax').value) || Infinity;
+  
+  // Leggi importi e converti virgola in punto
+  let importoMinValue = document.getElementById('searchImportoMin').value;
+  let importoMaxValue = document.getElementById('searchImportoMax').value;
+  
+  if (importoMinValue) importoMinValue = importoMinValue.replace(',', '.');
+  if (importoMaxValue) importoMaxValue = importoMaxValue.replace(',', '.');
+  
+  const importoMin = parseFloat(importoMinValue) || 0;
+  const importoMax = parseFloat(importoMaxValue) || Infinity;
   const dataDa = document.getElementById('searchDataDa').value;
   const dataA = document.getElementById('searchDataA').value;
   const tipo = document.getElementById('searchTipo').value;
@@ -1514,6 +1542,50 @@ window.applicaFiltri = function() {
 };
 
 /**
+ * Mostra totali filtrati
+ */
+function mostraTotaliFiltrati(entrate, uscite, saldo) {
+  const totalsDiv = document.getElementById('searchTotalsInfo');
+  
+  if (!totalsDiv) return;
+  
+  // Mostra il box totali
+  totalsDiv.style.display = 'block';
+  
+  // Aggiorna entrate
+  const entrateElement = document.getElementById('totalEntrateFiltered');
+  if (entrateElement) {
+    entrateElement.textContent = `€${entrate.toFixed(2)}`;
+  }
+  
+  // Aggiorna uscite
+  const usciteElement = document.getElementById('totalUsciteFiltered');
+  if (usciteElement) {
+    usciteElement.textContent = `€${uscite.toFixed(2)}`;
+  }
+  
+  // Aggiorna saldo con classe appropriata
+  const saldoElement = document.getElementById('totalSaldoFiltered');
+  if (saldoElement) {
+    const segno = saldo > 0 ? '+' : (saldo < 0 ? '-' : '');
+    const importoAssoluto = Math.abs(saldo);
+    saldoElement.textContent = `${segno}€${importoAssoluto.toFixed(2)}`;
+    
+    // Rimuovi classi precedenti
+    saldoElement.classList.remove('positivo', 'negativo', 'zero');
+    
+    // Aggiungi classe appropriata
+    if (saldo > 0) {
+      saldoElement.classList.add('positivo');
+    } else if (saldo < 0) {
+      saldoElement.classList.add('negativo');
+    } else {
+      saldoElement.classList.add('zero');
+    }
+  }
+}
+
+/**
  * Mostra risultati filtrati nella tabella
  */
 function mostraRisultatiFiltrati(risultati) {
@@ -1528,6 +1600,24 @@ function mostraRisultatiFiltrati(risultati) {
     infoDiv.style.display = 'block';
     countSpan.textContent = risultati.length;
   }
+  
+  // Calcola totali filtrati
+  let entrateTotal = 0;
+  let usciteTotal = 0;
+  
+  risultati.forEach(([id, t]) => {
+    const importo = parseFloat(t.importo) || 0;
+    if (t.tipo === 'Entrata') {
+      entrateTotal += importo;
+    } else if (t.tipo === 'Uscita') {
+      usciteTotal += importo;
+    }
+  });
+  
+  const saldo = entrateTotal - usciteTotal;
+  
+  // Mostra totali
+  mostraTotaliFiltrati(entrateTotal, usciteTotal, saldo);
   
   // Popola tabella
   tbody.innerHTML = '';
@@ -1566,6 +1656,10 @@ window.resetFiltri = function() {
   const infoDiv = document.getElementById('searchResultsInfo');
   if (infoDiv) infoDiv.style.display = 'none';
   
+  // Nascondi totali filtrati
+  const totalsDiv = document.getElementById('searchTotalsInfo');
+  if (totalsDiv) totalsDiv.style.display = 'none';
+  
   // Ricarica tutte le transazioni
   filtriAttivi = false;
   aggiornaTabella();
@@ -1590,3 +1684,428 @@ document.addEventListener('DOMContentLoaded', () => {
     section.classList.add('collapsed');
   }
 });
+/* =====================================================
+   FUNZIONI RIEPILOGO GIORNALIERO
+   Aggiungi queste funzioni nel tuo script.js
+   ===================================================== */
+
+/**
+ * Formatta la data di oggi in formato italiano
+ */
+function ottieniDataOggi() {
+  const oggi = new Date();
+  const giorno = String(oggi.getDate()).padStart(2, '0');
+  const mese = String(oggi.getMonth() + 1).padStart(2, '0');
+  const anno = oggi.getFullYear();
+  return `${giorno}/${mese}/${anno}`;
+}
+
+/**
+ * Ottieni la data di oggi in formato ISO (YYYY-MM-DD) per confronto
+ */
+function ottieniDataOggiISO() {
+  const oggi = new Date();
+  const anno = oggi.getFullYear();
+  const mese = String(oggi.getMonth() + 1).padStart(2, '0');
+  const giorno = String(oggi.getDate()).padStart(2, '0');
+  return `${anno}-${mese}-${giorno}`;
+}
+
+/**
+ * Calcola e aggiorna il riepilogo giornaliero
+ */
+window.aggiornaRiepilogoGiornaliero = function() {
+  const dataOggi = ottieniDataOggiISO();
+  
+  // Inizializza contatori
+  let entrateOggi = 0;
+  let usciteOggi = 0;
+  let contatoreTransazioni = 0;
+  
+  // Filtra e calcola transazioni di oggi
+  if (typeof transazioni !== 'undefined' && transazioni.length > 0) {
+    transazioni.forEach(([id, t]) => {
+      if (t.data === dataOggi) {
+        contatoreTransazioni++;
+        const importo = parseFloat(t.importo) || 0;
+        
+        if (t.tipo === 'Entrata') {
+          entrateOggi += importo;
+        } else if (t.tipo === 'Uscita') {
+          usciteOggi += importo;
+        }
+      }
+    });
+  }
+  
+  // Calcola saldo
+  const saldo = entrateOggi - usciteOggi;
+  
+  // Aggiorna UI
+  aggiornaUIRiepilogoGiornaliero(entrateOggi, usciteOggi, saldo, contatoreTransazioni);
+  
+  // Calcola e aggiorna medie
+  calcolaEAggiornaMedie();
+};
+
+/**
+ * Aggiorna l'interfaccia del riepilogo giornaliero
+ */
+function aggiornaUIRiepilogoGiornaliero(entrate, uscite, saldo, contatore) {
+  // Aggiorna data
+  const dataElement = document.getElementById('dataOggi');
+  if (dataElement) {
+    dataElement.textContent = ottieniDataOggi();
+  }
+  
+  // Aggiorna entrate
+  const entrateElement = document.getElementById('entrateOggi');
+  if (entrateElement) {
+    entrateElement.textContent = `€${entrate.toFixed(2)}`;
+    entrateElement.classList.add('updating');
+    setTimeout(() => entrateElement.classList.remove('updating'), 500);
+  }
+  
+  // Aggiorna uscite
+  const usciteElement = document.getElementById('usciteOggi');
+  if (usciteElement) {
+    usciteElement.textContent = `€${uscite.toFixed(2)}`;
+    usciteElement.classList.add('updating');
+    setTimeout(() => usciteElement.classList.remove('updating'), 500);
+  }
+  
+  // Aggiorna saldo con classe appropriata
+  const saldoElement = document.getElementById('saldoOggi');
+  if (saldoElement) {
+    const segno = saldo > 0 ? '+' : (saldo < 0 ? '-' : '');
+    const importoAssoluto = Math.abs(saldo);
+    saldoElement.textContent = `${segno}€${importoAssoluto.toFixed(2)}`;
+    
+    // Rimuovi classi precedenti
+    saldoElement.classList.remove('positivo', 'negativo', 'zero');
+    
+    // Aggiungi classe appropriata
+    if (saldo > 0) {
+      saldoElement.classList.add('positivo');
+    } else if (saldo < 0) {
+      saldoElement.classList.add('negativo');
+    } else {
+      saldoElement.classList.add('zero');
+    }
+    
+    saldoElement.classList.add('updating');
+    setTimeout(() => saldoElement.classList.remove('updating'), 500);
+  }
+  
+  // Aggiorna contatore transazioni
+  const contatoreElement = document.getElementById('contatoreTransazioniOggi');
+  if (contatoreElement) {
+    const testo = contatore === 1 
+      ? '1 transazione oggi' 
+      : `${contatore} transazioni oggi`;
+    contatoreElement.textContent = testo;
+  }
+  
+  // Aggiorna lista transazioni oggi
+  aggiornaListaTransazioniOggi();
+}
+
+/**
+ * Inizializza il riepilogo giornaliero al caricamento
+ */
+function inizializzaRiepilogoGiornaliero() {
+  // Imposta la data di oggi
+  const dataElement = document.getElementById('dataOggi');
+  if (dataElement) {
+    dataElement.textContent = ottieniDataOggi();
+  }
+  
+  // Aggiorna i valori (inizialmente saranno 0)
+  aggiornaRiepilogoGiornaliero();
+}
+
+// ==============================
+// MODIFICA FUNZIONI ESISTENTI
+// ==============================
+
+/*
+ * IMPORTANTE: Aggiungi queste chiamate nelle tue funzioni esistenti
+ */
+
+// Quando carichi le transazioni, aggiungi:
+// aggiornaRiepilogoGiornaliero();
+
+// Quando aggiungi un'entrata, aggiungi dopo il salvataggio:
+// aggiornaRiepilogoGiornaliero();
+
+// Quando aggiungi un'uscita, aggiungi dopo il salvataggio:
+// aggiornaRiepilogoGiornaliero();
+
+// Quando elimini una transazione, aggiungi:
+// aggiornaRiepilogoGiornaliero();
+
+// Nel DOMContentLoaded, aggiungi:
+// inizializzaRiepilogoGiornaliero();
+/**
+ * Calcola e aggiorna le medie giornaliere e mensili
+ */
+function calcolaEAggiornaMedie() {
+  const oggi = new Date();
+  const annoCorrente = oggi.getFullYear();
+  const meseCorrente = oggi.getMonth() + 1; // 1-12
+  
+  // Calcola medie giornaliere (mese corrente)
+  const medieGiornaliere = calcolaMediaGiornaliera(annoCorrente, meseCorrente);
+  
+  // Calcola medie mensili (anno corrente)
+  const medieMensili = calcolaMediaMensile(annoCorrente);
+  
+  // Aggiorna UI
+  aggiornaUIMediaGiornaliera(medieGiornaliere, annoCorrente, meseCorrente);
+  aggiornaUIMediaMensile(medieMensili, annoCorrente);
+}
+
+/**
+ * Calcola media giornaliera per un mese specifico
+ */
+function calcolaMediaGiornaliera(anno, mese) {
+  let entrateToTali = 0;
+  let usciteTotali = 0;
+  const giorniConTransazioni = new Set();
+  
+  // Formato mese per confronto (es. "2026-01")
+  const meseFormato = `${anno}-${String(mese).padStart(2, '0')}`;
+  
+  if (typeof transazioni !== 'undefined' && transazioni.length > 0) {
+    transazioni.forEach(([id, t]) => {
+      // Controlla se la transazione è del mese corrente
+      if (t.data && t.data.startsWith(meseFormato)) {
+        const importo = parseFloat(t.importo) || 0;
+        
+        // Aggiungi il giorno al set (per contare giorni unici)
+        giorniConTransazioni.add(t.data);
+        
+        if (t.tipo === 'Entrata') {
+          entrateToTali += importo;
+        } else if (t.tipo === 'Uscita') {
+          usciteTotali += importo;
+        }
+      }
+    });
+  }
+  
+  // Calcola numero di giorni con transazioni
+  const numeroGiorni = giorniConTransazioni.size;
+  
+  // Se non ci sono giorni con transazioni, usa 1 per evitare divisione per zero
+  const divisore = numeroGiorni > 0 ? numeroGiorni : 1;
+  
+  return {
+    entrateMedia: entrateToTali / divisore,
+    usciteMedia: usciteTotali / divisore,
+    numeroGiorni: numeroGiorni
+  };
+}
+
+/**
+ * Calcola media mensile per un anno specifico
+ */
+function calcolaMediaMensile(anno) {
+  let entrateToTali = 0;
+  let usciteTotali = 0;
+  const mesiConTransazioni = new Set();
+  
+  // Formato anno per confronto (es. "2026")
+  const annoFormato = String(anno);
+  
+  if (typeof transazioni !== 'undefined' && transazioni.length > 0) {
+    transazioni.forEach(([id, t]) => {
+      // Controlla se la transazione è dell'anno corrente
+      if (t.data && t.data.startsWith(annoFormato)) {
+        const importo = parseFloat(t.importo) || 0;
+        
+        // Estrai il mese (formato YYYY-MM)
+        const mese = t.data.substring(0, 7); // "2026-01"
+        mesiConTransazioni.add(mese);
+        
+        if (t.tipo === 'Entrata') {
+          entrateToTali += importo;
+        } else if (t.tipo === 'Uscita') {
+          usciteTotali += importo;
+        }
+      }
+    });
+  }
+  
+  // Calcola numero di mesi con transazioni
+  const numeroMesi = mesiConTransazioni.size;
+  
+  // Se non ci sono mesi con transazioni, usa 1 per evitare divisione per zero
+  const divisore = numeroMesi > 0 ? numeroMesi : 1;
+  
+  return {
+    entrateMedia: entrateToTali / divisore,
+    usciteMedia: usciteTotali / divisore,
+    numeroMesi: numeroMesi
+  };
+}
+
+/**
+ * Aggiorna UI media giornaliera
+ */
+function aggiornaUIMediaGiornaliera(medie, anno, mese) {
+  // Nomi mesi in italiano
+  const nomiMesi = [
+    'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+    'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+  ];
+  
+  // Aggiorna periodo
+  const periodoElement = document.getElementById('periodoGiornaliero');
+  if (periodoElement) {
+    const nomeMese = nomiMesi[mese - 1];
+    periodoElement.textContent = `(${nomeMese} ${anno})`;
+  }
+  
+  // Aggiorna entrate media
+  const entrateElement = document.getElementById('mediaGiornalieraEntrate');
+  if (entrateElement) {
+    const valore = medie.entrateMedia.toFixed(2);
+    entrateElement.textContent = `€${valore}/giorno`;
+  }
+  
+  // Aggiorna uscite media
+  const usciteElement = document.getElementById('mediaGiornalieraUscite');
+  if (usciteElement) {
+    const valore = medie.usciteMedia.toFixed(2);
+    usciteElement.textContent = `€${valore}/giorno`;
+  }
+}
+
+/**
+ * Aggiorna UI media mensile
+ */
+function aggiornaUIMediaMensile(medie, anno) {
+  // Aggiorna periodo
+  const periodoElement = document.getElementById('periodoMensile');
+  if (periodoElement) {
+    periodoElement.textContent = `(Anno ${anno})`;
+  }
+  
+  // Aggiorna entrate media
+  const entrateElement = document.getElementById('mediaMensileEntrate');
+  if (entrateElement) {
+    const valore = medie.entrateMedia.toFixed(2);
+    entrateElement.textContent = `€${valore}/mese`;
+  }
+  
+  // Aggiorna uscite media
+  const usciteElement = document.getElementById('mediaMensileUscite');
+  if (usciteElement) {
+    const valore = medie.usciteMedia.toFixed(2);
+    usciteElement.textContent = `€${valore}/mese`;
+  }
+}
+
+/**
+ * Formatta numero con separatore migliaia
+ */
+function formattaNumeroConSeparatore(numero) {
+  return numero.toLocaleString('it-IT', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+/**
+ * Toggle apertura/chiusura dropdown transazioni oggi
+ */
+window.toggleTransazioniOggi = function() {
+  const dropdown = document.getElementById('transazioniOggiDropdown');
+  const icon = document.getElementById('dropdownIcon');
+  
+  if (!dropdown || !icon) return;
+  
+  if (dropdown.style.display === 'none') {
+    // Apri dropdown
+    dropdown.style.display = 'block';
+    icon.classList.add('open');
+  } else {
+    // Chiudi dropdown
+    dropdown.style.display = 'none';
+    icon.classList.remove('open');
+  }
+};
+
+/**
+ * Aggiorna la lista delle transazioni di oggi nel dropdown
+ */
+function aggiornaListaTransazioniOggi() {
+  const lista = document.getElementById('listaTransazioniOggi');
+  
+  if (!lista) return;
+  
+  const dataOggi = ottieniDataOggiISO();
+  
+  // Filtra transazioni di oggi
+  const transazioniOggi = [];
+  
+  if (typeof transazioni !== 'undefined' && transazioni.length > 0) {
+    transazioni.forEach(([id, t]) => {
+      if (t.data === dataOggi) {
+        transazioniOggi.push(t);
+      }
+    });
+  }
+  
+  // Svuota lista
+  lista.innerHTML = '';
+  
+  // Se non ci sono transazioni
+  if (transazioniOggi.length === 0) {
+    lista.innerHTML = `
+      <div class="dropdown-lista-vuota">
+        Nessuna transazione oggi
+      </div>
+    `;
+    return;
+  }
+  
+  // Ordina per tipo (prima entrate, poi uscite) e poi per importo
+  transazioniOggi.sort((a, b) => {
+    // Prima ordina per tipo (Entrata prima di Uscita)
+    if (a.tipo !== b.tipo) {
+      return a.tipo === 'Entrata' ? -1 : 1;
+    }
+    // Poi ordina per importo decrescente
+    return parseFloat(b.importo) - parseFloat(a.importo);
+  });
+  
+  // Popola lista
+  transazioniOggi.forEach(t => {
+    const item = document.createElement('div');
+    item.className = 'transazione-oggi-item';
+    
+    // Determina icona e classe
+    const isEntrata = t.tipo === 'Entrata';
+    const icon = isEntrata ? '🟢' : '🔴';
+    const importoClass = isEntrata ? 'entrata' : 'uscita';
+    const segno = isEntrata ? '+' : '-';
+    
+    // Descrizione (usa categoria se descrizione vuota)
+    const descrizione = t.descrizione || t.categoria || 'Transazione';
+    const categoria = t.categoria || '';
+    
+    item.innerHTML = `
+      <div class="transazione-icon">${icon}</div>
+      <div class="transazione-dettagli">
+        <div class="transazione-descrizione">${descrizione}</div>
+        ${categoria ? `<div class="transazione-categoria">${categoria}</div>` : ''}
+      </div>
+      <div class="transazione-importo ${importoClass}">
+        ${segno}€${parseFloat(t.importo).toFixed(2)}
+      </div>
+    `;
+    
+    lista.appendChild(item);
+  });
+}

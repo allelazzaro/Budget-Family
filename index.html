@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="gestione_categorie.css">
   <link rel="stylesheet" href="ultima_spesa.css">
   <link rel="stylesheet" href="funzionalita_avanzate.css">
+  <link rel="stylesheet" href="riepilogo_giornaliero.css">
   <link rel="manifest" href="manifest.json">
   <!-- Librerie per Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
@@ -67,6 +68,103 @@
         </div>
       </section>
 
+      <!-- RIEPILOGO GIORNALIERO -->
+      <section class="card riepilogo-giornaliero">
+        <div class="riepilogo-header">
+          <h2>📊 Riepilogo di Oggi</h2>
+          <span class="riepilogo-data" id="dataOggi">04/01/2026</span>
+        </div>
+        
+        <div class="riepilogo-grid">
+          <!-- Entrate Oggi -->
+          <div class="riepilogo-box entrate">
+            <div class="riepilogo-icon">📈</div>
+            <div class="riepilogo-info">
+              <div class="riepilogo-label">Entrate</div>
+              <div class="riepilogo-valore entrate" id="entrateOggi">€0.00</div>
+            </div>
+          </div>
+          
+          <!-- Uscite Oggi -->
+          <div class="riepilogo-box uscite">
+            <div class="riepilogo-icon">📉</div>
+            <div class="riepilogo-info">
+              <div class="riepilogo-label">Uscite</div>
+              <div class="riepilogo-valore uscite" id="usciteOggi">€0.00</div>
+            </div>
+          </div>
+          
+          <!-- Saldo Oggi -->
+          <div class="riepilogo-box saldo">
+            <div class="riepilogo-icon">💰</div>
+            <div class="riepilogo-info">
+              <div class="riepilogo-label">Saldo</div>
+              <div class="riepilogo-valore saldo" id="saldoOggi">€0.00</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Contatore transazioni oggi -->
+        <div class="riepilogo-footer" id="riepilogoFooter" onclick="toggleTransazioniOggi()">
+          <span id="contatoreTransazioniOggi">0 transazioni oggi</span>
+          <span class="dropdown-icon" id="dropdownIcon">▼</span>
+        </div>
+        
+        <!-- DROPDOWN TRANSAZIONI OGGI -->
+        <div class="transazioni-oggi-dropdown" id="transazioniOggiDropdown" style="display: none;">
+          <div class="dropdown-header">
+            <span class="dropdown-title">📋 Transazioni di Oggi</span>
+          </div>
+          <div class="dropdown-lista" id="listaTransazioniOggi">
+            <!-- Le transazioni verranno inserite qui -->
+          </div>
+        </div>
+        
+        <!-- SEZIONE MEDIE -->
+        <div class="riepilogo-medie">
+          <div class="medie-header">
+            <span class="medie-icon">📊</span>
+            <span class="medie-title">MEDIE</span>
+          </div>
+          
+          <!-- Media Giornaliera -->
+          <div class="media-row">
+            <div class="media-label">
+              <span class="media-icon">📅</span>
+              <span>Media Giornaliera</span>
+              <span class="media-periodo" id="periodoGiornaliero">(Gennaio 2026)</span>
+            </div>
+            <div class="media-valori">
+              <span class="media-valore entrate">
+                Entrate: <strong id="mediaGiornalieraEntrate">€0.00/giorno</strong>
+              </span>
+              <span class="media-separator">|</span>
+              <span class="media-valore uscite">
+                Uscite: <strong id="mediaGiornalieraUscite">€0.00/giorno</strong>
+              </span>
+            </div>
+          </div>
+          
+          <!-- Media Mensile -->
+          <div class="media-row">
+            <div class="media-label">
+              <span class="media-icon">📆</span>
+              <span>Media Mensile</span>
+              <span class="media-periodo" id="periodoMensile">(Anno 2026)</span>
+            </div>
+            <div class="media-valori">
+              <span class="media-valore entrate">
+                Entrate: <strong id="mediaMensileEntrate">€0.00/mese</strong>
+              </span>
+              <span class="media-separator">|</span>
+              <span class="media-valore uscite">
+                Uscite: <strong id="mediaMensileUscite">€0.00/mese</strong>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- SEZIONE INSERIMENTO DATI -->
       <div class="data-entry-grid">
         
@@ -89,7 +187,7 @@
             </div>
             <div class="form-group">
               <label for="importoEntrata">Importo (€)</label>
-              <input type="number" id="importoEntrata" placeholder="0.00" step="0.01">
+              <input type="text" id="importoEntrata" placeholder="es: 12,50 o 12.50" pattern="[0-9]+([,\.][0-9]{1,2})?" inputmode="decimal">
             </div>
             <div class="form-group">
               <label for="dataEntrata">Data</label>
@@ -124,7 +222,7 @@
             </div>
             <div class="form-group">
               <label for="importoUscita">Importo (€)</label>
-              <input type="number" id="importoUscita" placeholder="0.00" step="0.01">
+              <input type="text" id="importoUscita" placeholder="es: 12,50 o 12.50" pattern="[0-9]+([,\.][0-9]{1,2})?" inputmode="decimal">
             </div>
             <div class="form-group">
               <label for="dataUscita">Data</label>
@@ -262,13 +360,13 @@
           <!-- Importo Minimo -->
           <div class="search-filter">
             <label for="searchImportoMin">💰 Importo Min (€)</label>
-            <input type="number" id="searchImportoMin" placeholder="0.00" step="0.01">
+            <input type="text" id="searchImportoMin" placeholder="es: 10,50" pattern="[0-9]+([,\.][0-9]{1,2})?" inputmode="decimal">
           </div>
           
           <!-- Importo Massimo -->
           <div class="search-filter">
             <label for="searchImportoMax">💰 Importo Max (€)</label>
-            <input type="number" id="searchImportoMax" placeholder="1000.00" step="0.01">
+            <input type="text" id="searchImportoMax" placeholder="es: 100,00" pattern="[0-9]+([,\.][0-9]{1,2})?" inputmode="decimal">
           </div>
           
           <!-- Data Da -->
@@ -326,6 +424,34 @@
         <!-- Info Risultati -->
         <div id="searchResultsInfo" class="search-results-info" style="display: none;">
           Trovate <span class="search-results-count" id="searchResultsCount">0</span> transazioni
+        </div>
+        
+        <!-- TOTALI FILTRATI -->
+        <div id="searchTotalsInfo" class="search-totals-info" style="display: none;">
+          <div class="totals-header">
+            <span class="totals-icon">💰</span>
+            <span class="totals-title">TOTALI FILTRATI</span>
+          </div>
+          
+          <div class="totals-grid">
+            <!-- Entrate Filtrate -->
+            <div class="total-box entrate">
+              <div class="total-label">Entrate</div>
+              <div class="total-value entrate" id="totalEntrateFiltered">€0.00</div>
+            </div>
+            
+            <!-- Uscite Filtrate -->
+            <div class="total-box uscite">
+              <div class="total-label">Uscite</div>
+              <div class="total-value uscite" id="totalUsciteFiltered">€0.00</div>
+            </div>
+            
+            <!-- Saldo Filtrato -->
+            <div class="total-box saldo">
+              <div class="total-label">Saldo</div>
+              <div class="total-value saldo" id="totalSaldoFiltered">€0.00</div>
+            </div>
+          </div>
         </div>
         
       </section>
@@ -455,7 +581,7 @@
             
             <div>
               <label for="importoRicorrenza">Importo (€) *</label>
-              <input type="number" id="importoRicorrenza" placeholder="0.00" step="0.01" required>
+              <input type="text" id="importoRicorrenza" placeholder="es: 12,50 o 12.50" pattern="[0-9]+([,\.][0-9]{1,2})?" inputmode="decimal" required>
             </div>
             
             <div>
