@@ -1857,11 +1857,15 @@ function calcolaEAggiornaMedie() {
   // Calcola medie giornaliere (mese corrente)
   const medieGiornaliere = calcolaMediaGiornaliera(annoCorrente, meseCorrente);
   
+  // Calcola medie su giorni reali (mese corrente)
+  const medieGiorniReali = calcolaMediaGiorniReali(annoCorrente, meseCorrente);
+  
   // Calcola medie mensili (anno corrente)
   const medieMensili = calcolaMediaMensile(annoCorrente);
   
   // Aggiorna UI
   aggiornaUIMediaGiornaliera(medieGiornaliere, annoCorrente, meseCorrente);
+  aggiornaUIMediaGiorniReali(medieGiorniReali, annoCorrente, meseCorrente);
   aggiornaUIMediaMensile(medieMensili, annoCorrente);
 }
 
@@ -2108,4 +2112,63 @@ function aggiornaListaTransazioniOggi() {
     
     lista.appendChild(item);
   });
+}
+/**
+ * Calcola media giornaliera su TUTTI i giorni del mese (reali)
+ */
+function calcolaMediaGiorniReali(anno, mese) {
+  let entrateToTali = 0;
+  let usciteTotali = 0;
+  
+  // Formato mese per confronto (es. "2026-01")
+  const meseFormato = `${anno}-${String(mese).padStart(2, '0')}`;
+  
+  if (typeof transazioni !== 'undefined' && transazioni.length > 0) {
+    transazioni.forEach(([id, t]) => {
+      // Controlla se la transazione è del mese corrente
+      if (t.data && t.data.startsWith(meseFormato)) {
+        const importo = parseFloat(t.importo) || 0;
+        
+        if (t.tipo === 'Entrata') {
+          entrateToTali += importo;
+        } else if (t.tipo === 'Uscita') {
+          usciteTotali += importo;
+        }
+      }
+    });
+  }
+  
+  // Calcola numero di giorni nel mese
+  const giorniNelMese = new Date(anno, mese, 0).getDate(); // 28, 29, 30 o 31
+  
+  return {
+    entrateMedia: entrateToTali / giorniNelMese,
+    usciteMedia: usciteTotali / giorniNelMese,
+    giorniMese: giorniNelMese
+  };
+}
+
+/**
+ * Aggiorna UI media giorni reali
+ */
+function aggiornaUIMediaGiorniReali(medie, anno, mese) {
+  // Aggiorna periodo (giorni del mese)
+  const periodoElement = document.getElementById('periodoGiorniReali');
+  if (periodoElement) {
+    periodoElement.textContent = `(${medie.giorniMese} giorni)`;
+  }
+  
+  // Aggiorna entrate media
+  const entrateElement = document.getElementById('mediaRealeEntrate');
+  if (entrateElement) {
+    const valore = medie.entrateMedia.toFixed(2);
+    entrateElement.textContent = `€${valore}/giorno`;
+  }
+  
+  // Aggiorna uscite media
+  const usciteElement = document.getElementById('mediaRealeUscite');
+  if (usciteElement) {
+    const valore = medie.usciteMedia.toFixed(2);
+    usciteElement.textContent = `€${valore}/giorno`;
+  }
 }
