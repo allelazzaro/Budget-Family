@@ -91,22 +91,27 @@
 
 .riepilogo-valore.entrate {
   color: #4ade80;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
 }
 
 .riepilogo-valore.uscite {
-  color: #f87171;
+  color: #ff6b6b;
+  text-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
 }
 
 .riepilogo-valore.saldo.positivo {
   color: #4ade80;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
 }
 
 .riepilogo-valore.saldo.negativo {
-  color: #f87171;
+  color: #ff6b6b;
+  text-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
 }
 
 .riepilogo-valore.saldo.zero {
   color: #fbbf24;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
 }
 
 .riepilogo-footer {
@@ -234,10 +239,12 @@
 
 .transazione-importo.entrata {
   color: #4ade80;
+  text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
 }
 
 .transazione-importo.uscita {
-  color: #f87171;
+  color: #ff6b6b;
+  text-shadow: 0 0 8px rgba(255, 107, 107, 0.4);
 }
 
 .dropdown-lista-vuota {
@@ -349,17 +356,32 @@
   color: #4ade80;
   font-family: 'Courier New', monospace;
   font-size: 1.05em;
+  text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
 }
 
 .media-valore.uscite strong {
-  color: #f87171;
+  color: #ff6b6b;
   font-family: 'Courier New', monospace;
   font-size: 1.05em;
+  text-shadow: 0 0 8px rgba(255, 107, 107, 0.4);
 }
 
 .media-separator {
   color: rgba(255, 255, 255, 0.5);
   font-weight: 300;
+}
+
+.media-note {
+  font-size: 0.75em;
+  opacity: 0.7;
+  font-style: italic;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.media-row-reale {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
 }
 
 /* Animazione aggiornamento */
